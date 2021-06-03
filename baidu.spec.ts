@@ -1,3 +1,3 @@
 import { trans } from './baibu.ts';
 
-console.log(await trans(Deno.args[0]));
+for (const en of Deno.args) console.log(await trans(en));
