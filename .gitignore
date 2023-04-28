@@ -1,3 +1,5 @@
 .DS_store
-dict.db
-dict.log
+.env
+logs/
+*.log
+data/
