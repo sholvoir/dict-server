@@ -1,27 +1,21 @@
+// deno-lint-ignore-file no-explicit-any
 import { Handlers } from "$fresh/server.ts";
-import { trans } from '../../lib/baibu.ts';
-import { getSound } from "../../lib/dictionary.ts";
-import * as Dict from '../../lib/dict.ts';
+import { trans } from '/lib/baibu.ts';
+import { getSound } from "/lib/dictionary.ts";
+import { IDict } from "/lib/idict.ts";
 
-const resInit = { headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*"
-}};
-const optionsInit = { headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, GET, PATCH, OPTIONS"
-}};
+const resInit = { headers: { "Content-Type": "application/json" } };
+const key = 'dict.sholvoir.com';
 
 export const handler: Handlers = {
-    OPTIONS(_) {
-        return new Response(undefined, optionsInit);
-    },
     async GET(_req, ctx) {
         const word = decodeURIComponent(ctx.params.word.trim());
-        if (!word) return new Response('Not Found!', { status: 404 });
-        const value = await Dict.get(word);
+        if (!word) return ctx.renderNotFound();
+        const kv = await Deno.openKv();
+        const res = await kv.get([key, word]);
+        const value = res.value as IDict;
         let modified = false;
-        if (!value) return new Response('Not Found!', { status: 404 });
+        if (!value) return ctx.renderNotFound();
         if (!value.trans) {
             value.trans = await trans(word);
             modified = true;
@@ -34,19 +28,22 @@ export const handler: Handlers = {
                 modified = true;
             }
         }
-        if (modified) Dict.patch(word, value);
+        if (modified) kv.set([key, word], value);
         return new Response(JSON.stringify(value), resInit);
     },
     async POST(req, ctx) {
+        const word = decodeURIComponent(ctx.params.word.trim());
         const value = await req.json();
-        value.word = ctx.params.word.trim();
-        const num = await Dict.add(value);
-        return new Response(num, { status: 200 });
+        const kv = await Deno.openKv();
+        await kv.set([key, word], value);
+        return new Response(undefined, { status: 200 });
     },
     async PATCH(req, ctx) {
-        const word = ctx.params.word;
+        const word = decodeURIComponent(ctx.params.word.trim());
         const value = await req.json();
-        const num = await Dict.patch(word, value);
-        return new Response(num.toString(), {status: 200});
+        const kv = await Deno.openKv();
+        const res = await kv.get([key, word]);
+        await kv.set([key, word], {...(res.value as any), ...value});
+        return new Response(undefined, { status: 200 });
     }
 };
