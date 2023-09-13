@@ -10,21 +10,23 @@ export const handler = [
             const res = new Response(undefined, { status: 204 });
             const h = res.headers;
             h.set("Access-Control-Allow-Origin", origin);
-            h.set("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS");
+            h.set("Access-Control-Allow-Methods", "PUT, GET, PATCH");
             return res;
         }
         const res = await ctx.next();
         const h = res.headers;
         h.set("Access-Control-Allow-Origin", origin);
         h.set("Access-Control-Allow-Credentials", "true");
-        h.set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE");
+        h.set("Access-Control-Allow-Methods", "PUT, OPTIONS, GET, PATCH");
         h.set("Access-Control-Allow-Headers",
-            "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+            "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With"
         );
         return res;
     },
     async (req: Request, ctx: MiddlewareHandlerContext) => {
+        if (req.method == 'GET') return await ctx.next();
         const token = getCookies(req.headers).Authorization || req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
+        if (!token) return new Response(undefined, { status: 401 });
         if (token) try { ctx.state.user = { id: (await verifyToken(token)).aud }; } catch {}
         return await ctx.next();
     }

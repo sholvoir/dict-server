@@ -3,13 +3,13 @@ import * as b64 from '$std/encoding/base64.ts';
 
 const key = await crypto.subtle.importKey(
     'raw',
-    b64.decode(Deno.env.get('MEM_KEY')!),
+    b64.decode(Deno.env.get('DICT_KEY')!),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"],
 );
 const tokenHeader: Header = { alg: "HS256", typ: "JWT" };
-const payloadTemplate = { iss: "sholvoir.com", sub: "memword" };
+const payloadTemplate = { iss: "sholvoir.com", sub: "dict" };
 const expire = () => Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60;
 
 export async function createToken(payload: Payload) {

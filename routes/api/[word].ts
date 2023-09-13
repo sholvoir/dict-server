@@ -31,17 +31,19 @@ export const handler: Handlers = {
         if (modified) kv.set([key, word], value);
         return new Response(JSON.stringify(value), resInit);
     },
-    async POST(req, ctx) {
+    async PUT(req, ctx) {
         const word = decodeURIComponent(ctx.params.word.trim());
-        const value = await req.json();
+        if (!word) return ctx.renderNotFound();
         const kv = await Deno.openKv();
+        const value = await req.json();
         await kv.set([key, word], value);
         return new Response(undefined, { status: 200 });
     },
     async PATCH(req, ctx) {
         const word = decodeURIComponent(ctx.params.word.trim());
-        const value = await req.json();
+        if (!word) return ctx.renderNotFound();
         const kv = await Deno.openKv();
+        const value = await req.json();
         const res = await kv.get([key, word]);
         await kv.set([key, word], {...(res.value as any), ...value});
         return new Response(undefined, { status: 200 });
