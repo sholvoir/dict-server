@@ -2,22 +2,24 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $0 from "./routes/_404.tsx";
-import * as $1 from "./routes/_app.tsx";
-import * as $2 from "./routes/api/[word].ts";
-import * as $3 from "./routes/api/_middleware.ts";
-import * as $4 from "./routes/index.tsx";
-import * as $5 from "./routes/init.tsx";
+import * as $0 from "./routes/(root)/_middleware.ts";
+import * as $1 from "./routes/(root)/init.tsx";
+import * as $2 from "./routes/_404.tsx";
+import * as $3 from "./routes/_app.tsx";
+import * as $4 from "./routes/api/[word].ts";
+import * as $5 from "./routes/api/_middleware.ts";
+import * as $6 from "./routes/index.tsx";
 import * as $$0 from "./islands/Lookup.tsx";
 
 const manifest = {
   routes: {
-    "./routes/_404.tsx": $0,
-    "./routes/_app.tsx": $1,
-    "./routes/api/[word].ts": $2,
-    "./routes/api/_middleware.ts": $3,
-    "./routes/index.tsx": $4,
-    "./routes/init.tsx": $5,
+    "./routes/(root)/_middleware.ts": $0,
+    "./routes/(root)/init.tsx": $1,
+    "./routes/_404.tsx": $2,
+    "./routes/_app.tsx": $3,
+    "./routes/api/[word].ts": $4,
+    "./routes/api/_middleware.ts": $5,
+    "./routes/index.tsx": $6,
   },
   islands: {
     "./islands/Lookup.tsx": $$0,
