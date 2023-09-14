@@ -22,11 +22,9 @@ export const handler: Handlers = {
         }
         if (!value.sound) {
             const sound = await getSound(word);
-            if (sound) {
-                value.sound = sound.audio;
-                value.phonetics = sound.text;
-                modified = true;
-            }
+            value.sound = sound.audio;
+            value.phonetic = sound.phonetic;
+            modified = true;
         }
         if (modified) kv.set([key, word], value);
         return new Response(JSON.stringify(value), resInit);

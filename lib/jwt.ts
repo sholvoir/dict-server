@@ -10,7 +10,7 @@ const key = await crypto.subtle.importKey(
 );
 const tokenHeader: Header = { alg: "HS256", typ: "JWT" };
 const payloadTemplate = { iss: "sholvoir.com", sub: "dict" };
-const expire = () => Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60;
+const expire = () => Math.floor(Date.now() / 1000) + 300 * 24 * 60 * 60;
 
 export async function createToken(payload: Payload) {
     return await create(tokenHeader, { ...payloadTemplate, exp: expire(), ...payload }, key);

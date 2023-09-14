@@ -7,6 +7,7 @@ import * as $1 from "./routes/_app.tsx";
 import * as $2 from "./routes/api/[word].ts";
 import * as $3 from "./routes/api/_middleware.ts";
 import * as $4 from "./routes/index.tsx";
+import * as $5 from "./routes/init.tsx";
 import * as $$0 from "./islands/Lookup.tsx";
 
 const manifest = {
@@ -16,6 +17,7 @@ const manifest = {
     "./routes/api/[word].ts": $2,
     "./routes/api/_middleware.ts": $3,
     "./routes/index.tsx": $4,
+    "./routes/init.tsx": $5,
   },
   islands: {
     "./islands/Lookup.tsx": $$0,

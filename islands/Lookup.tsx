@@ -1,66 +1,71 @@
 // deno-lint-ignore-file no-explicit-any
-/// <reference lib="dom" />
 import { useSignal } from "@preact/signals";
 import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 import { IDict } from "/lib/idict.ts";
 
-const baseApi = '/api/dict';
+const baseApi = '/api';
 
-export default function Counter() {
-  const dic = useSignal({ prompt: '', word: '', trans: '', sound: '', phonetics: '' });
-  return (
-    <>
-      <div class="m-1 text-red-500">{prompt}cc</div>
-      <div class="m-1 flex space-x-2">
-        <input type="text" class="grow border px-2" value={dic.value.word} onInput={({target})=>dic.value.word = (target as any).value}/>
-        <button type="button" class="w-20 border rounded-md px-2 bg-blue-800 text-white"
-          onClick={async () => {
-            const res = await fetch(`${baseApi}/${encodeURIComponent(dic.value.word)}`);
-            if (res.ok) {
-              const {trans, sound, phonetics } = await res.json() as IDict;
-              dic.value.phonetics = phonetics!;
-              dic.value.trans = trans!;
-              dic.value.sound = sound!;
-              dic.value.prompt = '';
-            } else {
-              dic.value.prompt = await res.text();
-            }
-          }}>Search</button>
-      </div>
-      <div class="m-1 flex space-x-2">
-        <input type="text" class="border px-2" value={dic.value.phonetics} onInput={({target})=>dic.value.phonetics = (target as any).value} />
-        <input type="text" class="grow border px-2" value={dic.value.trans} onInput={({target})=>dic.value.trans = (target as any).value} />
-      </div>
-      <div class="m-1 flex space-x-2">
-        <input type="text" class="flex-grow-1 border" value={dic.value.sound} onInput={({target})=>dic.value.sound = (target as any).value} />
-        <IconPlayerPlayFilled class="w-6 h-6"  onClick={() => {
-          if (dic.value.sound) {
+export default function Lookup() {
+    const prompt = useSignal('');
+    const word = useSignal('');
+    const trans = useSignal('');
+    const sound = useSignal('');
+    const phonetic = useSignal('');
+    const searchClick = async () => {
+        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`);
+        if (res.ok) {
+            const dic = await res.json() as IDict;
+            phonetic.value = dic.phonetic!;
+            trans.value = dic.trans!;
+            sound.value = dic.sound!;
+            prompt.value = '';
+        } else {
+            prompt.value = await res.text();
+        }
+    }
+    const playClick = () => {
+        if (sound.value) {
             try {
-              (new Audio(dic.value.sound)).play();
-              dic.value.prompt = '';
+                (new Audio(sound.value)).play();
+                prompt.value = '';
             } catch (e) {
-              dic.value.prompt = e.toString();
+                prompt.value = e.toString();
             }
-          } else {
-            dic.value.prompt = 'no sound to play!';
-          }
-        }}/>
-      </div>
-      <div class="m-1 flex space-x-2">
-        <div class="flex-grow"></div>
-        <button type="botton" class="w-20 border rounded-md px-2 bg-blue-800 text-white" onClick={async () => {
-          const res = await fetch(`${baseApi}/${encodeURIComponent(dic.value.word)}`, {
+        } else {
+            prompt.value = 'no sound to play!';
+        }
+    }
+    const updateClick = async () => {
+        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, {
             method: 'PATCH',
             cache: 'no-cache',
-            body: JSON.stringify({trans: dic.value.trans, sound: dic.value.sound, phonetics: dic.value.phonetics})
-          });
-          if (res.ok) {
-            dic.value.prompt = (`success upate word "${dic.value.word}"!`);
-          } else {
-            dic.value.prompt = (await res.text());
-          }
-        }}>Update</button>
-      </div>
-    </>
-  );
+            body: JSON.stringify({ trans: trans.value, sound: sound.value, phonetic: phonetic.value })
+        });
+        if (res.ok) {
+            prompt.value = (`success upate word "${word.value}"!`);
+        } else {
+            prompt.value = (await res.text());
+        }
+    }
+    return (
+        <>
+            <div class="m-1 text-red-500">{prompt}</div>
+            <div class="m-1 flex space-x-2">
+                <input type="text" class="grow border px-2" value={word} onInput={({ target }) => word.value = (target as any).value} />
+                <button type="button" class="w-20 border rounded-md px-2 bg-blue-800 text-white" onClick={searchClick}>Search</button>
+            </div>
+            <div class="m-1 flex space-x-2">
+                <input type="text" class="border px-2" value={phonetic} onInput={({ target }) => phonetic.value = (target as any).value} />
+                <input type="text" class="grow border px-2" value={trans} onInput={({ target }) => trans.value = (target as any).value} />
+            </div>
+            <div class="m-1 flex space-x-2">
+                <input type="text" class="grow border" value={sound} onInput={({ target }) => sound.value = (target as any).value} />
+                <IconPlayerPlayFilled class="w-6 h-6" onClick={playClick} />
+            </div>
+            <div class="m-1 flex space-x-2">
+                <div class="flex-grow"></div>
+                <button type="botton" class="w-20 border rounded-md px-2 bg-blue-800 text-white" onClick={updateClick}>Update</button>
+            </div>
+        </>
+    );
 }
