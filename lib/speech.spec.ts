@@ -1,4 +1,3 @@
-import "$std/dotenv/load.ts";
 import { assertEquals } from '$std/assert/mod.ts';
 import { speech } from './speech.ts';
 
