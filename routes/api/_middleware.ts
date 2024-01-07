@@ -1,6 +1,8 @@
 import { FreshContext } from '$fresh/server.ts';
 import { getCookies } from "$std/http/cookie.ts";
-import { verifyToken } from "../../lib/jwt.ts";
+import { JWT } from "sholvoir/jwt.ts";
+
+export const jwt = await new JWT({ iss: 'sholvoir.com', sub: 'memword' }).importKey(Deno.env.get('DICT_KEY')!);
 
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
@@ -27,7 +29,7 @@ export const handler = [
         const token = getCookies(req.headers).Authorization || req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
         if (!token) return new Response(undefined, { status: 401 });
         try {
-            ctx.state.user = { id: (await verifyToken(token)).aud };
+            ctx.state.user = { id: (await jwt.verifyToken(token))?.aud };
             return await ctx.next();
         } catch (e) {
             return new Response(e, { status: 501 });
