@@ -1,8 +1,9 @@
 import { FreshContext } from '$fresh/server.ts';
 import { getCookies } from "$std/http/cookie.ts";
-import { JWT } from "sholvoir/jwt.ts";
+import { JWT } from "generic-ts/jwt.ts";
 
-export const jwt = await new JWT({ iss: 'sholvoir.com', sub: 'memword' }).importKey(Deno.env.get('DICT_KEY')!);
+export const jwt = new JWT({ iss: 'sholvoir.com', sub: 'memword' });
+await jwt.importKey(Deno.env.get('DICT_KEY')!);
 
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
