@@ -1,9 +1,9 @@
-import { MiddlewareHandlerContext } from '$fresh/server.ts';
+import { FreshContext } from '$fresh/server.ts';
 import { getCookies } from "$std/http/cookie.ts";
-import { verifyToken } from "/lib/jwt.ts";
+import { verifyToken } from "../../lib/jwt.ts";
 
 export const handler = [
-    async (req: Request, ctx: MiddlewareHandlerContext) => {
+    async (req: Request, ctx: FreshContext) => {
         const origin  = req.headers.get('Origin') || '*';
         if (req.method == 'OPTIONS') {
             const res = new Response(undefined, { status: 204 });
@@ -22,7 +22,7 @@ export const handler = [
         );
         return res;
     },
-    async (req: Request, ctx: MiddlewareHandlerContext) => {
+    async (req: Request, ctx: FreshContext) => {
         if (req.method == 'GET') return await ctx.next();
         const token = getCookies(req.headers).Authorization || req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
         if (!token) return new Response(undefined, { status: 401 });

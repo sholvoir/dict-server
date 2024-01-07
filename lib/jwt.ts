@@ -1,9 +1,9 @@
 import { create, Header, Payload, verify } from "djwt";
-import * as b64 from '$std/encoding/base64.ts';
+import { decodeBase64 } from '$std/encoding/base64.ts';
 
 const key = await crypto.subtle.importKey(
     'raw',
-    b64.decode(Deno.env.get('DICT_KEY')!),
+    decodeBase64(Deno.env.get('DICT_KEY')!),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"],
