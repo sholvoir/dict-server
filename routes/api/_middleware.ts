@@ -27,7 +27,8 @@ export const handler = [
     },
     async (req: Request, ctx: FreshContext) => {
         if (req.method == 'GET') return await ctx.next();
-        const token = getCookies(req.headers).Authorization || req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
+        const auth = new URL(req.url).searchParams.get('auth');
+        const token = auth ? decodeURIComponent(auth) : getCookies(req.headers).auth || req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
         if (!token) return new Response(undefined, { status: 401 });
         try {
             ctx.state.user = { id: (await jwt.verifyToken(token))?.aud };
@@ -35,6 +36,5 @@ export const handler = [
         } catch (e) {
             return new Response(e, { status: 501 });
         }
-        
     }
 ];
