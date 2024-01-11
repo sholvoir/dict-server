@@ -1,9 +1,6 @@
 import { FreshContext } from '$fresh/server.ts';
 import { getCookies } from "$std/http/cookie.ts";
-import { JWT } from "generic-ts/jwt.ts";
-
-export const jwt = new JWT({ iss: 'sholvoir.com', sub: 'memword' });
-await jwt.importKey(Deno.env.get('DICT_KEY')!);
+import { jwt } from '../../lib/jwt.ts';
 
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
@@ -26,15 +23,14 @@ export const handler = [
         return res;
     },
     async (req: Request, ctx: FreshContext) => {
-        if (req.method == 'GET') return await ctx.next();
         const auth = new URL(req.url).searchParams.get('auth');
-        const token = auth ? decodeURIComponent(auth) : getCookies(req.headers).auth || req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
-        if (!token) return new Response(undefined, { status: 401 });
+        const token = auth ? decodeURIComponent(auth) :
+            getCookies(req.headers).auth ||
+            req.headers.get("Authorization")?.match(/Bearer (.*)/)?.at(1);
         try {
-            ctx.state.user = { id: (await jwt.verifyToken(token))?.aud };
+            const payload = token && await jwt.verifyToken(token);
+            if (payload) ctx.state.user = payload.aud;
             return await ctx.next();
-        } catch (e) {
-            return new Response(e, { status: 501 });
-        }
+        } catch (e) { return new Response(e, { status: 501 }); }
     }
 ];
