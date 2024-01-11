@@ -1,6 +1,7 @@
 import { Signal, useSignal } from "@preact/signals";
-import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 import { IDict } from "../lib/idict.ts";
+import Cookies from "js-cookie";
+import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
 const baseApi = '/api';
 const noImage = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
@@ -82,6 +83,7 @@ export default function Lookup() {
         </div>
         <div class="justify-end">
             <button type="botton" class="w-20 border rounded-md px-2 bg-blue-800 text-white"
+                disabled = {!Cookies.get('auth')}
                 onClick={handleUpdateClick}>Update</button>
         </div>
     </div>;
