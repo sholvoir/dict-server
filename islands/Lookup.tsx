@@ -82,7 +82,7 @@ export default function Lookup() {
                 onInput={handleInput} />
         </div>
         <div class="justify-end">
-            <button type="botton" class="w-20 border rounded-md px-2 bg-blue-800 text-white"
+            <button type="botton" class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-300"
                 disabled = {!Cookies.get('auth')}
                 onClick={handleUpdateClick}>Update</button>
         </div>
