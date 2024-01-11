@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
 import { Handlers } from "$fresh/server.ts";
-import { trans } from '../../lib/baibu.ts';
-import { getSound } from "../../lib/dictionary.ts";
-import { IDict } from "../../lib/idict.ts";
+import { trans } from '../../../lib/baibu.ts';
+import { getSound } from "../../../lib/dictionary.ts";
+import { IDict } from "../../../lib/idict.ts";
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const key = 'dict.sholvoir.com';
