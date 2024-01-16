@@ -4,7 +4,10 @@ import { trans } from '../../../lib/baibu.ts';
 import { getSound } from "../../../lib/dictionary.ts";
 import { IDict } from "../../../lib/idict.ts";
 
-const resInit = { headers: { "Content-Type": "application/json" } };
+const resInit = { headers: {
+    "Content-Type": "application/json",
+    "Cache-Control": `max-age=${24*60*60}`
+} };
 const key = 'dict.sholvoir.com';
 
 export const handler: Handlers = {
