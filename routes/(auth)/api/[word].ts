@@ -23,10 +23,10 @@ export const handler: Handlers = {
             value.trans = await trans(word);
             modified = true;
         }
-        if (!value.sound) {
+        if (!value.sound || !value.phonetic) {
             const sound = await getSound(word);
-            value.sound = sound.audio;
-            value.phonetic = sound.phonetic;
+            if (!value.sound) value.sound = sound.audio;
+            if (!value.phonetic) value.phonetic = sound.phonetic;
             modified = true;
         }
         if (modified) kv.set([key, word], value);
