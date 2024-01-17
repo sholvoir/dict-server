@@ -4,10 +4,7 @@ import { trans } from '../../../lib/baibu.ts';
 import { getSound } from "../../../lib/dictionary.ts";
 import { IDict } from "../../../lib/idict.ts";
 
-const resInit = { headers: {
-    "Content-Type": "application/json",
-    "Cache-Control": `max-age=${24*60*60}`
-} };
+const resInit = { headers: { "Content-Type": "application/json" } };
 const key = 'dict.sholvoir.com';
 const badRequest = new Response(undefined, { status: STATUS_CODE.BadRequest });
 const notFound = new Response(undefined, { status: STATUS_CODE.NotFound });
