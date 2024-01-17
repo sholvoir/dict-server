@@ -9,6 +9,7 @@ const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
 
 export default function Lookup() {
+    const auth = Cookies.get('auth');
     const inputs: Record<InputName, Signal<string>> = {};
     for (const name of inputNames) inputs[name] = useSignal('');
     const tips = useSignal('');
@@ -45,7 +46,14 @@ export default function Lookup() {
         const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`,
             { method: 'PATCH', cache: 'no-cache', body: JSON.stringify(dict) }
         );
-        if (res.ok) showTips(`success upate word "${inputs['word'].value}"!`);
+        if (res.ok) showTips(`success update word "${inputs['word'].value}"!`);
+        else showTips('Network Error!');
+    };
+    const handleDeleteClick = async () => {
+        const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`,
+            { method: 'DELETE', cache: 'no-cache' }
+        );
+        if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips('Network Error!');
     }
     return <div class="[&>div]:m-1 [&>div]:flex [&>div]:gap-2">
@@ -68,7 +76,7 @@ export default function Lookup() {
             <img class="max-h-[480px] max-w-[720px]" src={inputs['pic'].value || noImage}/>
         </div>
         <div>
-            <textarea name="pic" placeholder="pic" class="grow border px-2"
+            <textarea name="pic" placeholder="pic" class="grow border h-48 px-2"
                 value={inputs['pic'].value} onInput={handleInput}/>
         </div>
         <div>
@@ -77,9 +85,10 @@ export default function Lookup() {
             <button onClick={handlePlayClick}><IconPlayerPlayFilled class="w-6 h-6"/></button>
         </div>
         <div class="justify-end">
-            <button type="botton" class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-300"
-                disabled = {!Cookies.get('auth')}
-                onClick={handleUpdateClick}>Update</button>
+            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-300"
+                type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleDeleteClick}>Delete</button>
+            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-300"
+                type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleUpdateClick}>Update</button>
         </div>
     </div>;
 }
