@@ -56,38 +56,30 @@ export default function Lookup() {
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips('Network Error!');
     }
-    return <div class="[&>div]:m-1 [&>div]:flex [&>div]:gap-2">
+    return <div class="flex flex-col gap-2">
         <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md" onClick={hideTips}>{tips.value}</div>
-        <div>
-            <input type="text" name="word" placeholder="word"
-                class="grow border px-2" value={inputs['word'].value}
-                onInput={handleInput} onChange={handleSearchClick}/>
-            <button type="button" class="w-20 border rounded-md px-2 bg-blue-800 text-white"
-                onClick={handleSearchClick}>Search</button>
-        </div>
-        <div>
-            <input type="text" name="phonetic" placeholder="phonetic"
-                class="border px-2 mr-1" value={inputs['phonetic'].value} onInput={handleInput}/>
-            <input type="text" name="trans" placeholder="trans"
-                class="grow border px-2" value={inputs['trans'].value}
-                onInput={handleInput} />
-        </div>
-        <div class="justify-center">
+        <input type="text" class="block w-full border px-2" name="word" placeholder="word"
+            value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
+        <input type="text" class="block w-full border px-2" name="phonetic" placeholder="phonetic"
+            value={inputs['phonetic'].value} onInput={handleInput}/>
+        <input type="text" class="block w-full border px-2" name="trans" placeholder="trans"
+            value={inputs['trans'].value} onInput={handleInput}/>
+        <div class="flex gap-2">
             <img class="max-h-[480px] max-w-[720px]" src={inputs['pic'].value || noImage}/>
-        </div>
-        <div>
-            <textarea name="pic" placeholder="pic" class="grow border h-48 px-2"
+            <textarea name="pic" placeholder="pic" class="grow border px-2"
                 value={inputs['pic'].value} onInput={handleInput}/>
         </div>
-        <div>
-            <textarea name="sound" placeholder="sound" class="grow border h-48 px-2"
-                value={inputs['sound'].value} onInput={handleInput}/>
-            <button onClick={handlePlayClick}><IconPlayerPlayFilled class="w-6 h-6"/></button>
-        </div>
-        <div class="justify-end">
-            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-300"
+        <textarea name="sound" placeholder="sound" class="block w-full border h-48 px-2"
+            value={inputs['sound'].value} onInput={handleInput}/>
+        <div class="w-full flex">
+            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
+                type="button" disabled={!inputs['word'].value} onClick={handleSearchClick}>Search</button>
+            <div class="grow"/>
+            <button class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
+                disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></button>
+            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleDeleteClick}>Delete</button>
-            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-300"
+            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleUpdateClick}>Update</button>
         </div>
     </div>;
