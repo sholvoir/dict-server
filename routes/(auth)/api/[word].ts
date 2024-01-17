@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { Handlers, STATUS_CODE } from "$fresh/server.ts";
 import { trans } from '../../../lib/baibu.ts';
 import { getSound } from "../../../lib/dictionary.ts";
@@ -17,8 +16,8 @@ export const handler: Handlers = {
         const kv = await Deno.openKv();
         const res = await kv.get([key, word]);
         const value = res.value as IDict;
-        let modified = false;
         if (!value) return notFound;
+        let modified = false;
         if (!value.trans) {
             value.trans = await trans(word);
             modified = true;
@@ -48,7 +47,7 @@ export const handler: Handlers = {
         const kv = await Deno.openKv();
         const value = await req.json();
         const res = await kv.get([key, word]);
-        await kv.set([key, word], {...(res.value as any), ...value});
+        await kv.set([key, word], {...(res.value as IDict), ...value});
         kv.close();
         return new Response(undefined, { status: 200 });
     },

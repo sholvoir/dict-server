@@ -26,11 +26,11 @@ export default function Lookup() {
         const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`);
         if (res.ok) {
             const dic = await res.json() as IDict;
-            inputs['phonetic'].value = dic.phonetic!;
+            inputs['pic'].value = dic.pic!
             inputs['trans'].value = dic.trans!;
             inputs['sound'].value = dic.sound!;
-            inputs['pic'].value = dic.pic!
-        } else showTips(await res.text());
+            inputs['phonetic'].value = dic.phonetic!;
+        } else showTips(res.statusText);
     }
     const handlePlayClick = () => {
         if (!inputs['sound'].value) return showTips('no sound to play!');
@@ -39,10 +39,10 @@ export default function Lookup() {
     }
     const handleUpdateClick = async () => {
         const dict: IDict = {};
-        if (inputs['pic'].value) dict.trans = inputs['pic'].value;
+        if (inputs['pic'].value) dict.pic = inputs['pic'].value;
         if (inputs['trans'].value) dict.trans = inputs['trans'].value;
-        if (inputs['sound'].value) dict.trans = inputs['sound'].value;
-        if (inputs['phonetic'].value) dict.trans = inputs['phonetic'].value;
+        if (inputs['sound'].value) dict.sound = inputs['sound'].value;
+        if (inputs['phonetic'].value) dict.phonetic = inputs['phonetic'].value;
         const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`,
             { method: 'PATCH', cache: 'no-cache', body: JSON.stringify(dict) }
         );
@@ -74,13 +74,13 @@ export default function Lookup() {
         <div class="w-full flex">
             <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="button" disabled={!inputs['word'].value} onClick={handleSearchClick}>Search</button>
-            <div class="grow"/>
-            <button class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
-                disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></button>
             <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleDeleteClick}>Delete</button>
             <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleUpdateClick}>Update</button>
+            <div class="grow"/>
+            <button class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
+                disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></button>
         </div>
     </div>;
 }
