@@ -1,7 +1,9 @@
 import { Handlers, STATUS_CODE } from "$fresh/server.ts";
 import { trans } from '../../../lib/baibu.ts';
-import { getSound } from "../../../lib/dictionary.ts";
+import { getSound as dictGetSound } from "../../../lib/dictionary.ts";
+import { getSound as websterGetSound } from "../../../lib/webster.ts";
 import { IDict } from "../../../lib/idict.ts";
+import { speech } from '../../../lib/speech.ts';
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const key = 'dict.sholvoir.com';
@@ -22,11 +24,25 @@ export const handler: Handlers = {
             value.trans = await trans(word);
             modified = true;
         }
+        if (!value.sound) {
+            const sound = await websterGetSound(word);
+            if (sound) {
+                value.sound = sound;
+                modified = true;
+            }
+        }
         if (!value.sound || !value.phonetic) {
-            const sound = await getSound(word);
-            if (!value.sound) value.sound = sound.audio;
-            if (!value.phonetic) value.phonetic = sound.phonetic;
+            const sound = await dictGetSound(word);
+            if (!value.sound) value.sound = sound?.audio;
+            if (!value.phonetic) value.phonetic = sound?.phonetic;
             modified = true;
+        }
+        if (!value.sound){
+            const sound = await speech(word);
+            if (sound) {
+                value.sound = sound;
+                modified = true;
+            }
         }
         if (modified) await kv.set([key, word], value);
         kv.close();
