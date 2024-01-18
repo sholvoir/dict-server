@@ -1,5 +1,6 @@
 import { Signal, useSignal } from "@preact/signals";
 import { IDict } from "../lib/idict.ts";
+import { blobToBase64 } from "../lib/blob.ts";
 import Cookies from "js-cookie";
 import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
@@ -55,6 +56,13 @@ export default function Lookup() {
         );
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips('Network Error!');
+    };
+    const handleEncodeClick = async () => {
+        if (inputs['sound'].value.startsWith('http')) {
+            const resp = await fetch(inputs['sound'].value);
+            if (resp.ok) inputs['sound'].value = await blobToBase64(await resp.blob());
+            else showTips('Can not download.');
+        } else showTips('Can not do it');
     }
     return <div class="flex flex-col gap-2">
         <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md" onClick={hideTips}>{tips.value}</div>
@@ -78,6 +86,8 @@ export default function Lookup() {
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleDeleteClick}>Delete</button>
             <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleUpdateClick}>Update</button>
+            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
+                type="botton" disabled={!inputs['sound'].value} onClick={handleEncodeClick}>Encode</button>
             <div class="grow"/>
             <button class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
                 disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></button>
