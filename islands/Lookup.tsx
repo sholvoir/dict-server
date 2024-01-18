@@ -1,3 +1,4 @@
+import { useRef } from "preact/hooks";
 import { Signal, useSignal } from "@preact/signals";
 import { IDict } from "../lib/idict.ts";
 import { blobToBase64 } from "../lib/blob.ts";
@@ -14,6 +15,7 @@ export default function Lookup() {
     const inputs: Record<InputName, Signal<string>> = {};
     for (const name of inputNames) inputs[name] = useSignal('');
     const tips = useSignal('');
+    const player = useRef<HTMLAudioElement>(null);
     const showTips = (content: string) => {
         tips.value = content;
         setTimeout(hideTips, 3000);
@@ -35,8 +37,7 @@ export default function Lookup() {
     }
     const handlePlayClick = () => {
         if (!inputs['sound'].value) return showTips('no sound to play!');
-        try { (new Audio(inputs['sound'].value)).play(); }
-        catch (e) { showTips(e.toString()); }
+        player.current?.play();
     }
     const handleUpdateClick = async () => {
         const dict: IDict = {};
@@ -92,5 +93,6 @@ export default function Lookup() {
             <button class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
                 disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></button>
         </div>
+        <audio ref={player} src={inputs['sound'].value}/>
     </div>;
 }
