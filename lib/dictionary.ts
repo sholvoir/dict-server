@@ -8,18 +8,22 @@ export async function getSound(word: string) {
     const entries = await res.json();
     const phonetics = entries.flatMap((e: any) => e.phonetics) as any[];
     if (!phonetics.length) return undefined;
-    let pho = { score: 0 } as any;
+    let pho = { score: 5, text: entries[0].phonetic } as any;
     for (const ph of phonetics) {
-        if (!ph.audio) continue;
         let score = 10;
-        const m = ph.audio.match(filenameRegExp);
-        if (!m) continue;
-        const fileName = m[1] as string;
-        if (fileName.includes('-us')) score++;
-        if (fileName.includes('-uk')) score--;
-        if (fileName.includes('-au')) score--;
-        if (fileName.includes('-stressed')) score++;
-        if (fileName.includes('-unstressed')) score--;
+        if (ph.audio) {
+            const m = ph.audio.match(filenameRegExp);
+            if (m) {
+                const fileName = m[1] as string;
+                if (fileName) {
+                    if (fileName.includes('-us')) score++;
+                    if (fileName.includes('-uk')) score--;
+                    if (fileName.includes('-au')) score--;
+                    if (fileName.includes('-stressed')) score++;
+                    if (fileName.includes('-unstressed')) score--;
+                } else score = 6;
+            } else score = 6;
+        } else score = 6;
         ph.score = score;
         if (score > pho.score) pho = ph;
     }
