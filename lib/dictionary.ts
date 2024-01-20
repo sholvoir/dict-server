@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
-const filenameRegExp = new RegExp(`^https://.+?/([\\w'_-]+.mp3)$`)
+const filenameRegExp = new RegExp(`^https://.+?/([\\w'_-]+.(mp3|ogg))$`);
 
 export async function getSound(word: string) {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
@@ -12,7 +12,9 @@ export async function getSound(word: string) {
     for (const ph of phonetics) {
         if (!ph.audio) continue;
         let score = 10;
-        const fileName = ph.audio.match(filenameRegExp)[1] as string;
+        const m = ph.audio.match(filenameRegExp);
+        if (!m) continue;
+        const fileName = m[1] as string;
         if (fileName.includes('-us')) score++;
         if (fileName.includes('-uk')) score--;
         if (fileName.includes('-au')) score--;
