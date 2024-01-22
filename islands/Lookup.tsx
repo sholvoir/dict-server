@@ -65,11 +65,11 @@ export default function Lookup() {
             value={inputs['phonetic'].value} onInput={handleInput}/>
         <input type="text" class="block w-full border px-2" name="trans" placeholder="trans"
             value={inputs['trans'].value} onInput={handleInput}/>
-        <div class="flex gap-2">
+        {/*<div class="flex gap-2">
             <img class="max-h-[480px] max-w-[720px]" src={inputs['pic'].value || noImage}/>
             <textarea name="pic" placeholder="pic" class="grow border px-2"
                 value={inputs['pic'].value} onInput={handleInput}/>
-        </div>
+        </div>*/}
         <textarea name="sound" placeholder="sound" class="block w-full border h-48 px-2"
             value={inputs['sound'].value} onInput={handleInput}/>
         <div class="w-full flex">
