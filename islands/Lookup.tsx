@@ -28,10 +28,10 @@ export default function Lookup() {
         const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`);
         if (res.ok) {
             const dic = await res.json() as IDict;
-            inputs['pic'].value = dic.pic!
-            inputs['trans'].value = dic.trans!;
-            inputs['sound'].value = dic.sound!;
-            inputs['phonetic'].value = dic.phonetic!;
+            inputs['pic'].value = dic.pic ?? ''
+            inputs['trans'].value = dic.trans ?? '';
+            inputs['sound'].value = dic.sound ?? '';
+            inputs['phonetic'].value = dic.phonetic ?? '';
         } else showTips(res.statusText);
     }
     const handlePlayClick = () => {
@@ -57,7 +57,7 @@ export default function Lookup() {
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips('Network Error!');
     };
-    return <div class="flex flex-col gap-2">
+    return <div class="relative flex flex-col gap-2">
         <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md" onClick={hideTips}>{tips.value}</div>
         <input type="text" class="block w-full border px-2" name="word" placeholder="word"
             value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
