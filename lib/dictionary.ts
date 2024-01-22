@@ -2,7 +2,7 @@
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 const filenameRegExp = new RegExp(`^https://.+?/([\\w'_-]+.(mp3|ogg))$`);
 
-export async function getSound(word: string) {
+export async function sound(word: string) {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
     if (!res.ok) return undefined;
     const entries = await res.json();
@@ -30,4 +30,4 @@ export async function getSound(word: string) {
     return { phonetic: pho.text, audio: pho.audio };
 }
 
-if (import.meta.main) console.log(await getSound(Deno.args[0]));
+if (import.meta.main) console.log(await sound(Deno.args[0]));

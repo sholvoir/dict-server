@@ -13,3 +13,5 @@ export async function speech(text: string){
         return `data:audio/mpeg;base64,${result.data.toString('base64')}`;
     }
 }
+
+if (import.meta.main) for (const text of Deno.args) console.log(await speech(text));

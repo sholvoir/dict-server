@@ -16,3 +16,5 @@ export async function trans(en: string): Promise<string|undefined> {
         return result.trans_result && result.trans_result[0].dst;
     }
 }
+
+if (import.meta.main) for (const en of Deno.args) console.log(await trans(en));
