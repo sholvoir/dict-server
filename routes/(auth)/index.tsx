@@ -17,7 +17,7 @@ export const handler = async (_req: Request, ctx: FreshContext) => {
   return resp;
 }
 
-export default () => <div class="p-4 mx-auto max-w-screen-md">
+export default () => <div class="p-2 mx-auto max-w-screen-md">
   <img src="/dict.svg" class="w-32 h-32" />
   <Lookup />
 </div>;
