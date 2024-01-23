@@ -1,14 +1,17 @@
 // deno-lint-ignore-file no-explicit-any
+import { IDict } from "./idict.ts";
+
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 const filenameRegExp = new RegExp(`^https://.+?/([\\w'_-]+.(mp3|ogg))$`);
 
-export async function sound(word: string) {
+export async function getPhoneticSound(word: string): Promise<IDict> {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
-    if (!res.ok) return undefined;
+    if (!res.ok) return {};
     const entries = await res.json();
     const phonetics = entries.flatMap((e: any) => e.phonetics) as any[];
-    if (!phonetics.length) return undefined;
-    let pho = { score: 5, text: entries[0].phonetic } as any;
+    const result: IDict = { phonetic: entries?.[0]?.phonetic };
+    if (!phonetics.length) return result;
+    let oscore = 5;
     for (const ph of phonetics) {
         let score = 10;
         if (ph.audio) {
@@ -24,10 +27,13 @@ export async function sound(word: string) {
                 } else score = 6;
             } else score = 6;
         } else score = 6;
-        ph.score = score;
-        if (score > pho.score) pho = ph;
+        if (score > oscore) {
+            if (ph.text) result.phonetic = ph.text;
+            if (ph.audio) result.sound = ph.audio;
+            oscore = score;
+        }
     }
-    return { phonetic: pho.text, audio: pho.audio };
+    return result;
 }
 
-if (import.meta.main) console.log(await sound(Deno.args[0]));
+if (import.meta.main) console.log(await getPhoneticSound(Deno.args[0]));

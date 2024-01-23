@@ -1,10 +1,10 @@
 import { Handlers, STATUS_CODE } from "$fresh/server.ts";
 import { IDict } from "../../../lib/idict.ts";
-import { trans as baiduTrans } from '../../../lib/baibu.ts';
-import { trans as youdaoTrans } from '../../../lib/youdao.ts';
-import { sound as dictGetSound } from "../../../lib/dictionary.ts";
-import { sound as websterGetSound } from "../../../lib/webster.ts";
-import { speech as baiduSpeech } from '../../../lib/baidu-aip.ts';
+import { getTrans as baiduTrans } from '../../../lib/baibu.ts';
+import { getPhoneticTrans as youdaoPhoneticTrans } from '../../../lib/youdao.ts';
+import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
+import { getSound as websterSound } from "../../../lib/webster.ts";
+import { getSound as baiduSound } from '../../../lib/baidu-aip.ts';
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const key = 'dict.sholvoir.com';
@@ -21,15 +21,19 @@ export const handler: Handlers = {
         const value = res.value as IDict;
         if (!value) return notFound;
         let modified = false;
-        if (!value.trans && (value.trans = await youdaoTrans(word))) modified = true;
-        if (!value.trans && (value.trans = await baiduTrans(word))) modified = true;
-        if (!value.sound && (value.sound = await websterGetSound(word))) modified = true;
-        if (!value.sound || !value.phonetic) {
-            const sound = await dictGetSound(word);
-            if (!value.sound && (value.sound = sound?.audio)) modified = true;
-            if (!value.phonetic && (value.phonetic = sound?.phonetic)) modified = true;
+        if (!value.trans || !value.phonetic) {
+            const dict = await youdaoPhoneticTrans(word);
+            if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
+            if (!value.trans && (value.trans = dict.trans)) modified = true;
         }
-        if (!value.sound && (value.sound = await baiduSpeech(word))) modified = true;
+        if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
+        if (!value.sound || !value.phonetic) {
+            const dict = await dictPhoneticSound(word);
+            if (!value.sound && (value.sound = dict.sound)) modified = true;
+            if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
+        }
+        if (!value.trans && (value.trans = (await baiduTrans(word)).trans)) modified = true;
+        if (!value.sound && (value.sound = (await baiduSound(word)).sound)) modified = true;
         if (modified) await kv.set([key, word], value);
         kv.close();
         return new Response(JSON.stringify(value), resInit);
