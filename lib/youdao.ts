@@ -2,6 +2,7 @@
 import { IDict } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
+const refine = (o?: string) => o?.replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll(' ', '');
 
 export async function getPhoneticTrans(en: string): Promise<IDict> {
     const resp = await fetch(`${baseUrl}?q=${en}`);
@@ -9,17 +10,13 @@ export async function getPhoneticTrans(en: string): Promise<IDict> {
     if (!resp.ok) return result;
     const root = await resp.json();
     const trs = root.individual?.trs;
-    if (trs && trs.length)
-        result.trans = trs.map((tr: any) => 
-            `${tr.pos}${tr.tran?.replaceAll('，', ',').replaceAll('；',';')}`).join(' ');
+    if (trs && trs.length) result.trans = trs.map((tr: any) => `${tr.pos}${refine(tr.tran)}`).join(' ');
     const p = root.ec?.word?.[0]?.usphone?.split('; ')[0];
     if (p) result.phonetic = `/${p}/`;
     if (!result.trans)
         result.trans = root.ec?.word?.[0]?.trs?.map((x: any) => 
-            x.tr?.map((y: any) => 
-                y.l?.i?.join(' ')
-            ).join(' ')
-        ).join(' ').replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll('. ', '.');
+            x.tr?.map((y: any) => y.l?.i?.map(refine).join(' ')).join(' ')
+        ).join(' ');
     return result;
 }
 
