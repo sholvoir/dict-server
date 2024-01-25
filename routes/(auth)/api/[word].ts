@@ -1,10 +1,8 @@
 import { Handlers, STATUS_CODE } from "$fresh/server.ts";
 import { IDict } from "../../../lib/idict.ts";
-import { getTrans as baiduTrans } from '../../../lib/baidu.ts';
 import { getPhoneticTrans as youdaoPhoneticTrans } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
-import { getSound as baiduSound } from '../../../lib/baidu-aip.ts';
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const key = 'dict.sholvoir.com';
@@ -34,8 +32,6 @@ export const handler: Handlers = {
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
             }
-            if (!value.trans && (value.trans = (await baiduTrans(word)).trans)) modified = true;
-            if (!value.sound && (value.sound = (await baiduSound(word)).sound)) modified = true;
             if (modified) await kv.set([key, word], value);
             kv.close();
             return new Response(JSON.stringify(value), resInit);
