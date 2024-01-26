@@ -1,6 +1,7 @@
 import { IDict } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
+const pslipt = /[,;] /;
 const refine = (o?: string) => o?.replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll(' ', '');
 const abbr = (partofspeech?: string) => {
     if (!partofspeech) return '';
@@ -22,7 +23,7 @@ export async function getAll(en: string): Promise<IDict> {
     if (!resp.ok) return result;
     const root = await resp.json();
     if (root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) for (const x of root.collins_primary.gramcat) {
-        if (!result.phonetic) result.phonetic = x.pronunciation;
+        if (!result.phonetic) result.phonetic = `/${x.pronunciation}/`;
         if (!result.sound) result.sound = x.audiourl;
         if (!result.trans) {
             const ts = [];
@@ -32,11 +33,14 @@ export async function getAll(en: string): Promise<IDict> {
             if (ts.length) result.trans = `${abbr(x.partofspeech)}${ts.join(';')}`;
         }
     }
-    if ((!result.phonetic || !result.trans) && root.collins?.collins_entries) {
+    if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}</b>.+[\.\?] (.+?)$`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
-            if (!result.phonetic) result.phonetic = x.phonetic;
+            if (!result.phonetic) {
+                const p = x.phonetic.split(pslipt)[0];
+                if (p) result.phonetic = `/${p}/`;
+            }
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
                     if (z.headword && z.headword !== en) continue;
@@ -51,7 +55,7 @@ export async function getAll(en: string): Promise<IDict> {
         const ts = [];
         for (const x of root.ec?.word) {
             if (!result.phonetic) {
-                const p = x.usphone?.split('; ')[0];
+                const p = x.usphone?.split(pslipt)[0];
                 if (p) result.phonetic = `/${p}/`;
             }
             if (x.trs?.length) for (const y of x.trs) {
@@ -72,7 +76,7 @@ export async function getAll(en: string): Promise<IDict> {
         if (ts.length) result.trans = ts.join('\n');
     }
     if (!result.phonetic && root.simple?.word?.length) for (const x of root.simple?.word) {
-        if (!result.phonetic) result.phonetic = x.usphone;
+        if (!result.phonetic) result.phonetic = `/${x.usphone}/`;
     }
     return result;
 }
