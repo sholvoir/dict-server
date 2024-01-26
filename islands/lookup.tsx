@@ -57,8 +57,8 @@ export default function Lookup() {
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips('Network Error!');
     };
-    return <div class="flex flex-col gap-2">
-        <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md [&>*]:w-full [&>*]:px-2 [&>input]:border [&>textarea]:border" onClick={hideTips}>{tips.value}</div>
+    return <div class="flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
+        <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
         <textarea name="trans" placeholder="trans" class="h-32" value={inputs['trans'].value} onInput={handleInput}/>
@@ -68,16 +68,16 @@ export default function Lookup() {
                 value={inputs['pic'].value} onInput={handleInput}/>
         </div>*/}
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
-        <div class="w-full flex">
-            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
+        <div class="w-full flex [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
+            <button class="disabled:opacity-50 disabled:bg-gray-500"
                 type="button" disabled={!inputs['word'].value} onClick={handleSearchClick}>Search</button>
-            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
+            <button class="disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleDeleteClick}>Delete</button>
-            <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
+            <button class="disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleUpdateClick}>Update</button>
             <div class="grow"/>
-            <button class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
-                disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></button>
+            <menu class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
+                disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></menu>
         </div>
         <audio ref={player} src={inputs['sound'].value}/>
     </div>;
