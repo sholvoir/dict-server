@@ -39,11 +39,12 @@ export default function Lookup() {
         player.current?.play();
     }
     const handleUpdateClick = async () => {
-        const dict: IDict = {};
-        if (inputs['pic'].value) dict.pic = inputs['pic'].value;
-        if (inputs['trans'].value) dict.trans = inputs['trans'].value;
-        if (inputs['sound'].value) dict.sound = inputs['sound'].value;
-        if (inputs['phonetic'].value) dict.phonetic = inputs['phonetic'].value;
+        const dict: IDict = {
+            pic: inputs['pic'].value,
+            trans: inputs['trans'].value,
+            sound: inputs['sound'].value,
+            phonetic: inputs['phonetic'].value
+        };
         const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`,
             { method: 'PATCH', cache: 'no-cache', body: JSON.stringify(dict) }
         );
@@ -76,8 +77,8 @@ export default function Lookup() {
             <button class="disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleUpdateClick}>Update</button>
             <div class="grow"/>
-            <menu class="disabled:opacity-50" type="botton" onClick={handlePlayClick}
-                disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></menu>
+            <menu class="aira-disabled:opacity-50" type="botton" onClick={handlePlayClick}
+                aria-disabled={!inputs['sound'].value}><IconPlayerPlayFilled class="w-6 h-6"/></menu>
         </div>
         <audio ref={player} src={inputs['sound'].value}/>
     </div>;
