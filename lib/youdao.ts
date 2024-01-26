@@ -28,7 +28,7 @@ export async function getAll(en: string): Promise<IDict> {
             if (x.senses?.length) for (const y of x.senses) {
                 ts.push(refine(y.word));
             }
-            if (ts.length) result.trans = `${abbr(x.partofspeech)}${ts.join(',')}`;
+            if (ts.length) result.trans = `${abbr(x.partofspeech)}${ts.join(';')}`;
         }
     }
     if ((!result.phonetic || !result.trans) && root.collins?.collins_entries) {
