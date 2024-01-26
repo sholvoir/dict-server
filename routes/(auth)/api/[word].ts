@@ -1,6 +1,6 @@
 import { Handlers, STATUS_CODE } from "$fresh/server.ts";
 import { IDict } from "../../../lib/idict.ts";
-import { getPhoneticTrans as youdaoPhoneticTrans } from '../../../lib/youdao.ts';
+import { getAll as youdaoAll } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
 
@@ -21,12 +21,13 @@ export const handler: Handlers = {
             const value = res.value as IDict;
             if (!value) return notFound;
             let modified = false;
-            if (!value.trans || !value.phonetic) {
-                const dict = await youdaoPhoneticTrans(word);
+            if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
+            if (!value.trans || !value.phonetic || !value.sound) {
+                const dict = await youdaoAll(word);
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
                 if (!value.trans && (value.trans = dict.trans)) modified = true;
+                if (!value.sound && (value.sound = dict.sound)) modified = true;
             }
-            if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
             if (!value.sound || !value.phonetic) {
                 const dict = await dictPhoneticSound(word);
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
