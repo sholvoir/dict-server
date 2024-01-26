@@ -32,7 +32,7 @@ export async function getAll(en: string): Promise<IDict> {
         }
     }
     if ((!result.phonetic || !result.trans) && root.collins?.collins_entries) {
-        const collinsTran = new RegExp(`<b>${en}</b>.+ (.+?)$`);
+        const collinsTran = new RegExp(`<b>${en}</b>.+ (.+?)$`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
             if (!result.phonetic) result.phonetic = x.phonetic;
