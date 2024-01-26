@@ -2,6 +2,7 @@ import { IDict } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const pslipt = /[,;] /;
+const collinsTail = /(?<=[\.\?] )([\W; ]+?)$/;
 const refine = (o?: string) => o?.replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll(' ', '');
 const abbr = (partofspeech?: string) => {
     if (!partofspeech) return '';
@@ -34,7 +35,7 @@ export async function getAll(en: string): Promise<IDict> {
         }
     }
     if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
-        const collinsTran = new RegExp(`<b>${en}</b>.+[\.\?] (.+?)$`, 'i');
+        const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
             if (!result.phonetic) {
@@ -44,8 +45,10 @@ export async function getAll(en: string): Promise<IDict> {
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
                     if (z.headword && z.headword !== en) continue;
-                    const m = z.tran?.match(collinsTran);
-                    if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
+                    if (z.tran?.match(collinsTran)) {
+                        const m = z.tran.match(collinsTail);
+                        if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
+                    }
                 }
             }
         }
