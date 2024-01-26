@@ -10,13 +10,11 @@ export async function getPhoneticTrans(en: string): Promise<IDict> {
     if (!resp.ok) return result;
     const root = await resp.json();
     const trs = root.individual?.trs;
-    if (trs && trs.length) result.trans = trs.map((tr: any) => `${tr.pos}${refine(tr.tran)}`).join(' ');
+    if (trs && trs.length) result.trans = trs.map((tr: any) => `${tr.pos}${refine(tr.tran)}`).join('\n');
     const p = root.ec?.word?.[0]?.usphone?.split('; ')[0];
     if (p) result.phonetic = `/${p}/`;
-    if (!result.trans)
-        result.trans = root.ec?.word?.[0]?.trs?.map((x: any) => 
-            x.tr?.map((y: any) => y.l?.i?.map(refine).join(' ')).join(' ')
-        ).join(' ');
+    !result.trans && (result.trans = root.ec?.word?.[0]?.trs?.map((x: any) => 
+        x.tr?.map((y: any) => y.l?.i?.map(refine).join('\n')).join('\n')).join('\n'));
     return result;
 }
 
