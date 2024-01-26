@@ -20,7 +20,7 @@ export async function getAll(en: string): Promise<IDict> {
     const result: IDict = {};
     if (!resp.ok) return result;
     const root = await resp.json();
-    if (root.collins_primary?.gramcat?.length) for (const x of root.collins_primary.gramcat) {
+    if (root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) for (const x of root.collins_primary.gramcat) {
         if (!result.phonetic) result.phonetic = x.pronunciation;
         if (!result.sound) result.sound = x.audiourl;
         if (!result.trans) {
