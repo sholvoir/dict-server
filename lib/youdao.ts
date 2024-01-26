@@ -38,6 +38,7 @@ export async function getAll(en: string): Promise<IDict> {
             if (!result.phonetic) result.phonetic = x.phonetic;
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
+                    if (z.headword && z.headword !== en) continue;
                     const m = z.tran?.match(collinsTran);
                     if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
                 }
