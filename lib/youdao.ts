@@ -2,7 +2,8 @@ import { IDict } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const refine = (o?: string) => o?.replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll(' ', '');
-const abbr = (partofspeech: string) => {
+const abbr = (partofspeech?: string) => {
+    if (!partofspeech) return '';
     const p = partofspeech.toLowerCase()
     if (p.startsWith('n')) return 'n.';
     if (p.startsWith('v')) return 'v.';
