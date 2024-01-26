@@ -39,7 +39,7 @@ export async function getAll(en: string): Promise<IDict> {
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
                     const m = z.tran?.match(collinsTran);
-                    if (m) ts.push(`${z.pos_entry?.pos} ${refine(m[1])}`);
+                    if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
                 }
             }
         }
@@ -68,6 +68,9 @@ export async function getAll(en: string): Promise<IDict> {
             ts.push(`${x.pos}${refine(x.tran)}`)
         }
         if (ts.length) result.trans = ts.join('\n');
+    }
+    if (!result.phonetic && root.simple?.word?.length) for (const x of root.simple?.word) {
+        if (!result.phonetic) result.phonetic = x.usphone;
     }
     return result;
 }
