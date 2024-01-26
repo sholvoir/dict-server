@@ -8,7 +8,7 @@ import * as $_auth_api_middleware from "./routes/(auth)/api/_middleware.ts";
 import * as $_auth_index from "./routes/(auth)/index.tsx";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
-import * as $Lookup from "./islands/Lookup.tsx";
+import * as $Lookup from "./islands/lookup.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {

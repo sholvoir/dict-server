@@ -21,7 +21,7 @@ export default function Lookup() {
     };
     const hideTips = () => tips.value = '';
     const handleInput = (ev: Event) => {
-        const target = ev.target as HTMLInputElement;
+        const target = ev.target as HTMLInputElement|HTMLTextAreaElement;
         inputs[target.name].value = target.value;
     }
     const handleSearchClick = async () => {
@@ -58,20 +58,16 @@ export default function Lookup() {
         else showTips('Network Error!');
     };
     return <div class="flex flex-col gap-2">
-        <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md" onClick={hideTips}>{tips.value}</div>
-        <input type="text" class="block w-full border px-2" name="word" placeholder="word"
-            value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
-        <input type="text" class="block w-full border px-2" name="phonetic" placeholder="phonetic"
-            value={inputs['phonetic'].value} onInput={handleInput}/>
-        <input type="text" class="block w-full border px-2" name="trans" placeholder="trans"
-            value={inputs['trans'].value} onInput={handleInput}/>
+        <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md [&>*]:w-full [&>*]:px-2 [&>input]:border [&>textarea]:border" onClick={hideTips}>{tips.value}</div>
+        <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
+        <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
+        <textarea name="trans" placeholder="trans" class="h-32" value={inputs['trans'].value} onInput={handleInput}/>
         {/*<div class="flex gap-2">
             <img class="max-h-[480px] max-w-[720px]" src={inputs['pic'].value || noImage}/>
             <textarea name="pic" placeholder="pic" class="grow border px-2"
                 value={inputs['pic'].value} onInput={handleInput}/>
         </div>*/}
-        <textarea name="sound" placeholder="sound" class="block w-full border h-48 px-2"
-            value={inputs['sound'].value} onInput={handleInput}/>
+        <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
         <div class="w-full flex">
             <button class="w-20 border rounded-md px-2 bg-blue-800 text-white disabled:opacity-50 disabled:bg-gray-500"
                 type="button" disabled={!inputs['word'].value} onClick={handleSearchClick}>Search</button>
