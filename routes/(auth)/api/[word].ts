@@ -10,6 +10,7 @@ const badRequest = new Response(undefined, { status: STATUS_CODE.BadRequest });
 const notFound = new Response(undefined, { status: STATUS_CODE.NotFound });
 const ok = new Response(undefined, { status: STATUS_CODE.OK });
 const internalServerError = new Response(undefined, { status: STATUS_CODE.InternalServerError });
+const old = /^[^\w]/;
 
 export const handler: Handlers = {
     async GET(_req, ctx) {
@@ -20,6 +21,7 @@ export const handler: Handlers = {
             const res = await kv.get([key, word]);
             const value = res.value as IDict;
             if (!value) return notFound;
+            if (value.trans?.match(old)) value.trans = '';
             let modified = false;
             if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
             if (!value.trans || !value.phonetic || !value.sound) {
