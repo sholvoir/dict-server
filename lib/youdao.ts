@@ -39,7 +39,7 @@ export async function getAll(en: string): Promise<IDict> {
             }
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
-                    if ((z.headword && z.headword !== en) || z.pos_entry?.pos === 'PHRASE') continue;
+                    if ((z.headword && z.headword !== en) || z.pos_entry?.pos.toLowerCase().includes('phrase')) continue;
                     if (z.tran?.match(collinsTran)) {
                         const m = z.tran.match(collinsTail);
                         if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
