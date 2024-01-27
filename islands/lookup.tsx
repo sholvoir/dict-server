@@ -49,14 +49,14 @@ export default function Lookup() {
             { method: 'PATCH', cache: 'no-cache', body: JSON.stringify(dict) }
         );
         if (res.ok) showTips(`success update word "${inputs['word'].value}"!`);
-        else showTips('Network Error!');
+        else showTips(`Error: ${res.status}`);
     };
     const handleDeleteClick = async () => {
         const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`,
             { method: 'DELETE', cache: 'no-cache' }
         );
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
-        else showTips('Network Error!');
+        else showTips(`Error: ${res.status}`);
     };
     return <div class="flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
         <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md " onClick={hideTips}>{tips.value}</div>

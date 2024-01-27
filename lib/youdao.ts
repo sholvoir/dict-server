@@ -3,7 +3,12 @@ import { IDict } from "./idict.ts";
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
 const collinsTail = /(?<=[\.\?] )([\W; ]+?)$/;
-const refine = (o?: string) => o?.replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll(' ', '');
+const refine = (o?: string) => o?.replaceAll('，', ',')
+    .replaceAll('、', ',')
+    .replaceAll('；',';')
+    .replaceAll('（', '(')
+    .replaceAll('）',')')
+    .replaceAll(' ', '');
 const abbr = (partofspeech?: string) => {
     if (!partofspeech) return '';
     const p = partofspeech.toLowerCase()
