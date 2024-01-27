@@ -24,17 +24,10 @@ export async function getAll(en: string): Promise<IDict> {
     if (!resp.ok) return result;
     const root = await resp.json();
     if (root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
-        const ts = [];
         for (const x of root.collins_primary.gramcat) {
             if (!result.phonetic) result.phonetic = `/${x.pronunciation}/`;
             if (!result.sound) result.sound = x.audiourl;
-            if (!result.trans) {
-                const tt = []
-                if (x.senses?.length) for (const y of x.senses) tt.push(refine(y.word));
-                if (tt.length) ts.push(`${abbr(x.partofspeech)}${tt.join(';')}`);
-            }
         }
-        if (!result.trans && ts.length) result.trans = ts.join('\n');
     }
     if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
