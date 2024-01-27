@@ -32,7 +32,7 @@ export default function Lookup() {
             inputs['trans'].value = dic.trans ?? '';
             inputs['sound'].value = dic.sound ?? '';
             inputs['phonetic'].value = dic.phonetic ?? '';
-        } else showTips(res.statusText);
+        } else showTips(`Error: ${res.status}`);
     }
     const handlePlayClick = () => {
         if (!inputs['sound'].value) return showTips('no sound to play!');
