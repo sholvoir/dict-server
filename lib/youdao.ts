@@ -1,7 +1,7 @@
 import { IDict } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
-const pslipt = /[,;] /;
+const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
 const collinsTail = /(?<=[\.\?] )([\W; ]+?)$/;
 const refine = (o?: string) => o?.replaceAll('，', ',').replaceAll('；',';').replaceAll('（', '(').replaceAll('）',')').replaceAll(' ', '');
 const abbr = (partofspeech?: string) => {
@@ -25,37 +25,15 @@ export async function getAll(en: string): Promise<IDict> {
     const root = await resp.json();
     if (root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
         for (const x of root.collins_primary.gramcat) {
-            if (!result.phonetic) result.phonetic = `/${x.pronunciation}/`;
-            if (!result.sound) result.sound = x.audiourl;
+            if (!result.phonetic && x.pronunciation) result.phonetic = `/${x.pronunciation}/`;
+            if (!result.sound && x.audiourl) result.sound = x.audiourl;
         }
     }
-    if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
-        const collinsTran = new RegExp(`<b>${en}`, 'i');
-        const ts = [];
-        for (const x of root.collins.collins_entries) {
-            if (!result.phonetic && x.phonetic) {
-                const p = x.phonetic.split(pslipt)[0];
-                if (p) result.phonetic = `/${p}/`;
-            }
-            if (x.entries?.entry?.length) for (const y of x.entries.entry) {
-                if (y.tran_entry?.length) for (const z of y.tran_entry) {
-                    if ((z.headword && z.headword !== en) || z.pos_entry?.pos.toLowerCase().includes('phrase')) continue;
-                    if (z.tran?.match(collinsTran)) {
-                        const m = z.tran.match(collinsTail);
-                        if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
-                    }
-                }
-            }
-        }
-        if (!result.trans && ts.length) result.trans = ts.join('\n');
-    }
-    if ((!result.trans || !result.phonetic) && root.ec?.word?.length) {
+    if ((!result.trans || !result.phonetic || !result.sound) && root.ec?.word?.length) {
         const ts = [];
         for (const x of root.ec?.word) {
-            if (!result.phonetic) {
-                const p = x.usphone?.split(pslipt)[0];
-                if (p) result.phonetic = `/${p}/`;
-            }
+            if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
+            if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
@@ -66,6 +44,23 @@ export async function getAll(en: string): Promise<IDict> {
         }
         if (!result.trans && ts.length) result.trans = ts.join('\n')
     }
+    if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
+        const collinsTran = new RegExp(`<b>${en}`, 'i');
+        const ts = [];
+        for (const x of root.collins.collins_entries) {
+            if (!result.phonetic && x.phonetic) result.phonetic = `/${x.phonetic}/`;
+            if (x.entries?.entry?.length) for (const y of x.entries.entry) {
+                if (y.tran_entry?.length) for (const z of y.tran_entry) {
+                    if ((z.headword && z.headword !== en) || z.pos_entry?.pos?.toLowerCase().includes('phrase')) continue;
+                    if (z.tran?.match(collinsTran)) {
+                        const m = z.tran.match(collinsTail);
+                        if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
+                    }
+                }
+            }
+        }
+        if (!result.trans && ts.length) result.trans = ts.join('\n');
+    }
     if (!result.trans && root.individual?.trs?.length) {
         const ts = [];
         for (const x of root.individual.trs) {
@@ -73,8 +68,10 @@ export async function getAll(en: string): Promise<IDict> {
         }
         if (ts.length) result.trans = ts.join('\n');
     }
-    if (!result.phonetic && root.simple?.word?.length) for (const x of root.simple?.word) {
-        if (!result.phonetic) result.phonetic = `/${x.usphone}/`;
+    if ((!result.phonetic || !result.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
+        if (x['return-phrase'] !== en) continue;
+        if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
+        if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
     }
     return result;
 }
