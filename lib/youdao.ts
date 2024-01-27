@@ -42,7 +42,7 @@ export async function getAll(en: string): Promise<IDict> {
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
-                        ts.push(refine(w))
+                        if (!w.startsWith('【名】')) ts.push(refine(w));
                     }
                 }
             }
