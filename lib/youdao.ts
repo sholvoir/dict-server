@@ -40,7 +40,7 @@ export async function getAll(en: string): Promise<IDict> {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
-            if (!result.phonetic) {
+            if (!result.phonetic && x.phonetic) {
                 const p = x.phonetic.split(pslipt)[0];
                 if (p) result.phonetic = `/${p}/`;
             }
