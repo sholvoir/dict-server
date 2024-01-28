@@ -21,6 +21,7 @@ const abbr = (partofspeech?: string) => {
 
 export async function getAll(en: string): Promise<IDict> {
     const resp = await fetch(`${baseUrl}?q=${en}`);
+    const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
     const result: IDict = {};
     if (!resp.ok) return result;
     const root = await resp.json();
@@ -38,8 +39,7 @@ export async function getAll(en: string): Promise<IDict> {
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
-                        if (w.includes('【名】')) continue;
-                        if (w.includes('（人名）')) continue;
+                        if (w.match(nameRegex)) continue;
                         ts.push(refine(w));
                     }
                 }
