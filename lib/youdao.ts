@@ -38,7 +38,7 @@ export async function getAll(en: string): Promise<IDict> {
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
-                        if (w.startsWith('【名】')) continue;
+                        if (w.includes('【名】')) continue;
                         if (w.includes('（人名）')) continue;
                         ts.push(refine(w));
                     }
