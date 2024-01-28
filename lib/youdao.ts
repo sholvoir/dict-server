@@ -25,11 +25,10 @@ export async function getAll(en: string): Promise<IDict> {
     const result: IDict = {};
     if (!resp.ok) return result;
     const root = await resp.json();
-    if (root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
-        for (const x of root.collins_primary.gramcat) {
-            if (!result.phonetic && x.pronunciation) result.phonetic = `/${x.pronunciation}/`;
-            if (!result.sound && x.audiourl) result.sound = x.audiourl;
-        }
+    if ((!result.phonetic || !result.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
+        if (x['return-phrase'] !== en) continue;
+        if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
+        if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
     }
     if ((!result.trans || !result.phonetic || !result.sound) && root.ec?.word?.length) {
         const ts = [];
@@ -71,10 +70,11 @@ export async function getAll(en: string): Promise<IDict> {
         }
         if (ts.length) result.trans = ts.join('\n');
     }
-    if ((!result.phonetic || !result.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
-        if (x['return-phrase'] !== en) continue;
-        if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
-        if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
+    if (!result.phonetic && !result.sound && root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
+        for (const x of root.collins_primary.gramcat) {
+            if (!result.phonetic && x.pronunciation) result.phonetic = `/${x.pronunciation}/`;
+            if (!result.sound && x.audiourl) result.sound = x.audiourl;
+        }
     }
     return result;
 }
