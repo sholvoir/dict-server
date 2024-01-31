@@ -58,7 +58,7 @@ export default function Lookup() {
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips(`Error: ${res.status}`);
     };
-    return <div class="flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
+    return <div class="p-2 mx-auto w-[390px] flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
         <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
@@ -69,7 +69,7 @@ export default function Lookup() {
                 value={inputs['pic'].value} onInput={handleInput}/>
         </div>*/}
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
-        <div class="w-full flex [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
+        <div class="w-full flex gap-2 [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
             <button class="disabled:opacity-50 disabled:bg-gray-500"
                 type="button" disabled={!inputs['word'].value} onClick={handleSearchClick}>Search</button>
             <button class="disabled:opacity-50 disabled:bg-gray-500"
