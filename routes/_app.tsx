@@ -11,7 +11,7 @@ export default function App({ Component }: PageProps) {
         <link rel="stylesheet" href="/styles.css" />
         <title>Dict</title>
       </head>
-      <body class=" bg-stone-200 text-stone-800 dark:bg-stone-800 dark:text-stone-300">
+      <body class=" bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-300">
         <Component />
       </body>
     </html>

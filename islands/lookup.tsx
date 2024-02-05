@@ -79,7 +79,7 @@ export default function Lookup() {
     };
     useEffect(() => { init().catch(console.error) }, []);
     return <div class="p-2 mx-auto w-[390px] flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
-        <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md " onClick={hideTips}>{tips.value}</div>
+        <div class="absolute top-0 inset-x-[10%] bg-[#ff08] text-center rounded-md " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
         <textarea name="trans" placeholder="trans" class="h-32" value={inputs['trans'].value} onInput={handleInput}/>

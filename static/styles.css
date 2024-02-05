@@ -4,7 +4,15 @@
 
 @layer base {
     input, textarea {
+        border-color: #888;
         background-color: transparent;
         outline: none;
     }
+    @media (prefers-color-scheme: dark) {
+        input:-webkit-autofill {
+            box-shadow: 0 0 0 1000px #292524 inset;
+            -webkit-text-fill-color: #E7E5E4;
+        }
+    }
+    
 }
