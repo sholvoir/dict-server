@@ -5,7 +5,7 @@ import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.t
 import { getSound as websterSound } from "../../../lib/webster.ts";
 
 const resInit = { headers: { "Content-Type": "application/json" } };
-const key = 'dict.sholvoir.com';
+const category = 'dict';
 const badRequest = new Response(undefined, { status: STATUS_CODE.BadRequest });
 const notFound = new Response(undefined, { status: STATUS_CODE.NotFound });
 const ok = new Response(undefined, { status: STATUS_CODE.OK });
@@ -18,7 +18,7 @@ export const handler: Handlers = {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
             const kv = await Deno.openKv();
-            const res = await kv.get([key, word]);
+            const res = await kv.get([category, word]);
             const value = res.value as IDict;
             if (!value) return notFound;
             if (value.trans?.match(old)) value.trans = '';
@@ -35,7 +35,7 @@ export const handler: Handlers = {
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
             }
-            if (modified) await kv.set([key, word], value);
+            if (modified) await kv.set([category, word], value);
             kv.close();
             return new Response(JSON.stringify(value), resInit);
         } catch (e) {
@@ -50,7 +50,7 @@ export const handler: Handlers = {
             if (!word) return badRequest;
             const kv = await Deno.openKv();
             const value = await req.json();
-            await kv.set([key, word], value);
+            await kv.set([category, word], value);
             kv.close();
             return ok;
         } catch (e) {
@@ -64,8 +64,8 @@ export const handler: Handlers = {
             if (!word) return badRequest;
             const kv = await Deno.openKv();
             const value = await req.json();
-            const res = await kv.get([key, word]);
-            await kv.set([key, word], {...(res.value as IDict), ...value});
+            const res = await kv.get([category, word]);
+            await kv.set([category, word], {...(res.value as IDict), ...value});
             kv.close();
             return new Response(undefined, { status: 200 });
         } catch (e) {
@@ -78,9 +78,9 @@ export const handler: Handlers = {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
             const kv = await Deno.openKv();
-            const res = await kv.get([key, word]);
+            const res = await kv.get([category, word]);
             if (res.value) {
-                await kv.delete([key, word]);
+                await kv.delete([category, word]);
                 kv.close();
                 return ok;
             } else {
