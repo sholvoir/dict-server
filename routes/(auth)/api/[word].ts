@@ -23,7 +23,6 @@ export const handler: Handlers = {
             const value = res.value as IDict;
             if (!value) return notFound;
             if (value.trans?.match(old)) value.trans = '';
-            if (value.sound?.startsWith('https://www.oxfordlearnersdictionaries.com')) value.sound = '';
             if (value.sound?.startsWith('data:')) value.sound = '';
             let modified = false;
             if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
