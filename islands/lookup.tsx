@@ -31,7 +31,7 @@ export default function Lookup() {
     }
     const handleSearchClick = async () => {
         let word = inputs['word'].value;
-        if (!word || !vocabulary || !revision) return;
+        if (!word || !vocabulary || !revision) return showTips(`${!word}, ${!vocabulary}, ${!revision}`);
         if (!vocabulary[word] && !(word = revision[word])) return showTips("Not Found!");
         const res = await fetch(`${baseApi}/${encodeURIComponent(word)}`);
         if (res.ok) {
