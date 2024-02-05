@@ -19,7 +19,7 @@
         "_fresh"
     ],
     "imports": {
-        "$std/": "https://deno.land/std@0.212.0/",
+        "$std/": "https://deno.land/std@0.214.0/",
         "$fresh/": "https://deno.land/x/fresh@1.6.3/",
         "preact": "https://esm.sh/preact@10.19.3",
         "preact/": "https://esm.sh/preact@10.19.3/",
@@ -30,7 +30,6 @@
         "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
         "js-cookie": "https://esm.sh/js-cookie@3.0.5",
         "generic-ts/": "https://raw.githubusercontent.com/sholvoir/generic-ts/main/",
-        "baidu-aip": "npm:baidu-aip-sdk@4.16.13",
         "tabler_icons/": "https://deno.land/x/tabler_icons_tsx@0.0.6/tsx/"
     },
     "compilerOptions": {

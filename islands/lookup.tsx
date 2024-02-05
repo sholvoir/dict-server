@@ -1,4 +1,5 @@
-import { useRef } from "preact/hooks";
+import { parse as yamlParse } from '$std/yaml/parse.ts';
+import { useEffect, useRef } from "preact/hooks";
 import { Signal, useSignal } from "@preact/signals";
 import { IDict } from "../lib/idict.ts";
 import Cookies from "js-cookie";
@@ -6,10 +7,14 @@ import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
 const baseApi = '/api';
 //const noImage = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
+const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.1/vocabulary.json';
+const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.1/revision.yaml';
 const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
 
 export default function Lookup() {
+    let vocabulary: Record<string, string>;
+    let revision: Record<string, string>;
     const auth = Cookies.get('auth');
     const inputs: Record<InputName, Signal<string>> = {};
     for (const name of inputNames) inputs[name] = useSignal('');
@@ -25,9 +30,13 @@ export default function Lookup() {
         inputs[target.name].value = target.value;
     }
     const handleSearchClick = async () => {
-        const res = await fetch(`${baseApi}/${encodeURIComponent(inputs['word'].value)}`);
+        let word = inputs['word'].value;
+        if (!word || !vocabulary || !revision) return;
+        if (!vocabulary[word] && !(word = revision[word])) return showTips("Not Found!");
+        const res = await fetch(`${baseApi}/${encodeURIComponent(word)}`);
         if (res.ok) {
             const dic = await res.json() as IDict;
+            inputs['word'].value = word;
             inputs['pic'].value = dic.pic ?? ''
             inputs['trans'].value = dic.trans ?? '';
             inputs['sound'].value = dic.sound ?? '';
@@ -58,6 +67,15 @@ export default function Lookup() {
         if (res.ok) showTips(`success delete word "${inputs['word'].value}"!`);
         else showTips(`Error: ${res.status}`);
     };
+    const init = async () => {
+        const res1 = await fetch(vocabularyUrl);
+        if (!res1.ok) return console.error(res1.status);
+        vocabulary = await res1.json();
+        const res2 = await fetch(revisionUrl);
+        if (!res2.ok) return console.error(res2.status);
+        revision = yamlParse(await res2.text()) as Record<string, string>
+    };
+    useEffect(() => { init().catch(console.error) }, []);
     return <div class="p-2 mx-auto w-[390px] flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
         <div class="absolute top-0 inset-x-[10%] bg-[rgba(255,255,0,0.5)] text-center rounded-md " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
