@@ -3,6 +3,7 @@ import { IDict } from "../../../lib/idict.ts";
 import { getAll as youdaoAll } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
+import { blobToBase64 } from '../../../lib/blob.ts'
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const category = 'dict';
@@ -22,6 +23,7 @@ export const handler: Handlers = {
             const value = res.value as IDict;
             if (!value) return notFound;
             if (value.trans?.match(old)) value.trans = '';
+            if (value.sound?.startsWith('https://www.oxfordlearnersdictionaries.com')) value.sound = '';
             let modified = false;
             if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
             if (!value.trans || !value.phonetic || !value.sound) {
@@ -34,6 +36,11 @@ export const handler: Handlers = {
                 const dict = await dictPhoneticSound(word);
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
+            }
+            if (value.sound?.startsWith('http')) {
+                const resp = await fetch(value.sound);
+                if (resp.ok) value.sound = await blobToBase64(await resp.blob());
+                modified = true;
             }
             if (modified) await kv.set([category, word], value);
             kv.close();

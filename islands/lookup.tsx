@@ -72,11 +72,9 @@ export default function Lookup() {
         const res1 = await fetch(vocabularyUrl);
         if (!res1.ok) return console.error(res1.status);
         vocabulary = await res1.json();
-        console.log('vocabulary inited.');
         const res2 = await fetch(revisionUrl);
         if (!res2.ok) return console.error(res2.status);
         revision = yamlParse(await res2.text()) as Record<string, string>;
-        console.log('revision inited.');
         ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
