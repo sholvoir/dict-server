@@ -3,7 +3,6 @@ import { IDict } from "../../../lib/idict.ts";
 import { getAll as youdaoAll } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
-import { urlToDataUrl } from '../../../lib/blob.ts'
 import { getPic as pixabayGetPic } from '../../../lib/pixabay.ts';
 
 const resInit = { headers: { "Content-Type": "application/json" } };
@@ -25,6 +24,7 @@ export const handler: Handlers = {
             if (!value) return notFound;
             if (value.trans?.match(old)) value.trans = '';
             if (value.sound?.startsWith('https://www.oxfordlearnersdictionaries.com')) value.sound = '';
+            if (value.sound?.startsWith('data:')) value.sound = '';
             let modified = false;
             if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
             if (!value.trans || !value.phonetic || !value.sound) {
@@ -39,13 +39,6 @@ export const handler: Handlers = {
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
             }
             if (!value.pic && (value.pic = (await pixabayGetPic(word)).pic)) modified = true;
-            if (value.sound?.startsWith('http')) {
-                const sound = await urlToDataUrl(value.sound);
-                if (sound) {
-                    value.sound = sound;
-                    modified = true;
-                }
-            }
             if (modified) await kv.set([category, word], value);
             kv.close();
             return new Response(JSON.stringify(value), resInit);

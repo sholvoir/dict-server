@@ -1,19 +1,12 @@
 import { type IDict } from './idict.ts';
-import { urlToDataUrl } from './blob.ts'
 
 const baseUrl = 'https://pixabay.com/api/';
 const key = Deno.env.get('PIXABAY_KEY');
 export const getPic = async (word: string): Promise<IDict> => {
-    const resp1 = await fetch(`${baseUrl}?key=${key}&q=${encodeURIComponent(word)}`);
-    if (resp1.ok) {
-        const content = await resp1.json();
-        if (content.hits?.length) {
-            const url = content.hits[0].webformatURL;
-            if (url) {
-                const pic = await urlToDataUrl(url);
-                if (pic) return { pic }
-            }
-        }
+    const resp = await fetch(`${baseUrl}?key=${key}&q=${encodeURIComponent(word)}`);
+    if (resp.ok) {
+        const content = await resp.json();
+        if (content.hits?.length) return { pic:  content.hits[0].webformatURL };
     }
     return {};
 }
