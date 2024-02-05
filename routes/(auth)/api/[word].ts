@@ -3,7 +3,8 @@ import { IDict } from "../../../lib/idict.ts";
 import { getAll as youdaoAll } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
-import { blobToBase64 } from '../../../lib/blob.ts'
+import { urlToDataUrl } from '../../../lib/blob.ts'
+import { getPic as pixabayGetPic } from '../../../lib/pixabay.ts';
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const category = 'dict';
@@ -37,10 +38,13 @@ export const handler: Handlers = {
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
             }
+            if (!value.pic && (value.pic = (await pixabayGetPic(word)).pic)) modified = true;
             if (value.sound?.startsWith('http')) {
-                const resp = await fetch(value.sound);
-                if (resp.ok) value.sound = await blobToBase64(await resp.blob());
-                modified = true;
+                const sound = await urlToDataUrl(value.sound);
+                if (sound) {
+                    value.sound = sound;
+                    modified = true;
+                }
             }
             if (modified) await kv.set([category, word], value);
             kv.close();
