@@ -11,11 +11,12 @@ const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.1/vocabulary.json
 const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.1/revision.yaml';
 const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
+let vocabulary: Record<string, string>;
+let revision: Record<string, string>;
 
 export default function Lookup() {
-    let vocabulary: Record<string, string>;
-    let revision: Record<string, string>;
     const auth = Cookies.get('auth');
+    const ini = useSignal(false);
     const inputs: Record<InputName, Signal<string>> = {};
     for (const name of inputNames) inputs[name] = useSignal('');
     const tips = useSignal('');
@@ -71,9 +72,12 @@ export default function Lookup() {
         const res1 = await fetch(vocabularyUrl);
         if (!res1.ok) return console.error(res1.status);
         vocabulary = await res1.json();
+        console.log('vocabulary inited.');
         const res2 = await fetch(revisionUrl);
         if (!res2.ok) return console.error(res2.status);
-        revision = yamlParse(await res2.text()) as Record<string, string>
+        revision = yamlParse(await res2.text()) as Record<string, string>;
+        console.log('revision inited.');
+        ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
     return <div class="p-2 mx-auto w-[390px] flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
@@ -89,7 +93,7 @@ export default function Lookup() {
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
         <div class="w-full flex gap-2 [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
             <button class="disabled:opacity-50 disabled:bg-gray-500"
-                type="button" disabled={!inputs['word'].value} onClick={handleSearchClick}>Search</button>
+                type="button" disabled={!ini.value || !inputs['word'].value} onClick={handleSearchClick}>Search</button>
             <button class="disabled:opacity-50 disabled:bg-gray-500"
                 type="botton" disabled = {!auth || !inputs['word'].value} onClick={handleDeleteClick}>Delete</button>
             <button class="disabled:opacity-50 disabled:bg-gray-500"
