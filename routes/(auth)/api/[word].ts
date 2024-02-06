@@ -24,6 +24,7 @@ export const handler: Handlers = {
             if (!value) return notFound;
             if (value.trans?.match(old)) value.trans = '';
             if (value.sound?.startsWith('data:')) value.sound = '';
+            if (value.pic && !value.pic.startsWith('https://cdn')) value.pic = '';
             let modified = false;
             if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
             if (!value.trans || !value.phonetic || !value.sound) {
