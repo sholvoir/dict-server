@@ -11,7 +11,6 @@ const badRequest = new Response(undefined, { status: STATUS_CODE.BadRequest });
 const notFound = new Response(undefined, { status: STATUS_CODE.NotFound });
 const ok = new Response(undefined, { status: STATUS_CODE.OK });
 const internalServerError = new Response(undefined, { status: STATUS_CODE.InternalServerError });
-const old = /^[^\w]/;
 
 export const handler: Handlers = {
     async GET(_req, ctx) {
@@ -22,7 +21,6 @@ export const handler: Handlers = {
             const res = await kv.get([category, word]);
             const value = res.value as IDict;
             if (!value) return notFound;
-            if (value.trans?.match(old)) value.trans = '';
             if (value.sound?.startsWith('data:')) value.sound = '';
             if (value.pic && !value.pic.startsWith('https://cdn')) value.pic = '';
             let modified = false;
