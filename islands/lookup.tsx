@@ -83,7 +83,7 @@ export default function Lookup() {
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
         <textarea name="trans" placeholder="trans" class="h-32" value={inputs['trans'].value} onInput={handleInput}/>
         <img class="max-h-[640px] max-w-[640px]" src={inputs['pic'].value || '/no-image.svg'}/>
-        <textarea name="pic" placeholder="pic" class="h-32" value={inputs['pic'].value} onInput={handleInput}/>
+        <textarea name="pic" placeholder="pic" class="h-14" value={inputs['pic'].value} onInput={handleInput}/>
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
         <div class="w-full flex gap-2 [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
             <button class="disabled:opacity-50 disabled:bg-gray-500"
