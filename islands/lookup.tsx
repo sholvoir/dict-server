@@ -77,12 +77,12 @@ export default function Lookup() {
         ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
-    return <div class="p-2 mx-auto w-[390px] flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
-        <div class="absolute top-0 inset-x-[10%] bg-[#ff08] text-center rounded-md " onClick={hideTips}>{tips.value}</div>
+    return <div class="h-[100dvh] p-2 mx-auto flex flex-col gap-2 bg-contain bg-center bg-no-repeat [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border"
+    style={inputs['pic'].value ? `background-image: url(${inputs['pic'].value});` : ''}>
+        <div class="fixed top-0 inset-x-0 bg-[#ff08] text-center " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
-        <textarea name="trans" placeholder="trans" class="h-32" value={inputs['trans'].value} onInput={handleInput}/>
-        <img class="max-h-[640px] max-w-[640px]" src={inputs['pic'].value || '/no-image.svg'}/>
+        <textarea name="trans" placeholder="trans" class="h-32 grow" value={inputs['trans'].value} onInput={handleInput}/>
         <textarea name="pic" placeholder="pic" class="h-14" value={inputs['pic'].value} onInput={handleInput}/>
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
         <div class="w-full flex gap-2 [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
