@@ -81,7 +81,7 @@ export default function Lookup() {
         <div class="fixed top-0 inset-x-0 bg-[#ff08] text-center " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
-        <textarea name="trans" placeholder="trans" class="h-32 grow bg-cover bg-center bg-no-repeat [text-shadow:2px_2px_2px_#FFF,-2px_2px_2px_#FFF,2px_-2px_2px_#FFF,-2px_-2px_2px_#FFF] dark:[text-shadow:2px_2px_2px_#000,-2px_2px_2px_#000,2px_-2px_2px_#000,-2px_-2px_2px_#000]"
+        <textarea name="trans" placeholder="trans" class="h-32 grow bg-cover bg-center bg-no-repeat [text-shadow:2px_2px_2px_#E7E5E4,-2px_2px_2px_#E7E5E4,2px_-2px_2px_#E7E5E4,-2px_-2px_2px_#E7E5E4] dark:[text-shadow:2px_2px_2px_#292524,-2px_2px_2px_#292524,2px_-2px_2px_#292524,-2px_-2px_2px_#292524]"
             style={inputs['pic'].value ? `background-image: url(${inputs['pic'].value});` : ''} value={inputs['trans'].value} onInput={handleInput}/>
         <textarea name="pic" placeholder="pic" class="h-14" value={inputs['pic'].value} onInput={handleInput}/>
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
