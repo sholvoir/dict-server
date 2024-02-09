@@ -23,7 +23,6 @@ export const handler: Handlers = {
             const res = await kv.get([category, word]);
             const value = res.value as IDict;
             if (!value) return notFound;
-            if (value.pic?.startsWith('https://pixabay.com/get/')) value.pic = '';
             let modified = false;
             if (!value.sound && (value.sound = (await websterSound(word)).sound)) modified = true;
             if (!value.trans || !value.phonetic || !value.sound) {
