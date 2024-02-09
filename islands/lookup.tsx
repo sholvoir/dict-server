@@ -77,12 +77,11 @@ export default function Lookup() {
         ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
-    return <div class="h-[100dvh] p-2 mx-auto flex flex-col gap-2 [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border">
+    return <div class="h-[100dvh] p-2 mx-auto flex flex-col gap-2 bg-cover bg-center [&>input]:px-2 [&>input]:border [&>textarea]:px-2 [&>textarea]:border" style={inputs['pic'].value ? `background-image: url(${inputs['pic'].value});` : ''}>
         <div class="fixed top-0 inset-x-0 bg-[#ff08] text-center " onClick={hideTips}>{tips.value}</div>
         <input type="text" name="word" placeholder="word" value={inputs['word'].value} onInput={handleInput} onChange={handleSearchClick}/>
         <input type="text" name="phonetic" placeholder="phonetic" value={inputs['phonetic'].value} onInput={handleInput}/>
-        <textarea name="trans" placeholder="trans" class="h-32 grow bg-cover bg-center bg-no-repeat [text-shadow:1px_1px_1px_#E7E5E4,-1px_1px_1px_#E7E5E4,1px_-1px_1px_#E7E5E4,-1px_-1px_1px_#E7E5E4] dark:[text-shadow:1px_1px_1px_#292524,-1px_1px_1px_#292524,1px_-1px_1px_#292524,-1px_-1px_1px_#292524]"
-            style={inputs['pic'].value ? `background-image: url(${inputs['pic'].value});` : ''} value={inputs['trans'].value} onInput={handleInput}/>
+        <textarea name="trans" placeholder="trans" class="h-32 grow" value={inputs['trans'].value} onInput={handleInput}/>
         <textarea name="pic" placeholder="pic" class="h-14" value={inputs['pic'].value} onInput={handleInput}/>
         <textarea name="sound" placeholder="sound" class="h-32" value={inputs['sound'].value} onInput={handleInput}/>
         <div class="w-full flex gap-2 [&>button]:w-20 [&>button]:border [&>button]:rounded-md [&>button]:px-2 [&>button]:bg-indigo-700 [&>button]:text-white">
