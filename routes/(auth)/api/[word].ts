@@ -12,13 +12,14 @@ const badRequest = new Response(undefined, { status: STATUS_CODE.BadRequest });
 const notFound = new Response(undefined, { status: STATUS_CODE.NotFound });
 const ok = new Response(undefined, { status: STATUS_CODE.OK });
 const internalServerError = new Response(undefined, { status: STATUS_CODE.InternalServerError });
+const kvPath = Deno.env.get('DENO_KV_PATH');
 
 export const handler: Handlers = {
     async GET(req, ctx) {
         try {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
-            const kv = await Deno.openKv();
+            const kv = await Deno.openKv(kvPath);
             const res = await kv.get([category, word]);
             const value = res.value as IDict;
             if (!value) return notFound;
@@ -58,7 +59,7 @@ export const handler: Handlers = {
         try {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
-            const kv = await Deno.openKv();
+            const kv = await Deno.openKv(kvPath);
             const value = await req.json();
             await kv.set([category, word], value);
             kv.close();
@@ -72,7 +73,7 @@ export const handler: Handlers = {
         try {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
-            const kv = await Deno.openKv();
+            const kv = await Deno.openKv(kvPath);
             const value = await req.json();
             const res = await kv.get([category, word]);
             await kv.set([category, word], {...(res.value as IDict), ...value});
@@ -87,7 +88,7 @@ export const handler: Handlers = {
         try {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
-            const kv = await Deno.openKv();
+            const kv = await Deno.openKv(kvPath);
             const res = await kv.get([category, word]);
             if (res.value) {
                 await kv.delete([category, word]);
