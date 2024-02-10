@@ -10,10 +10,17 @@
         outline: none;
         text-shadow: 1px 1px 1px #E7E5E4, -1px 1px 1px #E7E5E4, 1px -1px 1px #E7E5E4, -1px -1px 1px #E7E5E4;
     }
+    textarea {
+        scrollbar-width: thin;
+        scrollbar-color: #78716C #E7E5E4;
+    }
     @media (prefers-color-scheme: dark) {
         input,
         textarea {
             text-shadow: 1px 1px 1px #292524, -1px 1px 1px #292524, 1px -1px 1px #292524, -1px -1px 1px #292524;
+        }
+        textarea {
+            scrollbar-color: #78716C #292524;
         }
         input:-webkit-autofill {
             box-shadow: 0 0 0 1000px #292524 inset;
