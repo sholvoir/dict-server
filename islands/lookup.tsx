@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
 const baseApi = '/api';
-const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.2/vocabulary.json';
+const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.2/vocabulary.txt';
 const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.2/revision.yaml';
 const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
@@ -67,14 +67,14 @@ export default function Lookup() {
         else showTips(`Error: ${res.status}`);
     };
     const init = async () => {
-        const res1 = await fetch(vocabularyUrl);
+        const res1 = await fetch(vocabularyUrl, { cache: 'force-cache' });
         if (!res1.ok) return console.error(res1.status);
         vocabulary = {};
         for (const line of (await res1.text()).split('\n')) {
             const [word, ...tags] = line.split(/[,:] */).map(w=>w.trim());
             vocabulary[word] = tags;
         }
-        const res2 = await fetch(revisionUrl);
+        const res2 = await fetch(revisionUrl, { cache: 'force-cache' });
         if (!res2.ok) return console.error(res2.status);
         revision = yamlParse(await res2.text()) as Record<string, string>;
         ini.value = true;
