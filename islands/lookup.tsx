@@ -1,4 +1,3 @@
-import { parse as yamlParse } from '$std/yaml/parse.ts';
 import { useEffect, useRef } from "preact/hooks";
 import { Signal, useSignal } from "@preact/signals";
 import { IDict } from "../lib/idict.ts";
@@ -6,12 +5,12 @@ import Cookies from "js-cookie";
 import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
 const baseApi = '/api';
-const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.2/vocabulary.txt';
-const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.2/revision.yaml';
+const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.3/vocabulary.txt';
+const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.3/revision.txt';
 const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
-let vocabulary: Record<string, string[]>;
-let revision: Record<string, string>;
+const vocabulary: Record<string, string[]> = {};
+const revision: Record<string, string> = {};
 
 export default function Lookup() {
     const auth = Cookies.get('auth');
@@ -68,15 +67,21 @@ export default function Lookup() {
     };
     const init = async () => {
         const res1 = await fetch(vocabularyUrl, { cache: 'force-cache' });
-        if (!res1.ok) return console.error(res1.status);
-        vocabulary = {};
-        for (const line of (await res1.text()).split('\n')) {
-            const [word, ...tags] = line.split(/[,:] */).map(w=>w.trim());
-            vocabulary[word] = tags;
-        }
+        if (res1.ok) {
+            const delimitor = /[,:] */;
+            for (const line of (await res1.text()).split('\n')) {
+                const [word, ...tags] = line.split(delimitor);
+                vocabulary[word] = tags;
+            }
+        } else return console.error(res1.status);
         const res2 = await fetch(revisionUrl, { cache: 'force-cache' });
-        if (!res2.ok) return console.error(res2.status);
-        revision = yamlParse(await res2.text()) as Record<string, string>;
+        if (res2.ok) {
+            const delimitor = /: */;
+            for (const line of (await res2.text()).split('\n')) {
+                const [word, replace] = line.split(delimitor);
+                revision[word] = replace;
+            }
+        } else return console.error(res2.status);
         ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
