@@ -9,14 +9,18 @@ export const handler = [
             const res = new Response(undefined, { status: 204 });
             const h = res.headers;
             h.set("Access-Control-Allow-Origin", origin);
-            h.set("Access-Control-Allow-Methods", "PUT, GET, PATCH");
+            h.set("Access-Control-Allow-Credentials", "true");
+            h.set("Access-Control-Allow-Methods", "PUT, GET, PATCH, DELETE");
+            h.set("Access-Control-Allow-Headers",
+                "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With"
+            );
             return res;
         }
         const res = await ctx.next();
         const h = res.headers;
         h.set("Access-Control-Allow-Origin", origin);
         h.set("Access-Control-Allow-Credentials", "true");
-        h.set("Access-Control-Allow-Methods", "PUT, OPTIONS, GET, PATCH");
+        h.set("Access-Control-Allow-Methods", "PUT, OPTIONS, GET, PATCH, DELETE");
         h.set("Access-Control-Allow-Headers",
             "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With"
         );
