@@ -4,7 +4,7 @@ import { jwt } from '../../lib/jwt.ts';
 
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
-        const origin  = '*';
+        const origin  = req.headers.get('Origin') || '*';
         if (req.method == 'OPTIONS') {
             const res = new Response(undefined, { status: 204 });
             const h = res.headers;
