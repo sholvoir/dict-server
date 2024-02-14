@@ -1,3 +1,4 @@
+import { STATUS_CODE } from "$std/http/status.ts";
 import { FreshContext } from '$fresh/server.ts';
 import { getCookies } from "$std/http/cookie.ts";
 import { jwt } from '../../lib/jwt.ts';
@@ -5,16 +6,7 @@ import { jwt } from '../../lib/jwt.ts';
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
         const origin  = req.headers.get('Origin') || '*';
-        if (req.method == 'OPTIONS') {
-            const res = new Response(undefined, { status: 204 });
-            const h = res.headers;
-            h.set("Access-Control-Allow-Origin", origin);
-            h.set("Access-Control-Allow-Credentials", "true");
-            h.set("Access-Control-Allow-Methods", "PUT, GET, PATCH, DELETE");
-            h.set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With");
-            return res;
-        }
-        const res = await ctx.next();
+        const res = req.method == 'OPTIONS' ? new Response(undefined, { status: STATUS_CODE.NoContent }) : await ctx.next();
         const h = res.headers;
         h.set("Access-Control-Allow-Origin", origin);
         h.set("Access-Control-Allow-Credentials", "true");
@@ -31,6 +23,6 @@ export const handler = [
             const payload = token && await jwt.verifyToken(token);
             if (payload) ctx.state.user = payload.aud;
             return await ctx.next();
-        } catch (e) { return new Response(e, { status: 501 }); }
+        } catch (e) { return new Response(e, { status: STATUS_CODE.InternalServerError }); }
     }
 ];
