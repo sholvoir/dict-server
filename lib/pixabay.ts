@@ -3,7 +3,7 @@ import { type IDict } from './idict.ts';
 const baseUrl = 'https://pixabay.com/api/';
 const key = Deno.env.get('PIXABAY_KEY');
 export const getPic = async (word: string): Promise<IDict> => {
-    const resp = await fetch(`${baseUrl}?key=${key}&q=${encodeURIComponent(word)}&orientation=vertical`);
+    const resp = await fetch(`${baseUrl}?key=${key}&q=${encodeURIComponent(word)}&orientation=vertical&safesearch=1`);
     if (resp.ok) {
         const content = await resp.json();
         if (content.hits?.length) {
