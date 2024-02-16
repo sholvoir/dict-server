@@ -11,7 +11,7 @@ export const getPic = async (word: string): Promise<IDict> => {
             return { pic:  content.hits[random].previewURL.replace('_150.', '_1280.') };
         }
     }
-    return {};
+    return { pic: 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg' };
 }
 
 if (import.meta.main) console.log(await getPic(Deno.args[0]));
