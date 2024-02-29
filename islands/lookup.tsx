@@ -5,8 +5,8 @@ import Cookies from "js-cookie";
 import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
 const baseApi = '/api';
-const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.5/vocabulary.txt';
-const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.5/revision.txt';
+const vocabularyUrl = 'https://www.sholvoir.com/vocabulary/0.0.7/vocabulary.txt';
+const revisionUrl = 'https://www.sholvoir.com/vocabulary/0.0.7/revision.txt';
 const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
 const vocabulary: Record<string, string[]> = {};
