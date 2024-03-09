@@ -1,7 +1,10 @@
 {
     "lock": false,
+    "unstable": ["kv"],
     "tasks": {
         "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
+        "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
+        "manifest": "deno task cli manifest $(pwd)",
         "start": "deno run -A --unstable --env --watch=static/,routes/ dev.ts",
         "build": "deno run -A dev.ts build",
         "preview": "deno run -A --env main.ts",
@@ -19,15 +22,15 @@
         "_fresh"
     ],
     "imports": {
-        "$std/": "https://deno.land/std@0.214.0/",
-        "$fresh/": "https://deno.land/x/fresh@1.6.3/",
-        "preact": "https://esm.sh/preact@10.19.3",
-        "preact/": "https://esm.sh/preact@10.19.3/",
+        "$fresh/": "https://deno.land/x/fresh@1.6.5/",
+        "preact": "https://esm.sh/preact@10.19.6",
+        "preact/": "https://esm.sh/preact@10.19.6/",
         "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
         "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
         "tailwindcss": "npm:tailwindcss@3.4.1",
         "tailwindcss/": "npm:/tailwindcss@3.4.1/",
         "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
+        "$std/": "https://deno.land/std@0.218.2/",
         "js-cookie": "https://esm.sh/js-cookie@3.0.5",
         "generic-ts/": "https://raw.githubusercontent.com/sholvoir/generic-ts/main/",
         "tabler_icons/": "https://deno.land/x/tabler_icons_tsx@0.0.6/tsx/"

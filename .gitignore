@@ -4,15 +4,17 @@
 .env.test.local
 .env.production.local
 .env.local
-# Log
-logs/
-*.log
+
 # Fresh build directory
 _fresh/
 # npm dependencies
 node_modules/
 
+# Log
+logs/
+*.log
+
 .DS_Store
 data/
 /server.ts
-output.txt
+/output.txt
