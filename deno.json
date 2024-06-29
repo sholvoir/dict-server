@@ -1,42 +1,42 @@
 {
-    "lock": false,
-    "unstable": ["kv"],
-    "tasks": {
-        "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
-        "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
-        "manifest": "deno task cli manifest $(pwd)",
-        "start": "deno run -A --unstable --env --watch=static/,routes/ dev.ts",
-        "build": "deno run -A dev.ts build",
-        "preview": "deno run -A --env main.ts",
-        "update": "deno run -A -r https://fresh.deno.dev/update ."
-    },
-    "lint": {
-        "rules": {
-            "tags": [
-                "fresh",
-                "recommended"
-            ]
-        }
-    },
-    "exclude": [
-        "_fresh"
-    ],
-    "imports": {
-        "$fresh/": "https://deno.land/x/fresh@1.6.8/",
-        "preact": "https://esm.sh/preact@10.22.0",
-        "preact/": "https://esm.sh/preact@10.22.0/",
-        "@preact/signals": "https://esm.sh/*@preact/signals@1.2.3",
-        "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.6.1",
-        "tailwindcss": "npm:tailwindcss@3.4.4",
-        "tailwindcss/": "npm:/tailwindcss@3.4.4/",
-        "tailwindcss/plugin": "npm:/tailwindcss@3.4.4/plugin.js",
-        "$std/": "https://deno.land/std@0.224.0/",
-        "js-cookie": "https://esm.sh/js-cookie@3.0.5",
-        "generic-ts/": "https://raw.githubusercontent.com/sholvoir/generic-ts/main/",
-        "tabler_icons/": "https://deno.land/x/tabler_icons_tsx@0.0.6/tsx/"
-    },
-    "compilerOptions": {
-        "jsx": "react-jsx",
-        "jsxImportSource": "preact"
+  "lock": false,
+  "unstable": ["kv"],
+  "tasks": {
+    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
+    "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
+    "manifest": "deno task cli manifest $(pwd)",
+    "start": "deno run -A --unstable --env --watch=static/,routes/ dev.ts",
+    "build": "deno run -A dev.ts build",
+    "preview": "deno run -A --env main.ts",
+    "update": "deno run -A -r https://fresh.deno.dev/update ."
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "fresh",
+        "recommended"
+      ]
     }
+  },
+  "exclude": [
+    "_fresh"
+  ],
+  "imports": {
+    "$fresh/": "https://deno.land/x/fresh@1.6.8/",
+    "@preact/signals": "https://esm.sh/*@preact/signals@1.2.3",
+    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.6.1",
+    "preact": "https://esm.sh/preact@10.22.0",
+    "preact/": "https://esm.sh/preact@10.22.0/",
+    "tailwindcss": "npm:tailwindcss@3.4.4",
+    "tailwindcss/": "npm:/tailwindcss@3.4.4/",
+    "tailwindcss/plugin": "npm:/tailwindcss@3.4.4/plugin.js",
+    "@sholvoir/jwt": "jsr:@sholvoir/jwt@^0.0.1",
+    "@std/http": "jsr:@std/http@^0.224.5",
+    "js-cookie": "https://esm.sh/js-cookie@3.0.5",
+    "tabler_icons/": "https://deno.land/x/tabler_icons_tsx@0.0.6/tsx/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
 }

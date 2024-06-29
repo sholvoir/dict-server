@@ -77,7 +77,7 @@ export const handler: Handlers = {
             const res = await kv.get([category, word]);
             await kv.set([category, word], {...(res.value as IDict), ...value});
             kv.close();
-            return new Response(undefined, { status: 200 });
+            return ok;
         } catch (e) {
             console.error(e);
             return internalServerError;

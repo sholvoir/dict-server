@@ -1,7 +1,7 @@
 import { FreshContext } from "$fresh/server.ts";
 import { jwt } from '../../lib/jwt.ts';
 import Lookup from "../../islands/lookup.tsx";
-import { Cookie, setCookie } from "$std/http/cookie.ts";
+import { Cookie, setCookie } from "@std/http";
 
 export const handler = async (_req: Request, ctx: FreshContext) => {
   const resp = await ctx.render();
