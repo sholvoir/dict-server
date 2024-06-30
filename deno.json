@@ -25,15 +25,15 @@
     "$fresh/": "https://deno.land/x/fresh@1.6.8/",
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.3",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.6.1",
-    "preact": "https://esm.sh/preact@10.22.0",
-    "preact/": "https://esm.sh/preact@10.22.0/",
-    "tailwindcss": "npm:tailwindcss@3.4.4",
-    "tailwindcss/": "npm:/tailwindcss@3.4.4/",
-    "tailwindcss/plugin": "npm:/tailwindcss@3.4.4/plugin.js",
-    "@sholvoir/jwt": "jsr:@sholvoir/jwt@^0.0.1",
+    "@sholvoir/generic": "jsr:@sholvoir/generic@^0.0.3",
     "@std/http": "jsr:@std/http@^0.224.5",
     "js-cookie": "https://esm.sh/js-cookie@3.0.5",
-    "tabler_icons/": "https://deno.land/x/tabler_icons_tsx@0.0.6/tsx/"
+    "preact": "https://esm.sh/preact@10.22.0",
+    "preact/": "https://esm.sh/preact@10.22.0/",
+    "tabler_icons/": "https://deno.land/x/tabler_icons_tsx@0.0.6/tsx/",
+    "tailwindcss": "npm:tailwindcss@3.4.4",
+    "tailwindcss/": "npm:/tailwindcss@3.4.4/",
+    "tailwindcss/plugin": "npm:/tailwindcss@3.4.4/plugin.js"
   },
   "compilerOptions": {
     "jsx": "react-jsx",

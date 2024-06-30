@@ -4,7 +4,7 @@ import { getAll as youdaoAll } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
 import { getPic as pixabayGetPic } from '../../../lib/pixabay.ts';
-import { blobToBase64 } from "../../../lib/blob.ts";
+import { blobToBase64 } from "@sholvoir/generic/blob";
 
 const resInit = { headers: { "Content-Type": "application/json" } };
 const category = 'dict';
