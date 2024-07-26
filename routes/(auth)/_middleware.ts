@@ -1,5 +1,5 @@
-import { STATUS_CODE, getCookies } from "@std/http";
 import { FreshContext } from '$fresh/server.ts';
+import { STATUS_CODE, getCookies } from "@std/http";
 import { jwt } from '../../lib/jwt.ts';
 
 export const handler = [
