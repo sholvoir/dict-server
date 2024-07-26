@@ -25,7 +25,7 @@
     "$fresh/": "https://deno.land/x/fresh@1.6.8/",
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.3",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.6.1",
-    "@sholvoir/generic": "jsr:@sholvoir/generic@^0.0.3",
+    "@sholvoir/generic": "jsr:@sholvoir/generic@^0.0.5",
     "@std/http": "jsr:@std/http@^0.224.5",
     "js-cookie": "https://esm.sh/js-cookie@3.0.5",
     "preact": "https://esm.sh/preact@10.22.0",

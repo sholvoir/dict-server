@@ -1,21 +1,16 @@
-import { Handlers, STATUS_CODE } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
+import { badRequest, notFound, ok, internalServerError, responseInit } from '@sholvoir/generic/http';
 import { IDict } from "../../../lib/idict.ts";
 import { getAll as youdaoAll } from '../../../lib/youdao.ts';
 import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
 import { getSound as websterSound } from "../../../lib/webster.ts";
 import { getPic as pixabayGetPic } from '../../../lib/pixabay.ts';
-import { blobToBase64 } from "@sholvoir/generic/blob";
 
-const resInit = { headers: { "Content-Type": "application/json" } };
 const category = 'dict';
-const badRequest = new Response(undefined, { status: STATUS_CODE.BadRequest });
-const notFound = new Response(undefined, { status: STATUS_CODE.NotFound });
-const ok = new Response(undefined, { status: STATUS_CODE.OK });
-const internalServerError = new Response(undefined, { status: STATUS_CODE.InternalServerError });
 const kvPath = Deno.env.get('DENO_KV_PATH');
 
 export const handler: Handlers = {
-    async GET(req, ctx) {
+    async GET(_req, ctx) {
         try {
             const word = decodeURIComponent(ctx.params.word.trim());
             if (!word) return badRequest;
@@ -37,17 +32,9 @@ export const handler: Handlers = {
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
             }
             if (!value.pic && (value.pic = (await pixabayGetPic(word)).pic)) modified = true;
-            if (value.sound?.startsWith('http')) {
-                const reqInit = { headers: { 'User-Agent': req.headers.get('User-Agent') || 'Thunder Client (https://www.thunderclient.com)'} }
-                const resp = await fetch(value.sound, reqInit);
-                if (resp.ok) {
-                    value.sound = await blobToBase64(await resp.blob());
-                    modified = true;
-                } else console.log(resp.status, await resp.text());
-            }
             if (modified) await kv.set([category, word], value);
             kv.close();
-            return new Response(JSON.stringify(value), resInit);
+            return new Response(JSON.stringify(value), responseInit);
         } catch (e) {
             console.error(e);
             return internalServerError;
