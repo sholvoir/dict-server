@@ -5,8 +5,8 @@ import Cookies from "js-cookie";
 import IconPlayerPlayFilled from "tabler_icons/player-play-filled.tsx";
 
 const baseApi = '/api';
-const vocabularyUrl = 'https://www.micit.co/vocabulary/0.0.9/vocabulary.txt';
-const revisionUrl = 'https://www.micit.co/vocabulary/0.0.9/revision.txt';
+const vocabularyUrl = 'https://www.micit.co/vocabulary/0.0.11/vocabulary.txt';
+const revisionUrl = 'https://www.micit.co/vocabulary/0.0.11/revision.txt';
 const inputNames = ['word','pic','trans','sound','phonetic'];
 type InputName = typeof inputNames[number];
 const vocabulary: Record<string, string[]> = {};
