@@ -4,7 +4,7 @@ import { jwt } from '../../lib/jwt.ts';
 
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
-        const origin  = req.headers.get('Origin') || '*';
+        const origin  = '*';
         const res = req.method == 'OPTIONS' ? new Response(undefined, { status: STATUS_CODE.NoContent }) : await ctx.next();
         const h = res.headers;
         h.set("Access-Control-Allow-Origin", origin);
