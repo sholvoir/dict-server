@@ -46,7 +46,7 @@ export default function Lookup() {
     }
     const handleUpdateClick = async () => {
         const dict: IDict = { pic: pic.value, trans: trans.value, sound: sound.value, phonetic: phonetic.value };
-        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, requestInit(dict, 'PATCH'));
+        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, requestInit(dict, 'PUT'));
         if (res.ok) showTips(`success update word "${word.value}"!`);
         else showTips(`Error: ${res.status}`);
     };
