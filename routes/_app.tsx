@@ -16,8 +16,8 @@ export default function App({ Component }: PageProps) {
         <link rel="apple-touch-icon" sizes="1024x1024" href="/icon/icon-1024.png"></link>
         <meta name="theme-color" content="#E7E5E4" media="(prefers-color-scheme: light)"/>
         <meta name="theme-color" content="#292524" media="(prefers-color-scheme: dark)"/>
-        <link rel="stylesheet" href="https://raw.esm.sh/gh/sholvoir/preact-components@0.0.4/static/button-ripple.css" crossOrigin=""/>
-        <link rel="stylesheet" href="https://raw.esm.sh/gh/sholvoir/preact-components@0.0.4/static/input-text.css" crossOrigin=""/>
+        <link rel="stylesheet" href="https://raw.esm.sh/gh/sholvoir/preact-components@0.0.7/static/button-ripple.css" crossOrigin=""/>
+        <link rel="stylesheet" href="https://raw.esm.sh/gh/sholvoir/preact-components@0.0.7/static/input-text.css" crossOrigin=""/>
         <link rel="stylesheet" href="/styles.css"/>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"/>
         <title>Dict</title>
