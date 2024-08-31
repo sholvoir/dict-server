@@ -37,15 +37,13 @@ export const handler: Handlers = {
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
             }
             if (!value.pic && (value.pic = (await pixabayGetPic(rword)).pic)) modified = true;
+            if (modified) await kv.set([category, word], value);
             if (value.sound?.startsWith('http')) {
                 const reqInit = { headers: { 'User-Agent': req.headers.get('User-Agent') || 'Thunder Client (https://www.thunderclient.com)'} }
                 const resp = await fetch(value.sound, reqInit);
-                if (resp.ok) {
-                    value.sound = await blobToBase64(await resp.blob());
-                    modified = true;
-                } else console.log(resp.status, await resp.text());
+                if (resp.ok) value.sound = await blobToBase64(await resp.blob());
+                else console.log(resp.status, await resp.text());
             }
-            if (modified) await kv.set([category, word], value);
             kv.close();
             return new Response(JSON.stringify(value), responseInit);
         } catch (e) {
