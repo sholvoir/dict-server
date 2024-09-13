@@ -19,7 +19,7 @@ const abbr = (partofspeech?: string) => {
     return p;
 }
 
-export async function getAll(en: string): Promise<IDict> {
+const getDict = async (en: string): Promise<IDict> => {
     const resp = await fetch(`${baseUrl}?q=${en}`);
     const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
     const result: IDict = {};
@@ -79,4 +79,6 @@ export async function getAll(en: string): Promise<IDict> {
     return result;
 }
 
-if (import.meta.main) for (const en of Deno.args) console.log(await getAll(en));
+export default getDict;
+
+if (import.meta.main) for (const en of Deno.args) console.log(await getDict(en));

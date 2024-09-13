@@ -2,10 +2,11 @@ import { Handlers } from "$fresh/server.ts";
 import { badRequest, notFound, ok, internalServerError, responseInit } from '@sholvoir/generic/http';
 import { blobToBase64 } from "@sholvoir/generic/blob";
 import { IDict } from "../../../lib/idict.ts";
-import { getAll as youdaoAll } from '../../../lib/youdao.ts';
-import { getPhoneticSound as dictPhoneticSound } from "../../../lib/dictionary.ts";
-import { getSound as websterSound } from "../../../lib/webster.ts";
-import { getPic as pixabayGetPic } from '../../../lib/pixabay.ts';
+import youdao from '../../../lib/youdao.ts';
+import dictionary from "../../../lib/dictionary.ts";
+import webster from "../../../lib/webster.ts";
+import pexels from "../../../lib/pexels.ts";
+import pixabay from '../../../lib/pixabay.ts';
 
 const category = 'dict';
 const kvPath = Deno.env.get('DENO_KV_PATH');
@@ -24,19 +25,21 @@ export const handler: Handlers = {
             if (!m) return notFound;
             const rword = m[1];
             let modified = false;
-            if (!value.sound && (value.sound = (await websterSound(rword)).sound)) modified = true;
+            if (!value.sound && (value.sound = (await webster(rword)).sound)) modified = true;
             if (!value.trans || !value.phonetic || !value.sound) {
-                const dict = await youdaoAll(rword);
+                const dict = await youdao(rword);
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
                 if (!value.trans && (value.trans = dict.trans)) modified = true;
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
             }
-            if (!value.sound || !value.phonetic) {
-                const dict = await dictPhoneticSound(rword);
+            if (!value.sound || !value.phonetic || !value.def) {
+                const dict = await dictionary(rword);
                 if (!value.sound && (value.sound = dict.sound)) modified = true;
                 if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
+                if (!value.def && (value.def = dict.def)) modified = true;
             }
-            if (!value.pic && (value.pic = (await pixabayGetPic(rword)).pic)) modified = true;
+            if (!value.pic && (value.pic = (await pixabay(rword)).pic)) modified = true;
+            if (!value.pic && (value.pic = (await pexels(rword)).pic)) modified = true;
             if (modified) await kv.set([category, word], value);
             if (value.sound?.startsWith('http')) {
                 const reqInit = { headers: { 'User-Agent': req.headers.get('User-Agent') || 'Thunder Client (https://www.thunderclient.com)'} }

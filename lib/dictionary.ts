@@ -4,7 +4,7 @@ import { IDict } from "./idict.ts";
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 const filenameRegExp = new RegExp(`^https://.+?/([\\w'_-]+.(mp3|ogg))$`);
 
-export async function getPhoneticSound(word: string): Promise<IDict> {
+async function getDict(word: string): Promise<IDict> {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
     if (!res.ok) return {};
     const entries = await res.json();
@@ -33,7 +33,16 @@ export async function getPhoneticSound(word: string): Promise<IDict> {
             oscore = score;
         }
     }
+    let def = '';
+    for (const entry of entries) if (entry.meanings) for (const meaning of entry.meanings) {
+        def += `${meaning.partOfSpeech}\n`;
+        if (meaning.definitions) for (const definition of meaning.definitions)
+            def += `&ensp;&bull;&ensp; ${definition.definition}\n`;
+    }
+    result.def = def;
     return result;
 }
 
-if (import.meta.main) console.log(await getPhoneticSound(Deno.args[0]));
+export default getDict;
+
+if (import.meta.main) console.log(await getDict(Deno.args[0]));

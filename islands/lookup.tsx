@@ -18,6 +18,7 @@ export default function Lookup() {
     const auth = Cookies.get('auth');
     const ini = useSignal(false);
     const word = useSignal('');
+    const def = useSignal('');
     const pic = useSignal('');
     const trans = useSignal('');
     const sound = useSignal('');
@@ -34,7 +35,8 @@ export default function Lookup() {
         const res = await fetch(`${baseApi}/${encodeURIComponent(w)}`);
         if (res.ok) {
             const dic = await res.json() as IDict;
-            pic.value = dic.pic ?? ''
+            def.value = dic.def ?? '';
+            pic.value = dic.pic ?? '';
             trans.value = dic.trans ?? '';
             sound.value = dic.sound ?? '';
             phonetic.value = dic.phonetic ?? '';
@@ -45,7 +47,7 @@ export default function Lookup() {
         player.current?.play();
     }
     const handleUpdateClick = async () => {
-        const dict: IDict = { trans: trans.value, phonetic: phonetic.value };
+        const dict: IDict = { def: def.value, trans: trans.value, phonetic: phonetic.value };
         if (sound.value.startsWith("http")) dict.sound = sound.value;
         if (pic.value.startsWith("http")) dict.pic = pic.value;
         const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, requestInit(dict, 'PATCH'));
@@ -77,7 +79,8 @@ export default function Lookup() {
             binding={word} options={vocabulary} onChange={handleSearchClick}/>
         <TextInput name="phonetic" placeholder="phonetic" binding={phonetic}/>
         <TextareaInput name="trans" placeholder="trans" class="h-32 grow" binding={trans}/>
-        <TextareaInput name="pic" placeholder="pic" class="h-14" binding={pic}/>
+        <TextareaInput name="def" placeholder="def" class="h-32 grow" binding={def}/>
+        <TextareaInput name="pic" placeholder="pic" class="h-8" binding={pic}/>
         <TextareaInput name="sound" placeholder="sound" class="h-32" binding={sound}/>
         <div class="w-full flex gap-2 [&>button]:bg-indigo-700 [&>button]:text-white">
             <Button class="disabled:opacity-50 disabled:bg-gray-500"
