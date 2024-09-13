@@ -45,8 +45,10 @@ export default function Lookup() {
         player.current?.play();
     }
     const handleUpdateClick = async () => {
-        const dict: IDict = { pic: pic.value, trans: trans.value, sound: sound.value, phonetic: phonetic.value };
-        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, requestInit(dict, 'PUT'));
+        const dict: IDict = { trans: trans.value, phonetic: phonetic.value };
+        if (sound.value.startsWith("http")) dict.sound = sound.value;
+        if (pic.value.startsWith("http")) dict.pic = pic.value;
+        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, requestInit(dict, 'PATCH'));
         if (res.ok) showTips(`success update word "${word.value}"!`);
         else showTips(`Error: ${res.status}`);
     };
