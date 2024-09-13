@@ -25,11 +25,13 @@ const getDict = async (en: string): Promise<IDict> => {
     const result: IDict = {};
     if (!resp.ok) return result;
     const root = await resp.json();
+    // Simple Dict
     if ((!result.phonetic || !result.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
         if (x['return-phrase'] !== en) continue;
         if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
         if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
     }
+    // English-Chinese Dict
     if ((!result.trans || !result.phonetic || !result.sound) && root.ec?.word?.length) {
         const ts = [];
         for (const x of root.ec?.word) {
@@ -46,6 +48,7 @@ const getDict = async (en: string): Promise<IDict> => {
         }
         if (!result.trans && ts.length) result.trans = ts.join('\n')
     }
+    // Collins Dict
     if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
@@ -63,6 +66,7 @@ const getDict = async (en: string): Promise<IDict> => {
         }
         if (!result.trans && ts.length) result.trans = ts.join('\n');
     }
+    // Individual Dict
     if (!result.trans && root.individual?.trs?.length) {
         const ts = [];
         for (const x of root.individual.trs) {
@@ -70,6 +74,7 @@ const getDict = async (en: string): Promise<IDict> => {
         }
         if (ts.length) result.trans = ts.join('\n');
     }
+    // Collins Primary Dict
     if (!result.phonetic && !result.sound && root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
         for (const x of root.collins_primary.gramcat) {
             if (!result.phonetic && x.pronunciation) result.phonetic = `/${x.pronunciation}/`;

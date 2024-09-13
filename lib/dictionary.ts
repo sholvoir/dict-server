@@ -37,7 +37,7 @@ async function getDict(word: string): Promise<IDict> {
     for (const entry of entries) if (entry.meanings) for (const meaning of entry.meanings) {
         def += `${meaning.partOfSpeech}\n`;
         if (meaning.definitions) for (const definition of meaning.definitions)
-            def += `&ensp;&bull;&ensp; ${definition.definition}\n`;
+            def += `    ${definition.definition}\n`;
     }
     result.def = def;
     return result;
