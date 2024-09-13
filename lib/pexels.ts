@@ -7,9 +7,10 @@ const getPic = async (word: string): Promise<IDict> => {
     const resp = await fetch(`${baseUrl}?query=${encodeURIComponent(word)}&orientation=portrait&per_page=80`, requestInit);
     if (!resp.ok) return {};
     const content = await resp.json();
-    if (!content.photos) return {};
-    const random = Math.floor(Math.random() * content.photos.length)
-    return { pic:  content.photos[random].src.portrait };
+    if (content.photos?.length) {
+        const random = Math.floor(Math.random() * content.photos.length)
+        return { pic:  content.photos[random].src.portrait };
+    } else return {};
 }
 
 export default getPic;

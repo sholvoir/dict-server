@@ -7,9 +7,10 @@ const getPic = async (word: string): Promise<IDict> => {
     const resp = await fetch(`${baseUrl}?key=${key}&q=${encodeURIComponent(word)}&orientation=vertical&safesearch=1`);
     if (!resp.ok) return {};
     const content = await resp.json();
-    if (!content.hits) return {};
-    const random = Math.floor(Math.random() * content.hits.length)
-    return { pic:  content.hits[random].previewURL.replace('_150.', '_1280.') };
+    if (content.hits?.length) {
+        const random = Math.floor(Math.random() * content.hits.length)
+        return { pic:  content.hits[random].previewURL.replace('_150.', '_1280.') };
+    } else return {};
 }
 
 export default getPic;
