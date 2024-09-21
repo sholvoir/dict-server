@@ -40,6 +40,7 @@ export const handler: Handlers = {
             }
             if (!value.pic && (value.pic = (await pixabay(rword)).pic)) modified = true;
             if (!value.pic && (value.pic = (await pexels(rword)).pic)) modified = true;
+            if (!value.pic && (value.pic = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg')) modified = true;
             if (modified) await kv.set([category, word], value);
             if (value.sound?.startsWith('http')) {
                 const reqInit = { headers: { 'User-Agent': req.headers.get('User-Agent') || 'Thunder Client (https://www.thunderclient.com)'} }
