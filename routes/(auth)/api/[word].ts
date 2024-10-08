@@ -6,7 +6,7 @@ import youdao from '../../../lib/youdao.ts';
 import dictionary from "../../../lib/dictionary.ts";
 import webster from "../../../lib/webster.ts";
 import pexels from "../../../lib/pexels.ts";
-//import pixabay from '../../../lib/pixabay.ts';
+import pixabay from '../../../lib/pixabay.ts';
 
 const category = 'dict';
 const kvPath = Deno.env.get('DENO_KV_PATH');
@@ -39,9 +39,9 @@ export const handler: Handlers = {
                 if (!value.def && (value.def = dict.def)) modified = true;
             }
             if (!value.pic && (value.pic = (await pexels(rword)).pic)) modified = true;
+            if (!value.pic && (value.pic = (await pixabay(rword)).pic)) modified = true;
             if (!value.pic && (value.pic = (await pexels('beautiful lady')).pic)) modified = true;
-            //if (!value.pic && (value.pic = (await pixabay(rword)).pic)) modified = true;
-            //if (!value.pic && (value.pic = (await pixabay('beautiful lady')).pic)) modified = true;
+            if (!value.pic && (value.pic = (await pixabay('beautiful lady')).pic)) modified = true;
             if (!value.pic && (value.pic = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg')) modified = true;
             if (modified) await kv.set([category, word], value);
             if (value.sound?.startsWith('http')) {
