@@ -10,7 +10,7 @@ import ButtonBase from "@sholvoir/components/islands/button-base.tsx";
 import Button from "@sholvoir/components/islands/button-ripple.tsx";
 
 const baseApi = '/api';
-const vocabularyUrl = 'https://www.micit.co/vocabulary/vocabulary-0.0.25.txt';
+const vocabularyUrl = 'https://www.micit.co/vocabulary/vocabulary-0.0.26.txt';
 const vocabulary: Array<string> = [];
 
 export default function Lookup() {
