@@ -1,5 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import { badRequest, notFound, ok, internalServerError, responseInit } from '@sholvoir/generic/http';
+import { badRequest, notFound, ok, internalServerError, jsonResponse } from '@sholvoir/generic/http';
 import { blobToBase64 } from "@sholvoir/generic/blob";
 import { IDict } from "../../../lib/idict.ts";
 import youdao from '../../../lib/youdao.ts';
@@ -19,44 +19,42 @@ export const handler: Handlers = {
             if (!word) return badRequest;
             const kv = await Deno.openKv(kvPath);
             const res = await kv.get([category, word]);
-            const value = res.value as IDict;
-            if (!value) return notFound;
+            const item = (res.value ?? {}) as IDict
             const m = spliteNum.exec(word);
             if (!m) return notFound;
             const rword = m[1];
             let modified = false;
-            if (!value.sound && (value.sound = (await webster(rword)).sound)) modified = true;
-            if (!value.trans || !value.phonetic || !value.sound) {
+            if (!item.sound && (item.sound = (await webster(rword)).sound)) modified = true;
+            if (!item.trans || !item.phonetic || !item.sound) {
                 const dict = await youdao(rword);
-                if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
-                if (!value.trans && (value.trans = dict.trans)) modified = true;
-                if (!value.sound && (value.sound = dict.sound)) modified = true;
+                if (!item.phonetic && (item.phonetic = dict.phonetic)) modified = true;
+                if (!item.trans && (item.trans = dict.trans)) modified = true;
+                if (!item.sound && (item.sound = dict.sound)) modified = true;
             }
-            if (!value.sound || !value.phonetic || !value.def) {
+            if (!item.sound || !item.phonetic || !item.def) {
                 const dict = await dictionary(rword);
-                if (!value.sound && (value.sound = dict.sound)) modified = true;
-                if (!value.phonetic && (value.phonetic = dict.phonetic)) modified = true;
-                if (!value.def && (value.def = dict.def)) modified = true;
+                if (!item.sound && (item.sound = dict.sound)) modified = true;
+                if (!item.phonetic && (item.phonetic = dict.phonetic)) modified = true;
+                if (!item.def && (item.def = dict.def)) modified = true;
             }
-            if (!value.pic && (value.pic = (await pexels(rword)).pic)) modified = true;
-            if (!value.pic && (value.pic = (await pixabay(rword)).pic)) modified = true;
-            if (!value.pic && (value.pic = (await pexels('beautiful lady')).pic)) modified = true;
-            if (!value.pic && (value.pic = (await pixabay('beautiful lady')).pic)) modified = true;
-            if (!value.pic && (value.pic = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg')) modified = true;
-            if (modified) await kv.set([category, word], value);
-            if (value.sound?.startsWith('http')) {
+            if (!item.pic && (item.pic = (await pexels(rword)).pic)) modified = true;
+            if (!item.pic && (item.pic = (await pixabay(rword)).pic)) modified = true;
+            if (!item.pic && (item.pic = (await pexels('beautiful lady')).pic)) modified = true;
+            if (!item.pic && (item.pic = (await pixabay('beautiful lady')).pic)) modified = true;
+            if (!item.pic && (item.pic = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg')) modified = true;
+            if (modified && res.value) await kv.set([category, word], item);
+            kv.close();
+            if (item.sound?.startsWith('http')) {
                 const reqInit = { headers: { 'User-Agent': req.headers.get('User-Agent') || 'Thunder Client (https://www.thunderclient.com)'} }
-                const resp = await fetch(value.sound, reqInit);
-                if (resp.ok) value.sound = await blobToBase64(await resp.blob());
+                const resp = await fetch(item.sound, reqInit);
+                if (resp.ok) item.sound = await blobToBase64(await resp.blob());
                 else console.log(resp.status, await resp.text());
             }
-            kv.close();
-            return new Response(JSON.stringify(value), responseInit);
+            return jsonResponse(item);
         } catch (e) {
             console.error(e);
             return internalServerError;
         }
-        
     },
     async PUT(req, ctx) {
         try {
