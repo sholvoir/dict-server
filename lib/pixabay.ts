@@ -3,14 +3,13 @@ import { type IDict } from './idict.ts';
 const baseUrl = 'https://pixabay.com/api/';
 const key = Deno.env.get('PIXABAY_KEY');
 
-const getPic = async (word: string): Promise<IDict> => {
+const getPic = async (word: string): Promise<IDict|null> => {
     const resp = await fetch(`${baseUrl}?key=${key}&q=${encodeURIComponent(word)}&orientation=vertical&safesearch=1`);
-    if (!resp.ok) return {};
+    if (!resp.ok) return null;
     const content = await resp.json();
-    if (content.hits?.length) {
-        const random = Math.floor(Math.random() * content.hits.length)
-        return { pic:  content.hits[random].previewURL.replace('_150.', '_1280.') };
-    } else return {};
+    if (!content.hits?.length) return {};
+    const random = Math.floor(Math.random() * content.hits.length)
+    return { pic:  content.hits[random].previewURL.replace('_150.', '_1280.') };
 }
 
 export default getPic;

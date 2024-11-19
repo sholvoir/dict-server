@@ -4,9 +4,9 @@ import { IDict } from "./idict.ts";
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 const filenameRegExp = new RegExp(`^https://.+?/([\\w'_-]+.(mp3|ogg))$`);
 
-async function getDict(word: string): Promise<IDict> {
+async function getDict(word: string): Promise<IDict|null> {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
-    if (!res.ok) return {};
+    if (!res.ok) return null;
     const entries = await res.json();
     const phonetics = entries.flatMap((e: any) => e.phonetics) as any[];
     const result: IDict = { phonetic: entries?.[0]?.phonetic };

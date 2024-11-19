@@ -19,12 +19,12 @@ const abbr = (partofspeech?: string) => {
     return p;
 }
 
-const getDict = async (en: string): Promise<IDict> => {
+const getDict = async (en: string): Promise<IDict|null> => {
     const resp = await fetch(`${baseUrl}?q=${en}`);
-    const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
-    const result: IDict = {};
-    if (!resp.ok) return result;
+    if (!resp.ok) return null;
     const root = await resp.json();
+    const result: IDict = {};
+    const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
     // Simple Dict
     if ((!result.phonetic || !result.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
         if (x['return-phrase'] !== en) continue;
