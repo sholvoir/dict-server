@@ -21,7 +21,7 @@ async function getDict(word: string): Promise<IDict|null> {
     const pr = entry.hwi?.prs?.at(0);
     const result: IDict = {};
     if (pr.mw) result.phonetic = `[${pr.mw}]`;
-    if (pr.sound?.audio) result.sound = `${soundBase}/${getSubdirectory(word)}/${pr.sound?.audio}.mp3`;
+    if (pr.sound?.audio) result.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
     return result;
 }
 
