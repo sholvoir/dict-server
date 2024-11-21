@@ -2,7 +2,7 @@
 import { IDict } from "./idict.ts";
 
 const baseUrl = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
-const soundBase = 'https://media.merriam-webster.com/audio/prons/en/us/mp3'
+const soundBase = 'https://media.merriam-webster.com/audio/prons/en/us/mp3';
 const key = Deno.env.get('DICTIONARY_API_COM_DICTIONARY');
 const regex = /^[A-Za-z]/
 const getSubdirectory = (word: string) => {
@@ -20,8 +20,8 @@ async function getDict(word: string): Promise<IDict|null> {
     if (typeof entry === 'string') return null;
     const pr = entry.hwi?.prs?.at(0);
     const result: IDict = {};
-    if (pr.mw) result.phonetic = `[${pr.mw}]`;
-    if (pr.sound?.audio) result.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
+    if (pr?.mw) result.phonetic = `[${pr.mw}]`;
+    if (pr?.sound?.audio) result.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
     return result;
 }
 
