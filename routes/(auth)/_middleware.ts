@@ -1,11 +1,12 @@
 import { FreshContext } from '$fresh/server.ts';
-import { STATUS_CODE, getCookies } from "@std/http";
+import { getCookies } from "@std/http";
 import { jwt } from '../../lib/jwt.ts';
+import { internalServerError, noContent } from "@sholvoir/generic/http";
 
 export const handler = [
     async (req: Request, ctx: FreshContext) => {
         const origin  = '*';
-        const res = req.method == 'OPTIONS' ? new Response(undefined, { status: STATUS_CODE.NoContent }) : await ctx.next();
+        const res = req.method == 'OPTIONS' ? noContent.clone() : await ctx.next();
         const h = res.headers;
         h.set("Access-Control-Allow-Origin", origin);
         h.set("Access-Control-Allow-Credentials", "true");
@@ -22,6 +23,6 @@ export const handler = [
             const payload = token && await jwt.verifyToken(token);
             if (payload) ctx.state.user = payload.aud;
             return await ctx.next();
-        } catch (e) { return new Response(e, { status: STATUS_CODE.InternalServerError }); }
+        } catch { return internalServerError; }
     }
 ];

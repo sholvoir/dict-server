@@ -1,0 +1,1 @@
+export const VOCABULARY_URL = 'https://www.micit.co/vocabulary/vocabulary-0.0.30.txt';

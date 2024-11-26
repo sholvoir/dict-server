@@ -1,7 +1,8 @@
 import { IS_BROWSER } from "$fresh/runtime.ts";
+import { VOCABULARY_URL } from "../lib/common.ts";
+import { IDict } from "../lib/idict.ts";
 import { useEffect, useRef } from "preact/hooks";
 import { useSignal } from "@preact/signals";
-import { IDict } from "../lib/idict.ts";
 import { requestInit } from "@sholvoir/generic/http";
 import Cookies from "js-cookie";
 import TextInput from "@sholvoir/components/islands/input-text.tsx";
@@ -10,7 +11,6 @@ import ButtonBase from "@sholvoir/components/islands/button-base.tsx";
 import Button from "@sholvoir/components/islands/button-ripple.tsx";
 
 const baseApi = '/api';
-const vocabularyUrl = 'https://www.micit.co/vocabulary/vocabulary-0.0.30.txt';
 const vocabulary: Array<string> = [];
 
 export default function Lookup() {
@@ -60,7 +60,7 @@ export default function Lookup() {
         else showTips(`Error: ${res.status}`);
     };
     const init = async () => {
-        const res1 = await fetch(vocabularyUrl, { cache: 'force-cache' });
+        const res1 = await fetch(VOCABULARY_URL, { cache: 'force-cache' });
         if (res1.ok) {
             const delimitor = /[,:] */;
             for (const line of (await res1.text()).split('\n')) {
