@@ -1,4 +1,4 @@
-import { IDict } from "./idict.ts";
+import { IDictP } from "./common.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
@@ -19,24 +19,23 @@ const abbr = (partofspeech?: string) => {
     return p;
 }
 
-const getDict = async (en: string): Promise<IDict|null> => {
+const fillDict = async (dict: IDictP, en: string): Promise<void> => {
     const resp = await fetch(`${baseUrl}?q=${en}`);
-    if (!resp.ok) return null;
+    if (!resp.ok) return;
     const root = await resp.json();
-    const result: IDict = {};
     const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
     // Simple Dict
-    if ((!result.phonetic || !result.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
+    if ((!dict.phonetic || !dict.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
         if (x['return-phrase'] !== en) continue;
-        if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
-        if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
+        if (!dict.phonetic && x.usphone) dict.modified = dict.phonetic = `/${x.usphone}/`;
+        if (!dict.sound && x.usspeech) dict.modified =  dict.sound = `${youdaoAudio}${x.usspeech}`;
     }
     // English-Chinese Dict
-    if ((!result.trans || !result.phonetic || !result.sound) && root.ec?.word?.length) {
+    if ((!dict.trans || !dict.phonetic || !dict.sound) && root.ec?.word?.length) {
         const ts = [];
         for (const x of root.ec?.word) {
-            if (!result.phonetic && x.usphone) result.phonetic = `/${x.usphone}/`;
-            if (!result.sound && x.usspeech) result.sound = `${youdaoAudio}${x.usspeech}`;
+            if (!dict.phonetic && x.usphone) dict.modified = dict.phonetic = `/${x.usphone}/`;
+            if (!dict.sound && x.usspeech) dict.modified = dict.sound = `${youdaoAudio}${x.usspeech}`;
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
@@ -46,14 +45,14 @@ const getDict = async (en: string): Promise<IDict|null> => {
                 }
             }
         }
-        if (!result.trans && ts.length) result.trans = ts.join('\n')
+        if (!dict.trans && ts.length) dict.modified = dict.trans = ts.join('\n');
     }
     // Collins Dict
-    if ((!result.phonetic || !result.trans) && root.collins?.collins_entries?.length) {
+    if ((!dict.phonetic || !dict.trans) && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
-            if (!result.phonetic && x.phonetic) result.phonetic = `/${x.phonetic}/`;
+            if (!dict.phonetic && x.phonetic) dict.modified = dict.phonetic = `/${x.phonetic}/`;
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
                     if ((z.headword && z.headword !== en) || z.pos_entry?.pos?.toLowerCase().includes('phrase')) continue;
@@ -64,26 +63,27 @@ const getDict = async (en: string): Promise<IDict|null> => {
                 }
             }
         }
-        if (!result.trans && ts.length) result.trans = ts.join('\n');
+        if (!dict.trans && ts.length) dict.modified = dict.trans = ts.join('\n');
     }
     // Individual Dict
-    if (!result.trans && root.individual?.trs?.length) {
+    if (!dict.trans && root.individual?.trs?.length) {
         const ts = [];
-        for (const x of root.individual.trs) {
-            ts.push(`${x.pos}${refine(x.tran)}`)
-        }
-        if (ts.length) result.trans = ts.join('\n');
+        for (const x of root.individual.trs) ts.push(`${x.pos}${refine(x.tran)}`);
+        if (ts.length) dict.modified = dict.trans = ts.join('\n');
     }
     // Collins Primary Dict
-    if (!result.phonetic && !result.sound && root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
+    if (!dict.phonetic && !dict.sound && root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
         for (const x of root.collins_primary.gramcat) {
-            if (!result.phonetic && x.pronunciation) result.phonetic = `/${x.pronunciation}/`;
-            if (!result.sound && x.audiourl) result.sound = x.audiourl;
+            if (!dict.phonetic && x.pronunciation) dict.modified = dict.phonetic = `/${x.pronunciation}/`;
+            if (!dict.sound && x.audiourl) dict.modified = dict.sound = x.audiourl;
         }
     }
-    return result;
 }
 
-export default getDict;
+export default fillDict;
 
-if (import.meta.main) for (const en of Deno.args) console.log(await getDict(en));
+if (import.meta.main) for (const en of Deno.args) {
+    const dict = {};
+    await fillDict(dict, en)
+    console.log(dict);
+}

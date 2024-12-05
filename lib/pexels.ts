@@ -1,17 +1,21 @@
-import { type IDict } from './idict.ts';
+import { IDictP } from "./common.ts";
 
 const baseUrl = 'https://api.pexels.com/v1/search';
 const requestInit: RequestInit = { headers: new Headers({"Authorization": Deno.env.get('PEXELS_KEY')!}) };
 
-const getPic = async (word: string): Promise<IDict|null> => {
+const fillPic = async (dict: IDictP, word: string): Promise<void> => {
     const resp = await fetch(`${baseUrl}?query=${encodeURIComponent(word)}&orientation=portrait&per_page=80`, requestInit);
-    if (!resp.ok) return null;
+    if (!resp.ok) return;
     const content = await resp.json();
-    if (!content.photos?.length) return {};
+    if (!content.photos?.length) return;
     const random = Math.floor(Math.random() * content.photos.length)
-    return { pic:  content.photos[random].src.portrait };
+    dict.modified = dict.pic = content.photos[random].src.portrait;
 }
 
-export default getPic;
+export default fillPic;
 
-if (import.meta.main) console.log(await getPic(Deno.args[0]));
+if (import.meta.main) {
+    const dict = {};
+    await fillPic(dict, Deno.args[0]);
+    console.log(dict);
+}

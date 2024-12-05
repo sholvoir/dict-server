@@ -1,13 +1,17 @@
-import { IDict } from "./idict.ts";
+import { IDictP } from "./common.ts";
 
 const baseUrl = 'https://www.merriam-webster.com/dictionary';
 const mp3Regex = new RegExp(`"contentURL": "(https://media.merriam-webster.com/audio/prons/en/us/.+?mp3)"`);
 
-const getDict = async (word: string): Promise<IDict|null> => {
+const fillDict = async (dict: IDictP, word: string): Promise<void> => {
     const resp = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
-    return resp.ok ? { sound: (await resp.text())?.match(mp3Regex)?.[1] } : null;
+    if (resp.ok) dict.modified = dict.sound = (await resp.text())?.match(mp3Regex)?.[1];
 }
 
-export default getDict;
+export default fillDict;
 
-if (import.meta.main) console.log(await getDict(Deno.args[0]));
+if (import.meta.main) {
+    const dict = {};
+    await fillDict(dict, Deno.args[0])
+    console.log(dict);
+}

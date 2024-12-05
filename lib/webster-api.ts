@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { IDict } from "./idict.ts";
+import { IDictP } from "./common.ts";
 
 const baseUrl = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
 const soundBase = 'https://media.merriam-webster.com/audio/prons/en/us/mp3';
@@ -12,19 +12,21 @@ const getSubdirectory = (word: string) => {
     return 'number';
 }
 
-async function getDict(word: string): Promise<IDict|null> {
+async function fillDict(dict: IDictP, word: string): Promise<void> {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}?key=${key}`);
-    if (!res.ok) return null;
+    if (!res.ok) return;
     const entries = await res.json() as Array<any>;
     const entry = entries[0];
-    if (typeof entry === 'string') return null;
+    if (typeof entry === 'string') return;
     const pr = entry.hwi?.prs?.at(0);
-    const result: IDict = {};
-    if (pr?.mw) result.phonetic = `[${pr.mw}]`;
-    if (pr?.sound?.audio) result.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
-    return result;
+    if (pr?.mw) dict.modified = dict.phonetic = `[${pr.mw}]`;
+    if (pr?.sound?.audio) dict.modified = dict.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
 }
 
-export default getDict;
+export default fillDict;
 
-if (import.meta.main) console.log(await getDict(Deno.args[0]));
+if (import.meta.main) {
+    const dict = {};
+    await fillDict(dict, Deno.args[0]);
+    console.log(dict);
+}
