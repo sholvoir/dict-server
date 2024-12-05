@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { IDictP } from "./common.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
@@ -24,6 +25,20 @@ const fillDict = async (dict: IDictP, en: string): Promise<void> => {
     if (!resp.ok) return;
     const root = await resp.json();
     const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
+    // Collins Primary Dict
+    if ((!dict.phonetic || !dict.sound) && root.collins_primary) {
+        const cp = root.collins_primary;
+        if (cp.words?.word === en && cp.gramcat?.length) {
+            for (const gram of root.collins_primary.gramcat) {
+                if (!dict.phonetic && gram.pronunciation) dict.modified = dict.phonetic = `/${gram.pronunciation}/`;
+                if (!dict.sound && gram.audiourl) dict.modified = dict.sound = gram.audiourl;
+                if (gram.partofspeech && gram.senses?.length) {
+                    dict.modified = dict.trans = abbr(gram.partofspeech) + gram.senses.map((x: any) => refine(x.word)).join(';');
+                    dict.modified = dict.def = gram.partofspeech + '\n' + gram.senses.map((x: any) => `    ${x.definition}`).join('\n');
+                }
+            }
+        }
+    }
     // Simple Dict
     if ((!dict.phonetic || !dict.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
         if (x['return-phrase'] !== en) continue;
@@ -48,11 +63,10 @@ const fillDict = async (dict: IDictP, en: string): Promise<void> => {
         if (!dict.trans && ts.length) dict.modified = dict.trans = ts.join('\n');
     }
     // Collins Dict
-    if ((!dict.phonetic || !dict.trans) && root.collins?.collins_entries?.length) {
+    if (!dict.trans && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
-            if (!dict.phonetic && x.phonetic) dict.modified = dict.phonetic = `/${x.phonetic}/`;
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
                     if ((z.headword && z.headword !== en) || z.pos_entry?.pos?.toLowerCase().includes('phrase')) continue;
@@ -63,20 +77,13 @@ const fillDict = async (dict: IDictP, en: string): Promise<void> => {
                 }
             }
         }
-        if (!dict.trans && ts.length) dict.modified = dict.trans = ts.join('\n');
+        if (ts.length) dict.modified = dict.trans = ts.join('\n');
     }
     // Individual Dict
     if (!dict.trans && root.individual?.trs?.length) {
         const ts = [];
         for (const x of root.individual.trs) ts.push(`${x.pos}${refine(x.tran)}`);
         if (ts.length) dict.modified = dict.trans = ts.join('\n');
-    }
-    // Collins Primary Dict
-    if (!dict.phonetic && !dict.sound && root.collins_primary?.words?.word === en && root.collins_primary?.gramcat?.length) {
-        for (const x of root.collins_primary.gramcat) {
-            if (!dict.phonetic && x.pronunciation) dict.modified = dict.phonetic = `/${x.pronunciation}/`;
-            if (!dict.sound && x.audiourl) dict.modified = dict.sound = x.audiourl;
-        }
     }
 }
 
