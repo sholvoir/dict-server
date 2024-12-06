@@ -1,7 +1,7 @@
 import { DOMParser } from '@b-fuze/deno-dom';
 import { IDictP } from "./common.ts";
 
-const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/definition/american_english/';
+const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/definition/english/';
 
 async function fillDict(dict: IDictP, word: string): Promise<void> {
     const reqInit = { headers: { 'User-Agent': 'Thunder Client (https://www.thunderclient.com)'} }
@@ -9,11 +9,11 @@ async function fillDict(dict: IDictP, word: string): Promise<void> {
     if (!res.ok) return;
     const text = await res.text();
     const doc = new DOMParser().parseFromString(text, 'text/html');
-    const div = doc.querySelector('div.audio_play_button.pron-usonly');
-    const span = div?.previousSibling;
+    const div = doc.querySelector('div.audio_play_button.pron-us');
+    const span = div?.nextSibling;
     if (span?.childNodes) for (const node of span?.childNodes) {
         if (node.nodeType == node.TEXT_NODE) {
-            dict.modified = dict.phonetic = `/${node.textContent}/`;
+            dict.modified = dict.phonetic = `${node.textContent}`;
             break;
         }
     }
@@ -22,8 +22,8 @@ async function fillDict(dict: IDictP, word: string): Promise<void> {
 
 export default fillDict;
 
-if (import.meta.main) {
+if (import.meta.main) for (const en of Deno.args) {
     const dict = {};
-    for (const en of Deno.args)
-        console.log(await fillDict(dict, en));
+    await fillDict(dict, en);
+    console.log(dict);
 }
