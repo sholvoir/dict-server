@@ -72,7 +72,7 @@ export default function Lookup() {
         ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
-    return <div class="h-[100dvh] p-2 mx-auto flex flex-col gap-2 bg-cover bg-center text-thick-shadow"
+    return <div class="h-[100dvh] p-2 mx-auto flex flex-col gap-2 bg-cover bg-center text-thick-shadow text-2xl"
         style={pic.value ? `background-image: url(${pic.value});` : ''}>
         <div class="fixed top-0 inset-x-0 bg-[#ff08] text-center " onClick={hideTips}>{tips.value}</div>
         <TextInput name="word" placeholder="word" class="w-full [&>div]:bg-stone-200 dark:[&>div]:bg-stone-800"

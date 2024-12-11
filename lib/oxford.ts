@@ -17,7 +17,8 @@ async function fillDict(dict: IDictP, word: string): Promise<void> {
             break;
         }
     }
-    dict.modified = dict.sound = div?.getAttribute('data-src-mp3')!;
+    const sound = div?.getAttribute('data-src-mp3');
+    if (sound) dict.modified = dict.sound = sound;
 }
 
 export default fillDict;
