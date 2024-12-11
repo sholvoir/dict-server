@@ -10,7 +10,6 @@ import TextareaInput from "@sholvoir/components/islands/input-textarea.tsx";
 import ButtonBase from "@sholvoir/components/islands/button-base.tsx";
 import Button from "@sholvoir/components/islands/button-ripple.tsx";
 
-const baseApi = '/api';
 const vocabulary: Array<string> = [];
 
 export default function Lookup() {
@@ -31,8 +30,7 @@ export default function Lookup() {
     };
     const hideTips = () => tips.value = '';
     const handleSearchClick = async () => {
-        const w = word.value;
-        const res = await fetch(`${baseApi}/${encodeURIComponent(w)}`);
+        const res = await fetch(`/pub/word?q=${encodeURIComponent(word.value)}`);
         if (res.ok) {
             const dic = await res.json() as IDict;
             def.value = dic.def ?? '';
@@ -47,15 +45,18 @@ export default function Lookup() {
         player.current?.play();
     }
     const handleUpdateClick = async () => {
-        const dict: IDict = { def: def.value, trans: trans.value, phonetic: phonetic.value };
-        if (sound.value.startsWith("http")) dict.sound = sound.value;
-        if (pic.value.startsWith("http")) dict.pic = pic.value;
-        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, requestInit(dict, 'PATCH'));
+        const dict: IDict = {};
+        if (def.value) dict.def = def.value;
+        if (trans.value) dict.trans = trans.value;
+        if (phonetic.value) dict.phonetic = phonetic.value;
+        if (sound.value) dict.sound = sound.value;
+        if (pic.value) dict.pic = pic.value;
+        const res = await fetch(`/api/word?q=${encodeURIComponent(word.value)}`, requestInit(dict, 'PUT'));
         if (res.ok) showTips(`success update word "${word.value}"!`);
         else showTips(`Error: ${res.status}`);
     };
     const handleDeleteClick = async () => {
-        const res = await fetch(`${baseApi}/${encodeURIComponent(word.value)}`, { method: 'DELETE' });
+        const res = await fetch(`/api/word?q=${encodeURIComponent(word.value)}`, { method: 'DELETE' });
         if (res.ok) showTips(`success delete word "${word.value}"!`);
         else showTips(`Error: ${res.status}`);
     };
