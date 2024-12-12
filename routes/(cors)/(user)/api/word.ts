@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
 import { badRequest, notFound, ok, internalServerError } from '@sholvoir/generic/http';
-import { IDictP } from "../../../lib/common.ts";
+import { IDictP } from "../../../../lib/common.ts";
 
 const category = 'dict';
 const kvPath = Deno.env.get('DENO_KV_PATH');
