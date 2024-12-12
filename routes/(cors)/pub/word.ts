@@ -19,7 +19,7 @@ export const handler: Handlers = {
             const kv = await Deno.openKv(kvPath);
             const res = await kv.get<IDictP>([category, wordN]);
             const dict = res.value ?? {};
-            if (!dict.def || !dict.phonetic || !dict.pic || !dict.sound || !dict.trans) await fill(dict, word);
+            if (!dict.def && !dict.phonetic && !dict.pic && !dict.sound && !dict.trans) await fill(dict, word);
             // Write
             if (dict.modified && res.value) {
                 delete dict.modified;
