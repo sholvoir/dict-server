@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { IDictP } from "./common.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
@@ -32,10 +31,6 @@ const fillDict = async (dict: IDictP, en: string): Promise<void> => {
             for (const gram of root.collins_primary.gramcat) {
                 if (!dict.phonetic && gram.pronunciation) dict.modified = dict.phonetic = `/${gram.pronunciation}/`;
                 if (!dict.sound && gram.audiourl) dict.modified = dict.sound = gram.audiourl;
-                if (gram.partofspeech && gram.senses?.length) {
-                    dict.modified = dict.trans = abbr(gram.partofspeech) + gram.senses.map((x: any) => refine(x.word)).join(';');
-                    dict.modified = dict.def = gram.partofspeech + '\n' + gram.senses.map((x: any) => `    ${x.definition}`).join('\n');
-                }
             }
         }
     }
