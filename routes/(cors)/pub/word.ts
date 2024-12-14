@@ -5,16 +5,14 @@ import fill from '../../../lib/fill-dict.ts';
 
 const category = 'dict';
 const kvPath = Deno.env.get('DENO_KV_PATH');
-const spliteNum = /^([A-Za-zèé /&''.-]+)(\d*)/;
 
 export const handler: Handlers = {
     async GET(req) {
         try {
             const wordN = new URL(req.url).searchParams.get('q');
             if (!wordN) return badRequest;
-            const m = spliteNum.exec(wordN);
-            if (!m) return badRequest;
-            const word = m[1];
+            const word = wordN.split('_')[0];
+            if (!word) return badRequest;
             // Read
             const kv = await Deno.openKv(kvPath);
             const res = await kv.get<IDictP>([category, wordN]);
