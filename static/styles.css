@@ -9,7 +9,6 @@
         background-color: transparent;
         outline: none;
         padding-inline: 6px;
-        text-shadow: 0 0 5px #E7E5E4, 2px 2px 5px #E7E5E4, -2px 2px 5px #E7E5E4, 2px -2px 5px #E7E5E4, -2px -2px 5px #E7E5E4;
     }
     button {
         border: 2px solid gray;
@@ -24,20 +23,11 @@
     @media (prefers-color-scheme: dark) {
         input,
         textarea {
-            text-shadow: 0 0 5px #292524, 2px 2px 5px #292524, -2px 2px 5px #292524, 2px -2px 5px #292524, -2px -2px 5px #292524;
-        }
-        textarea {
             scrollbar-color: #78716C #292524;
         }
         input:-webkit-autofill {
             box-shadow: 0 0 0 1000px #292524 inset;
             -webkit-text-fill-color: #E7E5E4;
         }
-    }
-}
-
-@layer components {
-    .text-thick-shadow {
-        @apply [text-shadow:0_0_5px_#FFF,2px_2px_5px_#FFF,-2px_2px_5px_#FFF,2px_-2px_5px_#FFF,-2px_-2px_5px_#FFF] dark:[text-shadow:0_0_5px_#000,2px_2px_5px_#000,-2px_2px_5px_#000,2px_-2px_5px_#000,-2px_-2px_5px_#000]
     }
 }

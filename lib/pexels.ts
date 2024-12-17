@@ -9,7 +9,7 @@ const fillPic = async (dict: IDictP, word: string): Promise<void> => {
     const content = await resp.json();
     if (!content.photos?.length) return;
     const random = Math.floor(Math.random() * content.photos.length)
-    dict.modified = dict.pic = content.photos[random].src.portrait;
+    dict.modified = content.photos[random].src.portrait;
 }
 
 export default fillPic;

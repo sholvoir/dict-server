@@ -9,7 +9,7 @@ const fillPic = async (dict: IDictP, word: string): Promise<void> => {
     const content = await resp.json();
     if (!content.hits?.length) return;
     const random = Math.floor(Math.random() * content.hits.length)
-    dict.modified = dict.pic = content.hits[random].previewURL.replace('_150.', '_1280.');
+    dict.modified = content.hits[random].previewURL.replace('_150.', '_1280.');
 }
 
 export default fillPic;
