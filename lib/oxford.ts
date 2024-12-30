@@ -11,14 +11,14 @@ async function fillDict(dict: IDictP, word: string): Promise<void> {
     const doc = new DOMParser().parseFromString(text, 'text/html');
     const div = doc.querySelector('div.audio_play_button.pron-us');
     const span = div?.nextSibling;
-    if (span?.childNodes) for (const node of span?.childNodes) {
+    if (span?.childNodes && !dict.phonetic) for (const node of span?.childNodes) {
         if (node.nodeType == node.TEXT_NODE) {
             dict.modified = dict.phonetic = `${node.textContent}`;
             break;
         }
     }
     const sound = div?.getAttribute('data-src-mp3');
-    if (sound) dict.modified = dict.sound = sound;
+    if (sound && !dict.sound) dict.modified = dict.sound = sound;
 }
 
 export default fillDict;

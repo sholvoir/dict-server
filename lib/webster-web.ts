@@ -4,6 +4,7 @@ const baseUrl = 'https://www.merriam-webster.com/dictionary';
 const mp3Regex = new RegExp(`"contentURL": "(https://media.merriam-webster.com/audio/prons/en/us/.+?mp3)"`);
 
 const fillDict = async (dict: IDictP, word: string): Promise<void> => {
+    if (dict.sound) return;
     const resp = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
     if (resp.ok) dict.modified = dict.sound = (await resp.text())?.match(mp3Regex)?.[1];
 }

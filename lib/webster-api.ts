@@ -13,6 +13,7 @@ const getSubdirectory = (word: string) => {
 }
 
 async function fillDict(dict: IDictP, word: string): Promise<void> {
+    if (dict.sound) return;
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}?key=${key}`);
     if (!res.ok) return;
     const entries = await res.json() as Array<any>;
