@@ -19,7 +19,6 @@ async function fillDict(dict: IDictP, word: string): Promise<void> {
     const entry = entries[0];
     if (typeof entry === 'string') return;
     const pr = entry.hwi?.prs?.at(0);
-    if (pr?.mw) dict.modified = dict.phonetic = `[${pr.mw}]`;
     if (pr?.sound?.audio) dict.modified = dict.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
 }
 
