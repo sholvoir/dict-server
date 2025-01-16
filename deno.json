@@ -1,6 +1,6 @@
 {
   "lock": false,
-  "version": "0.4.11",
+  "version": "0.4.12",
   "unstable": ["kv"],
   "tasks": {
     "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
@@ -10,7 +10,8 @@
     "build": "deno run -A dev.ts build",
     "preview": "deno run -A --env main.ts",
     "update": "deno run -A -r https://fresh.deno.dev/update .",
-    "database": "deno run -A --env update-database.ts",
+    "update-database": "deno run -A --env update-database.ts",
+    "set-vocabulary-version": "deno run -A --env set-vocabulary-version.ts",
     "server": "deno run -A --env server.ts"
   },
   "lint": {

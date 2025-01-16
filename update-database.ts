@@ -1,12 +1,17 @@
-import { VOCABULARY_URL } from "./lib/common.ts";
+import { vocabularyUrl } from "./lib/common.ts";
 import { IDict } from "./lib/idict.ts";
 
 const category = 'dict';
 const kvPath = Deno.env.get('DENO_KV_PATH');
 
 const update = async () => {
+    const kv = await Deno.openKv(kvPath);
+    const res = await kv.get<string>(['system', 'vocabulary-version']);
+    const vocabularyVersion = res.value;
+    if (!vocabularyVersion) return (console.log("No Vocabulary Version!"), kv.close());
+
     const vocabulary = new Set<string>();
-    const res1 = await fetch(VOCABULARY_URL, { cache: 'force-cache' });
+    const res1 = await fetch(vocabularyUrl(vocabularyVersion), { cache: 'force-cache' });
     if (res1.ok) {
         const delimitor = /[,:] */;
         for (const line of (await res1.text()).split('\n')) {
@@ -14,9 +19,8 @@ const update = async () => {
             word = word.trim();
             if (word) vocabulary.add(word);
         }
-    } else return console.error(res1.status);
+    } else return (console.error(res1.status), kv.close());
 
-    const kv = await Deno.openKv(kvPath);
     const entyies = kv.list<IDict>({ prefix: [category] });
     for await (const entry of entyies) {
         const word = entry.key[1] as string;

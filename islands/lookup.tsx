@@ -1,5 +1,6 @@
+// deno-lint-ignore-file no-cond-assign
 import { IS_BROWSER } from "$fresh/runtime.ts";
-import { VOCABULARY_URL } from "../lib/common.ts";
+import { vocabularyUrl } from "../lib/common.ts";
 import { IDict } from "../lib/idict.ts";
 import { useEffect, useRef } from "preact/hooks";
 import { useSignal } from "@preact/signals";
@@ -58,15 +59,16 @@ export default function Lookup() {
         else showTips(`Error: ${res.status}`);
     };
     const init = async () => {
-        const res1 = await fetch(VOCABULARY_URL, { cache: 'force-cache' });
-        if (res1.ok) {
-            const delimitor = /[,:] */;
-            for (const line of (await res1.text()).split('\n')) {
-                let [word] = line.split(delimitor);
-                word = word.trim();
-                if (word) vocabulary.push(word);
-            }
-        } else return console.error(res1.status);
+        const res0 = await fetch('/pub/vocabulary-version', { cache: 'no-cache' });
+        if (!res0.ok) return console.error(res0.status);
+        const vocabularyVersion: string = (await res0.json()).vocabularyVersion;
+        const res1 = await fetch(vocabularyUrl(vocabularyVersion), { cache: 'force-cache' });
+        if (!res1.ok) return console.error(res1.status);
+        const delimitor = /[,:] */;
+        for (const line of (await res1.text()).split('\n')) {
+            let [word] = line.split(delimitor);
+            if (word = word.trim()) vocabulary.push(word);
+        }
         ini.value = true;
     };
     useEffect(() => { init().catch(console.error) }, []);
