@@ -1,12 +1,9 @@
-/// <reference no-default-lib="true" />
-/// <reference lib="dom" />
-/// <reference lib="dom.iterable" />
-/// <reference lib="dom.asynciterable" />
-/// <reference lib="deno.ns" />
-/// <reference lib="deno.unstable" />
+import getDicts from "./lib/youdao.ts";
 
-import { start } from "$fresh/server.ts";
-import manifest from "./fresh.gen.ts";
-import config from "./fresh.config.ts";
-
-await start(manifest, config);
+Deno.serve(async (req) => {
+   const url = new URL(req.url);
+   const word = url.searchParams.get("q");
+   if (!word) return new Response(null, { status: 400 });
+   const word1 = encodeURIComponent(word);
+   return new Response(JSON.stringify(await getDicts(word1)));
+});
