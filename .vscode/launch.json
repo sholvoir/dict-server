@@ -8,9 +8,10 @@
             "request": "launch",
             "name": "Launch Program",
             "type": "node",
-            "program": "${workspaceFolder}/src/main.ts",
+            "program": "${workspaceFolder}/oxford.ts",
+            "args": ["have"],
             "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "/usr/bin/deno",
+            "runtimeExecutable": "~/.deno/bin/deno",
             "runtimeArgs": [
                 "run",
                 "--inspect-wait",
