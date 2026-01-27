@@ -16,11 +16,13 @@ const extractLabels = (span: Element) =>
    span.textContent.replaceAll(labelsRegex, "").split(", ");
 
 const extractVariants = (div: Element) => {
-   const variant: any = {};
+   const variants: Array<{ spec?: string; labels?: string[]; v?: string }> = [];
    for (const variantsChildNode of div.childNodes) {
       if (variantsChildNode.nodeType === NodeType.TEXT_NODE) {
-         const spec = variantsChildNode.nodeValue?.replaceAll(labelsRegex, "").trim();
-         if (spec) variant.spec = spec;
+         const spec = variantsChildNode.nodeValue
+            ?.replaceAll(labelsRegex, "")
+            .trim();
+         if (spec) variants.push({ spec });
       } else if (variantsChildNode.nodeType === NodeType.ELEMENT_NODE) {
          const variantsChild = variantsChildNode as Element;
          if (
@@ -30,14 +32,15 @@ const extractVariants = (div: Element) => {
             for (const child of variantsChild.children) {
                if (child.tagName === "SPAN") {
                   if (child.classList.contains("labels"))
-                     variant.labels = child.textContent;
-                  if (child.classList.contains("v")) variant.v = child.textContent;
+                     variants.push({ labels: child.textContent!.split(", ") });
+                  if (child.classList.contains("v"))
+                     variants.push({ v: child.textContent });
                }
             }
          }
       }
    }
-   return variant;
+   return variants;
 };
 
 const extractPhonetics = (span: Element) => {
@@ -61,19 +64,28 @@ const extractPhonetics = (span: Element) => {
    return phonetics;
 };
 
-const inflectRegex = /[(,]/g;
+const labelRegex = /(?:\(|, )(\w+) /g;
 const extractInflections = (div: Element) => {
    const inflections = [];
+   let inflection = { label: "", inflected: [] as Array<string> };
    for (const childNode of div.childNodes) {
       if (childNode.TEXT_NODE === NodeType.TEXT_NODE) {
          const text = childNode.nodeValue;
          if (!text) continue;
          if (text === ")") return inflections;
-         else {
-            const label = text.replaceAll(inflectRegex, "").trim();
-            const span = childNode.nextSibling;
-            const inflected = span?.textContent;
-            inflections.push({ label, inflected });
+         else if (labelRegex.test(text)) {
+            if (inflection.label && inflection.inflected.length)
+               inflections.push(inflection);
+            const label = labelRegex.exec(text)![1];
+            inflection = { label, inflected: [] };
+         }
+      } else if (childNode.nodeType === NodeType.ELEMENT_NODE) {
+         const child = childNode as Element;
+         if (
+            child.tagName === "SPAN" &&
+            child.classList.contains("inflected_form")
+         ) {
+            inflection.inflected.push(child.textContent);
          }
       }
    }
@@ -81,7 +93,7 @@ const extractInflections = (div: Element) => {
 };
 
 const extractWebTop = (div: Element, entry: any) => {
-   // headword, pos, phonetics, labels, variants
+   // headword, pos, phonetics, variants, inflections, labels
    for (const webTopChild of div.children) {
       switch (webTopChild.tagName) {
          case "H1":
@@ -119,12 +131,15 @@ const extractSenseTop = (span: Element, sense: any) => {
       switch (c.tagName) {
          case "SPAN":
             if (c.classList.contains("cf")) sense.cf = c.textContent;
-            else if (c.classList.contains("grammar")) sense.grammar = c.textContent;
+            else if (c.classList.contains("grammar"))
+               sense.grammar = c.textContent;
             else if (c.classList.contains("def")) sense.def = c.textContent;
             break;
          case "DIV":
             if (c.classList.contains("variants"))
                sense.variants = extractVariants(c);
+            else if (c.classList.contains("inflections"))
+               sense.inflections = extractInflections(c);
       }
 };
 
@@ -167,22 +182,25 @@ const extract = (doc: HTMLDocument): any => {
    if (sensesOl) {
       entry.senses = [];
       for (const olChild of sensesOl.children) {
-         const sense: any = {};
          if (
             olChild.tagName === "SPAN" &&
             olChild.classList.contains("shcut-g")
          ) {
             const shcutH2 = olChild.querySelector("h2.shcut");
-            if (shcutH2) sense.shcut = shcutH2.textContent;
-            const senseLi = olChild.querySelector("li.sense");
-            if (senseLi) extractSenseLi(senseLi, sense);
+            for (const senseLi of olChild.querySelectorAll("li.sense")) {
+               const sense: any = {};
+               if (shcutH2) sense.shcut = shcutH2.textContent;
+               extractSenseLi(senseLi, sense);
+               if (Object.keys(sense).length) entry.senses.push(sense);
+            }
          } else if (
             olChild.tagName === "LI" &&
             olChild.classList.contains("sense")
          ) {
+            const sense: any = {};
             extractSenseLi(olChild, sense);
+            if (Object.keys(sense).length) entry.senses.push(sense);
          }
-         if (Object.keys(sense).length) entry.senses.push(sense);
       }
    }
    return entry;
