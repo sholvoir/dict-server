@@ -6,7 +6,17 @@
    "configurations": [
       {
          "request": "launch",
-         "name": "Launch Program",
+         "name": "Launch Main",
+         "type": "node",
+         "program": "${workspaceFolder}/main.ts",
+         "cwd": "${workspaceFolder}",
+         "runtimeExecutable": "~/.deno/bin/deno",
+         "runtimeArgs": ["run", "--inspect-wait", "--allow-all", "--env"],
+         "attachSimplePort": 9229
+      },
+      {
+         "request": "launch",
+         "name": "Launch Oxford Web",
          "type": "node",
          "program": "${workspaceFolder}/oxford-web.ts",
          "args": ["bump into"],

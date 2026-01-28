@@ -69,15 +69,20 @@ const extractInflections = (div: Element) => {
    const inflections = [];
    let inflection = { label: "", inflected: [] as Array<string> };
    for (const childNode of div.childNodes) {
-      if (childNode.TEXT_NODE === NodeType.TEXT_NODE) {
+      if (childNode.nodeType === NodeType.TEXT_NODE) {
          const text = childNode.nodeValue;
          if (!text) continue;
-         if (text === ")") return inflections;
-         else if (labelRegex.test(text)) {
-            if (inflection.label && inflection.inflected.length)
-               inflections.push(inflection);
-            const label = labelRegex.exec(text)![1];
-            inflection = { label, inflected: [] };
+         if (text === ")") {
+            inflections.push(inflection);
+            return inflections;
+         } else {
+            const match = labelRegex.exec(text);
+            if (match) {
+               if (inflection.label && inflection.inflected.length)
+                  inflections.push(inflection);
+               const label = match[1];
+               inflection = { label, inflected: [] };
+            }
          }
       } else if (childNode.nodeType === NodeType.ELEMENT_NODE) {
          const child = childNode as Element;
@@ -98,7 +103,7 @@ const extractWebTop = (div: Element, entry: any) => {
       switch (webTopChild.tagName) {
          case "H1":
             if (webTopChild.classList.contains("headword"))
-               entry.headWord = webTopChild.childNodes[0].nodeValue;
+               entry.headWord = webTopChild.textContent;
             break;
          case "SPAN":
             if (webTopChild.classList.contains("pos")) {
