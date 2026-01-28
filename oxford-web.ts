@@ -130,9 +130,12 @@ const extractSenseTop = (span: Element, sense: any) => {
    for (const c of span.children)
       switch (c.tagName) {
          case "SPAN":
-            if (c.classList.contains("cf")) sense.cf = c.textContent;
+            if (c.classList.contains("dis-g")) sense.disg = c.textContent;
+            else if (c.classList.contains("cf")) sense.cf = c.textContent;
             else if (c.classList.contains("grammar"))
                sense.grammar = c.textContent;
+            else if (c.classList.contains("labels"))
+               sense.labels = extractLabels(c);
             else if (c.classList.contains("def")) sense.def = c.textContent;
             break;
          case "DIV":
@@ -147,26 +150,24 @@ const extractSenseLi = (li: Element, sense: any) => {
    for (const child of li.children)
       switch (child.tagName) {
          case "SPAN":
-            if (child.classList.contains("sensetop")) {
+            if (child.classList.contains("sensetop"))
                extractSenseTop(child, sense);
-            } else if (child.classList.contains("dis-g")) {
+            else if (child.classList.contains("dis-g"))
                sense.disg = child.textContent;
-            } else if (child.classList.contains("grammar")) {
+            else if (child.classList.contains("grammar"))
                sense.grammar = child.textContent;
-            } else if (child.classList.contains("use")) {
+            else if (child.classList.contains("use"))
                sense.use = child.textContent;
-            } else if (child.classList.contains("labels")) {
+            else if (child.classList.contains("labels"))
                sense.labels = extractLabels(child);
-            } else if (child.classList.contains("cf")) {
+            else if (child.classList.contains("cf"))
                sense.cf = child.textContent;
-            } else if (child.classList.contains("def")) {
+            else if (child.classList.contains("def"))
                sense.def = child.textContent;
-            }
             break;
          case "DIV":
-            if (child.classList.contains("variants")) {
+            if (child.classList.contains("variants"))
                sense.variants = extractVariants(child);
-            }
       }
 };
 

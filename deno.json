@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.5.3",
+   "version": "0.5.4",
    "tasks": {
       "start": "deno run -A --env --watch=/ main.ts"
    },
