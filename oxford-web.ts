@@ -234,6 +234,7 @@ const oxford = async (word: string): Promise<Array<any>> => {
       if (e) result.push(extract(doc));
       const nearbyUl = doc.querySelector(".nearby>.list-col");
       if (!nearbyUl) return;
+      const changedWord = word.replace("%20", "-");
       for (const li of nearbyUl.children)
          if (li.tagName === "LI")
             for (const a of li.querySelectorAll("a")) {
@@ -243,7 +244,7 @@ const oxford = async (word: string): Promise<Array<any>> => {
                if (!m) continue;
                const id = m[1];
                const w = id.replaceAll(regId2Word, "");
-               if (w !== word) continue;
+               if (w !== changedWord) continue;
                if (ids.has(id)) continue;
                ids.add(id);
                ref = url;
@@ -257,8 +258,10 @@ const oxford = async (word: string): Promise<Array<any>> => {
 export default oxford;
 
 if (import.meta.main)
-   for (const word of Deno.args)
+   for (const word of Deno.args) {
+      const encodeWord = encodeURIComponent(word);
       await Deno.writeTextFile(
          `z.json`,
-         JSON.stringify(await oxford(word), null, 2),
+         JSON.stringify(await oxford(encodeWord), null, 2),
       );
+   }
