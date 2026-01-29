@@ -15,14 +15,14 @@ const labelsRegex = /[()]/g;
 const extractLabels = (span: Element) =>
    span.textContent.replaceAll(labelsRegex, "").split(", ");
 
-const extractVariants = (div: Element) => {
-   const variants: Array<{ spec?: string; labels?: string[]; v?: string }> = [];
+const extractVariant = (div: Element) => {
+   const variant: Array<{ spec?: string; labels?: string[]; v?: string }> = [];
    for (const variantsChildNode of div.childNodes) {
       if (variantsChildNode.nodeType === NodeType.TEXT_NODE) {
          const spec = variantsChildNode.nodeValue
             ?.replaceAll(labelsRegex, "")
             .trim();
-         if (spec) variants.push({ spec });
+         if (spec) variant.push({ spec });
       } else if (variantsChildNode.nodeType === NodeType.ELEMENT_NODE) {
          const variantsChild = variantsChildNode as Element;
          if (
@@ -32,15 +32,15 @@ const extractVariants = (div: Element) => {
             for (const child of variantsChild.children) {
                if (child.tagName === "SPAN") {
                   if (child.classList.contains("labels"))
-                     variants.push({ labels: child.textContent!.split(", ") });
+                     variant.push({ labels: child.textContent!.split(", ") });
                   if (child.classList.contains("v"))
-                     variants.push({ v: child.textContent });
+                     variant.push({ v: child.textContent });
                }
             }
          }
       }
    }
-   return variants;
+   return variant;
 };
 
 const extractPhonetics = (span: Element) => {
@@ -64,7 +64,7 @@ const extractPhonetics = (span: Element) => {
    return phonetics;
 };
 
-const labelRegex = /(?:\(|, )(\w+) /g;
+const labelRegex = /(?:\(|,\s)(\w+)\s/;
 const extractInflections = (div: Element) => {
    const inflections = [];
    let inflection = { label: "", inflected: [] as Array<string> };
@@ -122,7 +122,8 @@ const extractWebTop = (div: Element, entry: any) => {
             break;
          case "DIV":
             if (webTopChild.classList.contains("variants")) {
-               entry.variants = extractVariants(webTopChild);
+               if (!entry.variants) entry.variants = [];
+               entry.variants.push(extractVariant(webTopChild));
             } else if (webTopChild.classList.contains("inflections")) {
                entry.inflections = extractInflections(webTopChild);
             }
@@ -136,17 +137,20 @@ const extractSenseTop = (span: Element, sense: any) => {
       switch (c.tagName) {
          case "SPAN":
             if (c.classList.contains("dis-g")) sense.disg = c.textContent;
-            else if (c.classList.contains("cf")) sense.cf = c.textContent;
-            else if (c.classList.contains("grammar"))
+            else if (c.classList.contains("cf")) {
+               if (!sense.cf) sense.cf = [];
+               sense.cf.push(c.textContent);
+            } else if (c.classList.contains("grammar"))
                sense.grammar = c.textContent;
             else if (c.classList.contains("labels"))
                sense.labels = extractLabels(c);
             else if (c.classList.contains("def")) sense.def = c.textContent;
             break;
          case "DIV":
-            if (c.classList.contains("variants"))
-               sense.variants = extractVariants(c);
-            else if (c.classList.contains("inflections"))
+            if (c.classList.contains("variants")) {
+               if (!sense.variants) sense.variants = [];
+               sense.variants.push(extractVariant(c));
+            } else if (c.classList.contains("inflections"))
                sense.inflections = extractInflections(c);
       }
 };
@@ -165,14 +169,17 @@ const extractSenseLi = (li: Element, sense: any) => {
                sense.use = child.textContent;
             else if (child.classList.contains("labels"))
                sense.labels = extractLabels(child);
-            else if (child.classList.contains("cf"))
-               sense.cf = child.textContent;
-            else if (child.classList.contains("def"))
+            else if (child.classList.contains("cf")) {
+               if (!sense.cf) sense.cf = [];
+               sense.cf.push(child.textContent);
+            } else if (child.classList.contains("def"))
                sense.def = child.textContent;
             break;
          case "DIV":
-            if (child.classList.contains("variants"))
-               sense.variants = extractVariants(child);
+            if (child.classList.contains("variants")) {
+               if (!sense.variants) sense.variants = [];
+               sense.variants.push(extractVariant(child));
+            }
       }
 };
 
