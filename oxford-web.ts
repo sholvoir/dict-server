@@ -16,7 +16,12 @@ const extractLabels = (span: Element) =>
    span.textContent.replaceAll(labelsRegex, "").split(", ");
 
 const extractVariant = (div: Element) => {
-   const variant: Array<{ spec?: string; labels?: string[]; v?: string }> = [];
+   const variant: Array<{
+      spec?: string;
+      labels?: string[];
+      v?: string;
+      grammar?: string;
+   }> = [];
    for (const variantsChildNode of div.childNodes) {
       if (variantsChildNode.nodeType === NodeType.TEXT_NODE) {
          const spec = variantsChildNode.nodeValue
@@ -35,6 +40,8 @@ const extractVariant = (div: Element) => {
                      variant.push({ labels: child.textContent!.split(", ") });
                   if (child.classList.contains("v"))
                      variant.push({ v: child.textContent });
+                  if (child.classList.contains("grammar"))
+                     variant.push({ grammar: child.textContent });
                }
             }
          }

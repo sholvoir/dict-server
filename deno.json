@@ -1,11 +1,10 @@
 {
    "lock": false,
-   "version": "0.5.7",
+   "version": "0.5.8",
    "tasks": {
       "start": "deno run -A --env --watch=/ main.ts"
    },
    "imports": {
-      "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
-      "user-agents": "npm:user-agents@^1.1.669"
+      "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56"
    }
 }
