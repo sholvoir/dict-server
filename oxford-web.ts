@@ -152,6 +152,24 @@ const extractSenseTop = (span: Element, sense: any) => {
             else if (c.classList.contains("labels"))
                sense.labels = extractLabels(c);
             else if (c.classList.contains("def")) sense.def = c.textContent;
+            else if (c.classList.contains("xrefs")) {
+               const xref = { prefix: "", ref: "" };
+               for (const ch of c.children) {
+                  if (
+                     ch.tagName === "SPAN" &&
+                     ch.classList.contains("prefix")
+                  ) {
+                     xref.prefix = ch.textContent;
+                  } else if (
+                     ch.tagName === "A" &&
+                     ch.classList.contains("Ref")
+                  ) {
+                     xref.ref = ch.textContent;
+                  }
+               }
+               if (!sense.xrefs) sense.xrefs = [];
+               sense.xrefs.push(xref);
+            }
             break;
          case "DIV":
             if (c.classList.contains("variants")) {
