@@ -1,11 +1,12 @@
 {
    "lock": false,
-   "version": "0.5.10",
    "tasks": {
-      "start": "deno run -A --env --watch=/ main.ts"
+      "server": "PORT=8080 deno run -A --env --watch=src/api/,src/main.ts src/main.ts"
    },
    "imports": {
-      "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56"
+      "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
+      "hono": "jsr:@hono/hono@^4.11.7",
+      "mongodb": "npm:mongodb@^7.0.0"
    },
    "nodeModulesDir": "auto"
 }

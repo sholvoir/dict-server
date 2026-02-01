@@ -1,15 +1,27 @@
-# dotenv environment variable files
+.wrangler
+.output
+.vercel
+.netlify
+.vinxi
+app.config.timestamp_*.js
+
+# Environment
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env*.local
 
-# Log
-logs/
-*.log
+# dependencies
+/node_modules
 
-node_modules/
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
 
+# Temp
+gitignore
+
+# System Files
 .DS_Store
-/z.json
+Thumbs.db
