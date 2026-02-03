@@ -8,6 +8,7 @@ export default defineConfig({
    plugins: [devtools(), solidPlugin(), tailwindcss()],
    build: {
       target: "esnext",
+      outDir: "../server/public",
       emptyOutDir: true,
    },
    server: {
