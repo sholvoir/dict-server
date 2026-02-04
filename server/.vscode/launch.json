@@ -8,10 +8,15 @@
          "request": "launch",
          "name": "Launch Main",
          "type": "node",
-         "program": "${workspaceFolder}/main.ts",
+         "program": "${workspaceFolder}/src/main.ts",
          "cwd": "${workspaceFolder}",
-         "runtimeExecutable": "~/.deno/bin/deno",
-         "runtimeArgs": ["run", "--inspect-wait", "--allow-all", "--env"],
+         "runtimeExecutable": "/home/shaw/.deno/bin/deno",
+         "runtimeArgs": [
+            "run",
+            "--inspect-wait",
+            "--allow-all",
+            "--env"
+         ],
          "attachSimplePort": 9229
       },
       {
@@ -19,10 +24,17 @@
          "name": "Launch Oxford Web",
          "type": "node",
          "program": "${workspaceFolder}/oxford-web.ts",
-         "args": ["bump into"],
+         "args": [
+            "bump into"
+         ],
          "cwd": "${workspaceFolder}",
-         "runtimeExecutable": "~/.deno/bin/deno",
-         "runtimeArgs": ["run", "--inspect-wait", "--allow-all", "--env"],
+         "runtimeExecutable": "/home/shaw/.deno/bin/deno",
+         "runtimeArgs": [
+            "run",
+            "--inspect-wait",
+            "--allow-all",
+            "--env"
+         ],
          "attachSimplePort": 9229
       }
    ]

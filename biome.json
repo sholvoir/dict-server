@@ -28,7 +28,8 @@
          "suspicious": {
             "noAssignInExpressions": "off",
             "noExplicitAny": "off",
-            "useIterableCallbackReturn": "off"
+            "useIterableCallbackReturn": "off",
+            "noNonNullAssertedOptionalChain": "off"
          },
          "style": {
             "noNonNullAssertion": "off"

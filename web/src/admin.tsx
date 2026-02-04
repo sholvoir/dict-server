@@ -2,9 +2,11 @@ import Button from "@sholvoir/solid-components/button-ripple";
 import TextInput from "@sholvoir/solid-components/input-text";
 import List from "@sholvoir/solid-components/list";
 import { createResource, createSignal, For, Show, type Signal } from "solid-js";
+import type { IDict, IEntry } from "../../server/src/lib/idict.ts";
 import { version } from "../package.json" with { type: "json" };
+import * as app from "./app.tsx";
+import Dialog from "./dialog.tsx";
 import Ecard from "./ecard.tsx";
-import type { IDict, IEntry } from "./idict.ts";
 import * as srv from "./srv.ts";
 
 export default () => {
@@ -68,12 +70,12 @@ export default () => {
       window.focus();
    };
    const handleAddCardClick = async () => {
-      const entry = await srv.getDefinition(word());
-      if (entry) {
-         if (entry.meanings)
-            for (const means of Object.values(entry.meanings))
+      const dict = await srv.getDict(word());
+      if (dict) {
+         if (dict.entries?.[0].meanings)
+            for (const means of Object.values(dict.entries?.[0].meanings))
                if (means) for (const m of means) if (!m.trans) m.trans = "";
-         setEntries([...entries(), createSignal(entry)]);
+         setEntries([...entries(), createSignal(dict.entries?.[0]!)]);
       }
    };
    const handleDeleteCardClick = () => {
@@ -102,10 +104,12 @@ export default () => {
    };
 
    const [currentIssueIndex, setCurrentIssueIndex] = createSignal(0);
-   const [issues, setIssues] = createSignal<Array<IIssue>>([]);
+   const [issues, setIssues] = createSignal<
+      Array<{ _id?: string; issue: string }>
+   >([]);
 
    const handleECClick = async () => {
-      const resp = await srv.getEcdictAsIssue();
+      const resp = await srv.getEcdict();
       if (resp.ok) {
          app.showTips("EC导入成功");
          await handleLoadIssueClick();
@@ -129,7 +133,7 @@ export default () => {
    const handleProcessIssueClick = async () => {
       const issue = issues()[currentIssueIndex()];
       if (!issue) return;
-      const result = (await srv.deleteIssue(issue._id)) as any;
+      const result = (await srv.deleteIssue(issue._id!)) as any;
       if (result.acknowledged && result.deletedCount > 0) {
          setIssues((issues) =>
             issues.filter((_, i) => i !== currentIssueIndex()),
@@ -148,12 +152,12 @@ export default () => {
       } else app.showTips("处理失败");
    };
    createResource(async () => {
-      if (setAuth("hua" === mem.user)) {
-         const [vocab, updatedVocab] = await mem.getVocabulary();
-         vocab.size && app.setVocabulary(vocab);
-         updatedVocab().then((nvocab) => nvocab && app.setVocabulary(nvocab));
-         await handleLoadIssueClick();
-      }
+      // if (setAuth("hua" === mem.user)) {
+      //    const [vocab, updatedVocab] = await mem.getVocabulary();
+      //    vocab.size && app.setVocabulary(vocab);
+      //    updatedVocab().then((nvocab) => nvocab && app.setVocabulary(nvocab));
+      //    await handleLoadIssueClick();
+      // }
    });
    return (
       <Show when={auth()}>
@@ -171,6 +175,7 @@ export default () => {
                            class="grow"
                            word={word()}
                            entry={entry}
+                           showTips={app.showTips}
                            onClick={() => setCurrentCardIndex(i())}
                         />
                      )}
@@ -269,7 +274,7 @@ export default () => {
                         cindex={[currentIssueIndex, setCurrentIssueIndex]}
                         activeClass="bg-[var(--bg-title)]"
                         options={issues()}
-                        func={(issue) => `${issue.reporter}: ${issue.issue}`}
+                        func={(issue) => issue.issue}
                         onClick={handleIssueClick}
                      />
                   </div>

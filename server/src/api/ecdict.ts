@@ -1,13 +1,12 @@
 import { emptyResponse } from "@sholvoir/generic/http";
 import { Hono } from "hono";
-import type { IIssue } from "../lib/iissue.ts";
 import { collectionDict, collectionIssue } from "../lib/mongo.ts";
 import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
 
 const app = new Hono();
 app.get(auth, admin, async (c) => {
-   const issues: Array<IIssue> = [];
+   const issues: Array<{ issue: string }> = [];
    const cursor = collectionDict.find();
    u: for await (const dict of cursor) {
       if (dict.entries)

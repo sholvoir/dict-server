@@ -2,7 +2,7 @@ const baseUrl = "https://api.dictionaryapi.dev/api/v2/entries/en";
 
 const freeDictionaryApi = async (word: string): Promise<any> => {
    const res = await fetch(`${baseUrl}/${word}`);
-   if (!res.ok) throw res;
+   if (!res.ok) return undefined;
    return await res.json();
 };
 

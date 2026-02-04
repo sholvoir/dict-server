@@ -17,7 +17,7 @@ app.get("/", async (c) => {
       const result = await youdaoApi(encodeWord);
       // freeDictionaryApi
       const fd = await freeDictionaryApi(word);
-      if (Array.isArray(fd)) {
+      if (fd && Array.isArray(fd)) {
          result.meta.dicts.push("free_dictionary_api");
          result.free_dictionary_api = fd;
       }
