@@ -1,5 +1,10 @@
 {
    "lock": false,
+   "lint": {
+      "rules": {
+         "exclude": ["no-explicit-any", "no-empty"]
+      }
+   },
    "tasks": {
       "server": "PORT=8080 deno run -A --env --watch=src/api/,src/main.ts src/main.ts"
    },

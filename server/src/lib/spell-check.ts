@@ -1,5 +1,5 @@
 import { getHash } from "@sholvoir/generic/hash";
-import { s3 } from "./s3.ts";
+import { S3 } from "@sholvoir/generic/s3";
 
 const bid = "vocabulary";
 let funcIndex = 0;
@@ -7,6 +7,14 @@ const vocabulary = {
    vocab: new Set<string>(),
    checksum: "",
 };
+
+const s3 = new S3(
+   "https://s3.us-east-005.backblazeb2.com",
+   "us-east-005",
+   Deno.env.get("BACKBLAZE_KEY_ID")!,
+   Deno.env.get("BACKBLAZE_APP_KEY")!,
+   "vocabulary",
+);
 
 // const spliteNum = /^([A-Za-zèé /&''.-]+)(\d*)/;
 const entitiesRegex = /&(quot|apos|amp|lt|gt|#(x?\d+));/g;
@@ -96,17 +104,13 @@ export const deleteFromVocabulary = async (words: Iterable<string>) => {
 
 export const check = async (
    lines: Iterable<string>,
-): Promise<[Set<string>, Record<string, Array<string>>]> => {
-   const words = new Set<string>();
+): Promise<Record<string, Array<string>>> => {
    const replaces: Record<string, Array<string>> = {};
    const { vocab } = await getVocabulary();
    let added = false;
    A: for (let word of lines)
       if ((word = word.trim())) {
-         if (vocab.has(word)) {
-            words.add(word);
-            continue;
-         }
+         if (vocab.has(word)) continue;
          const replace = new Set<string>();
          for (let i = 0; i < scfuncs.length; i++) {
             const funIndex = funcIndex++ % scfuncs.length;
@@ -114,12 +118,11 @@ export const check = async (
             if (entries.includes(word)) {
                vocab.add(word);
                added = true;
-               words.add(word);
                continue A;
             } else entries.forEach((entry) => replace.add(entry));
          }
          replaces[word] = Array.from(replace);
       }
    if (added) update();
-   return [words, replaces];
+   return replaces;
 };

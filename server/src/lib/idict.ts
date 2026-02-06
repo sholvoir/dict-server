@@ -1,15 +1,15 @@
-export interface IMean {
-    def?: string;
-    trans?: string;
-}
-export interface IEntry {
-    sound?: string;
-    phonetic?: string;
-    meanings?: Record<string, Array<IMean>>;
-}
-export interface IDict {
-    _id?: string;
-    word: string;
-    version?: number;
-    entries?: Array<IEntry>;
+import type { IOxfordWeb } from "./i-oxford-web.ts";
+import type { IWebsterWeb } from "./i-webster-web.ts";
+import type * as Mic from "./imic.ts";
+
+export interface IDictionary {
+   input: string;
+   version?: number;
+   modified?: boolean;
+   mic?: Mic.IDict;
+   free_dictionary_api?: Array<any>;
+   webster_api?: Array<any>;
+   webster_web?: IWebsterWeb;
+   oxford_web?: IOxfordWeb;
+   [key: string]: any;
 }

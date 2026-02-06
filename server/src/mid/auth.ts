@@ -1,8 +1,11 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
+import { JWT } from "@sholvoir/generic/jwt";
 import { getCookie } from "hono/cookie";
 import type { MiddlewareHandler } from "hono/types";
 import type { jwtEnv } from "../lib/env.ts";
-import { jwt } from "../lib/jwt.ts";
+
+const jwt = new JWT({ iss: "micinfotech.com", sub: "memword" });
+await jwt.importKey(Deno.env.get("APP_KEY"));
 
 const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
    const token =

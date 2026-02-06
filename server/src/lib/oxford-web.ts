@@ -4,7 +4,20 @@ import {
    type HTMLDocument,
    NodeType,
 } from "@b-fuze/deno-dom";
+import type {
+   IInflection,
+   IOxfordWebEntry,
+   IPhonetic,
+   IPronounce,
+   ISense,
+   ISenseTop,
+   IVariant,
+   IWebTop,
+   IXref,
+} from "./i-oxford-web.ts";
+import type { IDictionary } from "./idict.ts";
 
+const version = 1;
 const userAgent =
    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36";
 const baseUrl = "https://www.oxfordlearnersdictionaries.com/us/search/english";
@@ -16,12 +29,7 @@ const extractLabels = (span: Element) =>
    span.textContent.replaceAll(labelsRegex, "").split(", ");
 
 const extractVariant = (div: Element) => {
-   const variant: Array<{
-      spec?: string;
-      labels?: string[];
-      v?: string;
-      grammar?: string;
-   }> = [];
+   const variant: Array<IVariant> = [];
    for (const variantsChildNode of div.childNodes) {
       if (variantsChildNode.nodeType === NodeType.TEXT_NODE) {
          const spec = variantsChildNode.nodeValue
@@ -51,21 +59,21 @@ const extractVariant = (div: Element) => {
 };
 
 const extractPhonetics = (span: Element) => {
-   const phonetics = [];
+   const phonetics: Array<IPhonetic> = [];
    for (const div of span.children)
       if (div.tagName === "DIV") {
-         const phonetic: any = { geo: div.getAttribute("geo") };
-         const phs = [];
+         const phonetic: IPhonetic = { geo: div.getAttribute("geo") };
+         const prs: Array<IPronounce> = [];
          for (const soundDiv of div.querySelectorAll(
             "div.sound.audio_play_button.icon-audio",
          )) {
-            const ph: any = {};
+            const ph: IPronounce = {};
             ph.sound = soundDiv.getAttribute("data-src-mp3");
             const phonSpan = soundDiv.nextSibling;
             if (phonSpan) ph.phon = phonSpan.textContent;
-            phs.push(ph);
+            prs.push(ph);
          }
-         phonetic.phs = phs;
+         phonetic.prs = prs;
          phonetics.push(phonetic);
       }
    return phonetics;
@@ -74,7 +82,7 @@ const extractPhonetics = (span: Element) => {
 const labelRegex = /(?:\(|,\s)(\w+)\s/;
 const extractInflections = (div: Element) => {
    const inflections = [];
-   let inflection = { label: "", inflected: [] as Array<string> };
+   let inflection: IInflection = { label: "", inflected: [] as Array<string> };
    for (const childNode of div.childNodes) {
       if (childNode.nodeType === NodeType.TEXT_NODE) {
          const text = childNode.nodeValue;
@@ -104,8 +112,21 @@ const extractInflections = (div: Element) => {
    return inflections;
 };
 
-const extractWebTop = (div: Element, entry: any) => {
+const extractXrefs = (span: Element) => {
+   const xref: IXref = { prefix: "", ref: "" };
+   for (const ch of span.children) {
+      if (ch.tagName === "SPAN" && ch.classList.contains("prefix")) {
+         xref.prefix = ch.textContent;
+      } else if (ch.tagName === "A" && ch.classList.contains("Ref")) {
+         xref.ref = ch.textContent;
+      }
+   }
+   return xref;
+};
+
+const extractWebTop = (div: Element, entry: IOxfordWebEntry) => {
    // headword, pos, phonetics, variants, inflections, labels
+   const webTop: IWebTop = {};
    for (const webTopChild of div.children) {
       switch (webTopChild.tagName) {
          case "H1":
@@ -118,74 +139,66 @@ const extractWebTop = (div: Element, entry: any) => {
             } else if (webTopChild.classList.contains("phonetics")) {
                entry.phonetics = extractPhonetics(webTopChild);
             } else if (webTopChild.classList.contains("labels")) {
-               entry.labels = extractLabels(webTopChild);
+               webTop.labels = extractLabels(webTopChild);
             } else if (webTopChild.classList.contains("use")) {
-               entry.use = webTopChild.textContent;
+               webTop.use = webTopChild.textContent;
             } else if (webTopChild.classList.contains("grammar")) {
-               entry.grammar = webTopChild.textContent;
+               webTop.grammar = webTopChild.textContent;
             } else if (webTopChild.classList.contains("def")) {
-               entry.def = webTopChild.textContent;
+               webTop.def = webTopChild.textContent;
             }
             break;
          case "DIV":
             if (webTopChild.classList.contains("variants")) {
-               if (!entry.variants) entry.variants = [];
-               entry.variants.push(extractVariant(webTopChild));
+               if (!webTop.variants) webTop.variants = [];
+               webTop.variants.push(extractVariant(webTopChild));
             } else if (webTopChild.classList.contains("inflections")) {
-               entry.inflections = extractInflections(webTopChild);
+               webTop.inflections = extractInflections(webTopChild);
             }
       }
    }
+   if (Object.keys(webTop).length) entry.webTop = webTop;
 };
 
-const extractSenseTop = (span: Element, sense: any) => {
+const extractSenseTop = (span: Element) => {
    // variants, grammar, def
-   for (const c of span.children)
-      switch (c.tagName) {
+   const senseTop: ISenseTop = {};
+   for (const child of span.children)
+      switch (child.tagName) {
          case "SPAN":
-            if (c.classList.contains("dis-g")) sense.disg = c.textContent;
-            else if (c.classList.contains("cf")) {
-               if (!sense.cf) sense.cf = [];
-               sense.cf.push(c.textContent);
-            } else if (c.classList.contains("grammar"))
-               sense.grammar = c.textContent;
-            else if (c.classList.contains("labels"))
-               sense.labels = extractLabels(c);
-            else if (c.classList.contains("def")) sense.def = c.textContent;
-            else if (c.classList.contains("xrefs")) {
-               const xref = { prefix: "", ref: "" };
-               for (const ch of c.children) {
-                  if (
-                     ch.tagName === "SPAN" &&
-                     ch.classList.contains("prefix")
-                  ) {
-                     xref.prefix = ch.textContent;
-                  } else if (
-                     ch.tagName === "A" &&
-                     ch.classList.contains("Ref")
-                  ) {
-                     xref.ref = ch.textContent;
-                  }
-               }
-               if (!sense.xrefs) sense.xrefs = [];
-               sense.xrefs.push(xref);
+            if (child.classList.contains("dis-g"))
+               senseTop.disg = child.textContent;
+            else if (child.classList.contains("cf")) {
+               if (!senseTop.cf) senseTop.cf = [];
+               senseTop.cf.push(child.textContent);
+            } else if (child.classList.contains("grammar"))
+               senseTop.grammar = child.textContent;
+            else if (child.classList.contains("labels"))
+               senseTop.labels = extractLabels(child);
+            else if (child.classList.contains("def"))
+               senseTop.def = child.textContent;
+            else if (child.classList.contains("xrefs")) {
+               if (!senseTop.xrefs) senseTop.xrefs = [];
+               senseTop.xrefs.push(extractXrefs(child));
             }
             break;
          case "DIV":
-            if (c.classList.contains("variants")) {
-               if (!sense.variants) sense.variants = [];
-               sense.variants.push(extractVariant(c));
-            } else if (c.classList.contains("inflections"))
-               sense.inflections = extractInflections(c);
+            if (child.classList.contains("variants")) {
+               if (!senseTop.variants) senseTop.variants = [];
+               senseTop.variants.push(extractVariant(child));
+            } else if (child.classList.contains("inflections"))
+               senseTop.inflections = extractInflections(child);
       }
+   return senseTop;
 };
 
-const extractSenseLi = (li: Element, sense: any) => {
+const extractSense = (li: Element, shcut?: string) => {
+   const sense: ISense = { shcut };
    for (const child of li.children)
       switch (child.tagName) {
          case "SPAN":
             if (child.classList.contains("sensetop"))
-               extractSenseTop(child, sense);
+               sense.senseTop = extractSenseTop(child);
             else if (child.classList.contains("dis-g"))
                sense.disg = child.textContent;
             else if (child.classList.contains("grammar"))
@@ -199,19 +212,25 @@ const extractSenseLi = (li: Element, sense: any) => {
                sense.cf.push(child.textContent);
             } else if (child.classList.contains("def"))
                sense.def = child.textContent;
+            else if (child.classList.contains("xrefs")) {
+               if (!sense.xrefs) sense.xrefs = [];
+               sense.xrefs.push(extractXrefs(child));
+            }
             break;
          case "DIV":
             if (child.classList.contains("variants")) {
                if (!sense.variants) sense.variants = [];
                sense.variants.push(extractVariant(child));
-            }
+            } else if (child.classList.contains("inflections"))
+               sense.inflections = extractInflections(child);
       }
+   return sense;
 };
 
-const extract = (doc: HTMLDocument): any => {
-   const entry: any = {};
+const extract = (doc: HTMLDocument): IOxfordWebEntry | undefined => {
+   const entry: IOxfordWebEntry = {};
    const entryDiv = doc.querySelector("#entryContent>.entry");
-   if (!entryDiv) return entry;
+   if (!entryDiv) return;
    const webTopDiv = entryDiv.querySelector(".top-container>.top-g>.webtop");
    if (webTopDiv) extractWebTop(webTopDiv, entry);
    const sensesOl = entryDiv.querySelector(
@@ -226,17 +245,14 @@ const extract = (doc: HTMLDocument): any => {
          ) {
             const shcutH2 = olChild.querySelector("h2.shcut");
             for (const senseLi of olChild.querySelectorAll("li.sense")) {
-               const sense: any = {};
-               if (shcutH2) sense.shcut = shcutH2.textContent;
-               extractSenseLi(senseLi, sense);
+               const sense = extractSense(senseLi, shcutH2?.textContent);
                if (Object.keys(sense).length) entry.senses.push(sense);
             }
          } else if (
             olChild.tagName === "LI" &&
             olChild.classList.contains("sense")
          ) {
-            const sense: any = {};
-            extractSenseLi(olChild, sense);
+            const sense = extractSense(olChild);
             if (Object.keys(sense).length) entry.senses.push(sense);
          }
       }
@@ -244,9 +260,12 @@ const extract = (doc: HTMLDocument): any => {
    return entry;
 };
 
-const oxford = async (word: string): Promise<Array<any>> => {
+const fill = async (dict: IDictionary) => {
+   if (!dict.input) return dict;
+   if (dict.oxford_web && dict.oxford_web.version >= version) return dict;
+   const word = encodeURIComponent(dict.input);
    const ids = new Set<string>();
-   const result: Array<any> = [];
+   const entries: Array<IOxfordWebEntry> = [];
    let ref = `${baseUrl}/?q=${word}`;
    const cookies: Record<string, string> = {};
    const readUrl = async (url: string, e: boolean) => {
@@ -268,10 +287,13 @@ const oxford = async (word: string): Promise<Array<any>> => {
          await res.text(),
          "text/html",
       );
-      if (e) result.push(extract(doc));
+      if (e) {
+         const entry = extract(doc);
+         if (entry) entries.push(entry);
+      }
       const nearbyUl = doc.querySelector(".nearby>.list-col");
       if (!nearbyUl) return;
-      const changedWord = word.replace("%20", "-");
+      const changedWord = word.replace("%20", "-").toLocaleLowerCase();
       for (const li of nearbyUl.children)
          if (li.tagName === "LI")
             for (const a of li.querySelectorAll("a")) {
@@ -280,7 +302,7 @@ const oxford = async (word: string): Promise<Array<any>> => {
                const m = regId.exec(href);
                if (!m) continue;
                const id = m[1];
-               const w = id.replaceAll(regId2Word, "");
+               const w = id.replaceAll(regId2Word, "").toLocaleLowerCase();
                if (w !== changedWord) continue;
                if (ids.has(id)) continue;
                ids.add(id);
@@ -289,16 +311,18 @@ const oxford = async (word: string): Promise<Array<any>> => {
             }
    };
    await readUrl(ref, false);
-   return result;
+   if (!entries.length) return dict;
+   dict.oxford_web = { version, entries };
+   dict.modified = true;
+   return dict;
 };
 
-export default oxford;
+export default fill;
 
 if (import.meta.main)
    for (const word of Deno.args) {
-      const encodeWord = encodeURIComponent(word);
       await Deno.writeTextFile(
          `z.json`,
-         JSON.stringify(await oxford(encodeWord), null, 2),
+         JSON.stringify(await fill({ input: word }), null, 2),
       );
    }

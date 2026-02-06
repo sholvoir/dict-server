@@ -1,24 +1,32 @@
+import { now } from "./common.ts";
+import type { IDictionary } from "./idict.ts";
+
 // export const googleTtsBaseUrl =
 //    "https://translate.google.com.vn/translate_tts?ie=UTF-8&tl=en&client=tw-ob"; //&q=ir
 
 const baseUrl = "https://dict.youdao.com/jsonapi";
 const audioBase = "https://dict.youdao.com/dictvoice?audio="; //complete&type=2
 
-const youdao = async (word: string): Promise<any> => {
-   const resp = await fetch(`${baseUrl}?q=${word}`);
-   if (!resp.ok) throw resp;
+const fill = async (dict: IDictionary) => {
+   if (!dict.input) return dict;
+   if (dict.version) return dict;
+   const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(dict.input)}`);
+   if (!resp.ok) return;
    const root = await resp.json();
-   const needDelete = new Set([
+   const needDelete = [
+      "web_trans",
       "oxfordAdvanceHtml",
       "oxfordAdvanceTen",
       "oxfordAdvance",
       "oxford",
       "webster",
       "senior",
-   ]);
-   root.meta.dicts = root.meta.dicts.filter(
-      (x: string) => !needDelete.has(x) && x !== "meta",
-   );
+      "lang",
+      "le",
+      "meta",
+      "typos",
+      "input",
+   ];
    for (const dictName of needDelete) if (root[dictName]) delete root[dictName];
    if (root.simple?.word?.length)
       for (const word of root.simple.word) {
@@ -30,10 +38,16 @@ const youdao = async (word: string): Promise<any> => {
          if (word.ukspeech) word.ukspeech = `${audioBase}${word.ukspeech}`;
          if (word.usspeech) word.usspeech = `${audioBase}${word.usspeech}`;
       }
-   return root;
+   if (root.word_video?.word_videos?.length)
+      for (const wordVideo of root.word_video.word_videos) {
+         delete wordVideo.ad;
+      }
+   dict.version = now();
+   dict.modified = true;
+   return dict;
 };
 
-export default youdao;
+export default fill;
 
 if (import.meta.main)
-   for (const word of Deno.args) console.log(await youdao(word));
+   for (const word of Deno.args) console.log(await fill({ input: word }));

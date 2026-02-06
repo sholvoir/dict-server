@@ -7,10 +7,9 @@ const app = new Hono();
 app.get(async (c) => {
    const soundUrl = c.req.query("q");
    if (!soundUrl) return emptyResponse(STATUS_CODE.BadRequest);
-   const reqInit = {
+   const resp = await fetch(soundUrl, {
       headers: { "User-Agent": c.req.header("User-Agent") ?? defaultAgent },
-   };
-   const resp = await fetch(soundUrl, reqInit);
+   });
    if (!resp.ok) return emptyResponse(STATUS_CODE.NotFound);
    const headers = new Headers();
    resp.headers.forEach((value, key) => headers.set(key, value));

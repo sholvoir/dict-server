@@ -1,9 +1,10 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { now } from "../lib/common.ts";
-import { getDict } from "../lib/dict.ts";
+import { fill } from "../lib/dict.ts";
 import type { jwtEnv } from "../lib/env.ts";
-import type { IDict } from "../lib/idict.ts";
+import type { IDict } from "../lib/imic.ts";
+import micFill from "../lib/mic.ts";
 import { collectionDict } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";
 import admin from "../mid/admin.ts";
@@ -13,37 +14,48 @@ const app = new Hono<jwtEnv>();
 
 app.get(async (c) => {
    const word = c.req.query("q");
+   const re = c.req.query("re");
+   const mic = c.req.query("mic");
    if (!word) return emptyResponse(STATUS_CODE.BadRequest);
-   const dict = await collectionDict.findOne({ word });
-   if (dict) {
+   const dict = await collectionDict.findOne({ input: word });
+   if (!dict) {
+      const ndict = await fill({ input: word });
+      const { vocab } = await getVocabulary();
+      if (vocab.has(word)) await collectionDict.insertOne(ndict);
+      console.log(`API 'dict' GET word: ${word}`);
+      return c.json(mic ? ndict.mic : ndict);
+   } else {
+      await fill(dict);
+      if (dict.modified) {
+         delete dict.modified;
+         await collectionDict.replaceOne({ input: word }, dict);
+      }
+      if (re) {
+         delete dict.mic;
+         micFill(dict);
+      }
       console.log(`API 'dict' GET word: ${word} (cached)`);
-      return c.json(dict);
+      return c.json(mic ? dict.mic : dict);
    }
-   const ndict = await getDict(word);
-   const { vocab } = await getVocabulary();
-   if (vocab.has(word)) await collectionDict.insertOne(ndict!);
-   console.log(`API 'dict' GET word: ${word}`);
-   return c.json(ndict);
 })
    .put(auth, admin, async (c) => {
-      const clientDict = (await c.req.json()) as IDict;
-      if (!clientDict) return emptyResponse(STATUS_CODE.BadRequest);
-      delete clientDict._id;
-      clientDict.version = now();
-      const result = await collectionDict.replaceOne(
-         { word: clientDict.word },
-         clientDict,
+      const cDict = (await c.req.json()) as IDict;
+      if (!cDict) return emptyResponse(STATUS_CODE.BadRequest);
+      cDict.version = now();
+      const result = await collectionDict.updateOne(
+         { input: cDict.word },
+         { $set: { mic: cDict } },
          { upsert: true },
       );
       if (!result.acknowledged)
          return emptyResponse(STATUS_CODE.InternalServerError);
-      console.log(`API dict PUT ${clientDict.word}`);
+      console.log(`API dict PUT ${cDict.word}`);
       return emptyResponse();
    })
    .delete(auth, admin, async (c) => {
       const word = c.req.query("q");
       if (!word) return emptyResponse(STATUS_CODE.BadRequest);
-      const result = await collectionDict.deleteOne({ word });
+      const result = await collectionDict.deleteOne({ input: word });
       if (!result.deletedCount) return emptyResponse(STATUS_CODE.NotFound);
       console.log(`API dict DELETE ${word}`);
       return emptyResponse();

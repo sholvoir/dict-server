@@ -1,3 +1,5 @@
+import type { IDictionary } from "./idict.ts";
+
 const baseUrl =
    "https://www.dictionaryapi.com/api/v3/references/collegiate/json";
 const soundBase = "https://media.merriam-webster.com/audio/prons/en/us/mp3";
@@ -11,11 +13,15 @@ const getSubdirectory = (word: string) => {
    return "number";
 };
 
-const websterApi = async (word: string): Promise<Array<any>> => {
-   const res = await fetch(`${baseUrl}/${word}?key=${apiKey}`);
-   if (!res.ok) throw res;
+const fill = async (dict: IDictionary) => {
+   if (!dict.input) return dict;
+   if (dict.webster_api) return dict;
+   const res = await fetch(
+      `${baseUrl}/${encodeURIComponent(dict.input)}?key=${apiKey}`,
+   );
+   if (!res.ok) return dict;
    const entries = (await res.json()) as Array<any>;
-   if (typeof entries[0] === 'string') return entries;
+   if (typeof entries[0] === "string") return dict;
    for (const entry of entries) {
       if (entry.hwi?.prs)
          for (const pr of entry.hwi.prs)
@@ -28,10 +34,12 @@ const websterApi = async (word: string): Promise<Array<any>> => {
                   if (pr.sound?.audio)
                      pr.sound.audio = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
    }
-   return entries;
+   dict.webster_api = entries;
+   dict.modified = true;
+   return dict;
 };
 
-export default websterApi;
+export default fill;
 
 if (import.meta.main)
-   for (const word of Deno.args) console.log(await websterApi(word));
+   for (const word of Deno.args) console.log(await fill({ input: word }));
