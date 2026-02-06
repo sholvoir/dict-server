@@ -42,6 +42,7 @@ const fill = async (dict: IDictionary) => {
       for (const wordVideo of root.word_video.word_videos) {
          delete wordVideo.ad;
       }
+   for (const [key, value] of Object.entries(root)) dict[key] = value;
    dict.version = now();
    dict.modified = true;
    return dict;
