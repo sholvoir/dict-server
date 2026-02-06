@@ -13,7 +13,6 @@ import type {
    ISenseTop,
    IVariant,
    IWebTop,
-   IXref,
 } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
 
@@ -29,7 +28,7 @@ const extractLabels = (span: Element) =>
    span.textContent.replaceAll(labelsRegex, "").split(", ");
 
 const extractVariant = (div: Element) => {
-   const variant: Array<IVariant> = [];
+   const variant: IVariant = [];
    for (const variantsChildNode of div.childNodes) {
       if (variantsChildNode.nodeType === NodeType.TEXT_NODE) {
          const spec = variantsChildNode.nodeValue
@@ -112,18 +111,6 @@ const extractInflections = (div: Element) => {
    return inflections;
 };
 
-const extractXrefs = (span: Element) => {
-   const xref: IXref = { prefix: "", ref: "" };
-   for (const ch of span.children) {
-      if (ch.tagName === "SPAN" && ch.classList.contains("prefix")) {
-         xref.prefix = ch.textContent;
-      } else if (ch.tagName === "A" && ch.classList.contains("Ref")) {
-         xref.ref = ch.textContent;
-      }
-   }
-   return xref;
-};
-
 const extractWebTop = (div: Element, entry: IOxfordWebEntry) => {
    // headword, pos, phonetics, variants, inflections, labels
    const webTop: IWebTop = {};
@@ -177,10 +164,6 @@ const extractSenseTop = (span: Element) => {
                senseTop.labels = extractLabels(child);
             else if (child.classList.contains("def"))
                senseTop.def = child.textContent;
-            else if (child.classList.contains("xrefs")) {
-               if (!senseTop.xrefs) senseTop.xrefs = [];
-               senseTop.xrefs.push(extractXrefs(child));
-            }
             break;
          case "DIV":
             if (child.classList.contains("variants")) {
@@ -212,10 +195,6 @@ const extractSense = (li: Element, shcut?: string) => {
                sense.cf.push(child.textContent);
             } else if (child.classList.contains("def"))
                sense.def = child.textContent;
-            else if (child.classList.contains("xrefs")) {
-               if (!sense.xrefs) sense.xrefs = [];
-               sense.xrefs.push(extractXrefs(child));
-            }
             break;
          case "DIV":
             if (child.classList.contains("variants")) {

@@ -21,11 +21,11 @@
       },
       {
          "request": "launch",
-         "name": "Launch Oxford Web",
+         "name": "Launch OP",
          "type": "node",
-         "program": "${workspaceFolder}/oxford-web.ts",
+         "program": "${workspaceFolder}/op.ts",
          "args": [
-            "bump into"
+            "mother"
          ],
          "cwd": "${workspaceFolder}",
          "runtimeExecutable": "/home/shaw/.deno/bin/deno",

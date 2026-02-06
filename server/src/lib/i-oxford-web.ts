@@ -6,12 +6,12 @@ export interface IPhonetic {
    geo?: string | null;
    prs?: Array<IPronounce>;
 }
-export interface IVariant {
+export type IVariant = Array<{
    spec?: string;
    labels?: string[];
    v?: string;
    grammar?: string;
-}
+}>;
 export interface IXref {
    prefix?: string;
    ref?: string;
@@ -22,18 +22,18 @@ export interface IInflection {
 }
 export interface IWebTop {
    inflections?: Array<IInflection>;
-   variants?: Array<any>;
+   variants?: Array<IVariant>;
    grammar?: string;
-   labels?: Array<any>;
+   labels?: Array<string>;
    use?: string;
    def?: string;
 }
 export interface ISenseTop {
-   variants?: Array<any>;
+   variants?: Array<IVariant>;
    grammar?: string;
-   cf?: Array<any>;
+   cf?: Array<string>;
    inflections?: Array<IInflection>;
-   labels?: Array<any>;
+   labels?: Array<string>;
    disg?: string;
    use?: string;
    def?: string;
@@ -42,11 +42,11 @@ export interface ISenseTop {
 export interface ISense {
    shcut?: string;
    senseTop?: ISenseTop;
-   variants?: Array<any>;
+   variants?: Array<IVariant>;
    grammar?: string;
-   cf?: Array<any>;
+   cf?: Array<string>;
    inflections?: Array<IInflection>;
-   labels?: Array<any>;
+   labels?: Array<string>;
    disg?: string;
    use?: string;
    def?: string;
@@ -55,7 +55,7 @@ export interface ISense {
 export interface IOxfordWebEntry {
    headWord?: string;
    pos?: string;
-   phonetics?: Array<any>;
+   phonetics?: Array<IPhonetic>;
    webTop?: IWebTop;
    senses?: Array<ISense>;
 }
