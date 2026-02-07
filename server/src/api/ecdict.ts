@@ -9,8 +9,8 @@ app.get(auth, admin, async (c) => {
    const issues: Array<{ issue: string }> = [];
    const cursor = collectionDict.find();
    u: for await (const dict of cursor) {
-      if (dict.entries)
-         for (const entry of dict.entries) {
+      if (dict.mic?.entries)
+         for (const entry of dict.mic.entries) {
             if (entry.phonetic?.includes("/,/")) {
                issues.push({ issue: dict.word });
                continue u;
@@ -20,14 +20,6 @@ app.get(auth, admin, async (c) => {
                if (entry.meanings.ecdict) {
                   issues.push({ issue: dict.word });
                   continue u;
-               }
-               for (const meaning of Object.values(entry.meanings)) {
-                  for (const mean of meaning) {
-                     if (`${mean.trans ?? ""}`.includes('""')) {
-                        issues.push({ issue: dict.word });
-                        continue u;
-                     }
-                  }
                }
             }
          }

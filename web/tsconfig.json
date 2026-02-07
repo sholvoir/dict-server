@@ -16,6 +16,12 @@
     "strict": true,
     "types": [
       "vite/client"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "#srv/*": [
+        "../server/src/*"
+      ]
+    }
   }
 }

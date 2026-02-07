@@ -2,7 +2,7 @@ import Button from "@sholvoir/solid-components/button-ripple";
 import TextInput from "@sholvoir/solid-components/input-text";
 import List from "@sholvoir/solid-components/list";
 import { createResource, createSignal, For, Show, type Signal } from "solid-js";
-import type { IDict, IEntry } from "../../server/src/lib/idict.ts";
+import type { IDict, IEntry } from "#srv/lib/imic.ts";
 import { version } from "../package.json" with { type: "json" };
 import Dialog from "./dialog.tsx";
 import Ecard from "./ecard.tsx";
@@ -61,29 +61,16 @@ export default () => {
          `https://www.oxfordlearnersdictionaries.com/us/search/english/?q=${w}`,
          "oxfordlearnersdictionaries",
       );
-      const dict = await srv.getDict(word());
+      const dict = (await srv.getDict(word())) as IDict;
       if (!dict) return showTips("Not Found");
       setCurrentWord(dict.word);
       setCurrentCardIndex(0);
-      if (dict.entries)
-         for (const entry of dict.entries)
-            if (entry.meanings)
-               for (const means of Object.values(entry.meanings))
-                  if (means)
-                     for (const mean of means)
-                        if (entry.meanings.ecdict && mean.trans === undefined)
-                           mean.trans = "";
       setEntries((dict.entries ?? []).map((e) => createSignal(e)));
       window.focus();
    };
    const handleAddCardClick = async () => {
-      const dict = await srv.getDict(word());
-      if (dict) {
-         if (dict.entries?.[0].meanings)
-            for (const means of Object.values(dict.entries?.[0].meanings))
-               if (means) for (const m of means) if (!m.trans) m.trans = "";
-         setEntries([...entries(), createSignal(dict.entries?.[0]!)]);
-      }
+      const dict = (await srv.getDict(word())) as IDict;
+      if (dict) setEntries([...entries(), createSignal(dict.entries?.[0]!)]);
    };
    const handleDeleteCardClick = () => {
       if (entries().length > 1)

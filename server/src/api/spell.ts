@@ -7,8 +7,10 @@ const app = new Hono();
 app.post(async (c) => {
    const text = await c.req.text();
    if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-   const result = await check(text);
-   return c.json(result);
+   const result = await check(text.split("\n"));
+   if (Object.keys(result).length)
+      return c.json(result, STATUS_CODE.NotAcceptable);
+   return emptyResponse(STATUS_CODE.OK);
 });
 
 export default app;

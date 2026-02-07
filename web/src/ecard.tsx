@@ -2,7 +2,7 @@ import Button from "@sholvoir/solid-components/button-ripple";
 import type { TextAreaTargeted } from "@sholvoir/solid-components/targeted";
 import { createSignal, type JSX, type Signal } from "solid-js";
 import { parse, stringify } from "yaml";
-import type { IEntry, IMean } from "../../server/src/lib/idict.ts";
+import type { IEntry } from "../../server/src/lib/imic.ts";
 
 export default (
    props: {
@@ -21,15 +21,7 @@ export default (
    };
    const handleMeaningsChange = (e: InputEvent & TextAreaTargeted) => {
       try {
-         const meanings: Record<string, Array<IMean>> = parse(
-            e.currentTarget.value,
-         );
-         for (const means of Object.values(meanings))
-            for (const mean of means)
-               if (mean.trans) {
-                  if (typeof mean.trans !== "string") throw new Error();
-                  else if (mean.trans.includes('""')) throw new Error();
-               }
+         const meanings = parse(e.currentTarget.value);
          setParseError(false);
          setEntry((en) => ({ ...en, meanings }));
       } catch {
