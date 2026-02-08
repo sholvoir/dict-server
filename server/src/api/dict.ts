@@ -1,6 +1,5 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
-import { now } from "../lib/common.ts";
 import { fill } from "../lib/dict.ts";
 import type { jwtEnv } from "../lib/env.ts";
 import type { IDict } from "../lib/imic.ts";
@@ -41,7 +40,7 @@ app.get(async (c) => {
    .put(auth, admin, async (c) => {
       const cDict = (await c.req.json()) as IDict;
       if (!cDict) return emptyResponse(STATUS_CODE.BadRequest);
-      cDict.version = now();
+      cDict.version = `${Date.now()}`;
       const result = await collectionDict.updateOne(
          { input: cDict.word },
          { $set: { mic: cDict } },

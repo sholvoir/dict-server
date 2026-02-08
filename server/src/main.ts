@@ -7,7 +7,8 @@ import issue from "./api/issue.ts";
 import sound from "./api/sound.ts";
 import spell from "./api/spell.ts";
 import vocabulary from "./api/vocabulary.ts";
-import { API_BASE } from "./lib/common.ts";
+
+const API_BASE = "/api/v2";
 
 const run = () => {
    const app = new Hono();

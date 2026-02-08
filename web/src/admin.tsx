@@ -6,7 +6,7 @@ import type { IDict, IEntry } from "#srv/lib/imic.ts";
 import { version } from "../package.json" with { type: "json" };
 import Dialog from "./dialog.tsx";
 import Ecard from "./ecard.tsx";
-import * as srv from "./srv.ts";
+import * as srv from "./server.ts";
 
 export default () => {
    const [tips, setTips] = createSignal("");

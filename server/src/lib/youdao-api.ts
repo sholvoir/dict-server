@@ -1,4 +1,3 @@
-import { now } from "./common.ts";
 import type { IDictionary } from "./idict.ts";
 
 // export const googleTtsBaseUrl =
@@ -43,7 +42,7 @@ const fill = async (dict: IDictionary) => {
          delete wordVideo.ad;
       }
    for (const [key, value] of Object.entries(root)) dict[key] = value;
-   dict.version = now();
+   dict.version = `${Date.now()}`;
    dict.modified = true;
    return dict;
 };
