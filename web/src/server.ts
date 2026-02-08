@@ -1,6 +1,7 @@
 import { getJson, jsonHeader, url } from "@sholvoir/generic/http";
-import { API_BASE } from "../../server/src/lib/common.ts";
-import type { IDict } from "../../server/src/lib/idict.ts";
+import type { IDict } from "../../server/src/lib/imic.ts";
+
+const API_BASE = "/api/v2";
 
 export const getEcdict = async () => fetch(`${API_BASE}/ecdict`);
 
@@ -13,7 +14,7 @@ export const deleteIssue = async (id: string) =>
    });
 
 export const getDict = (word: string) =>
-   getJson<IDict>(url(`${API_BASE}/dict`, { q: word }));
+   getJson<IDict>(url(`${API_BASE}/dict`, { q: word, mic: "1" }));
 
 export const putDict = (dict: IDict) =>
    fetch(`${API_BASE}/dict`, {
