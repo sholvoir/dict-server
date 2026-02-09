@@ -6,7 +6,7 @@ const API_BASE = "/api/v2";
 export const getEcdict = async () => fetch(`${API_BASE}/ecdict`);
 
 export const getIssues = () =>
-   getJson<Array<{ _id: string; issue: string }>>(`${API_BASE}/issues`);
+   getJson<Array<{ _id: string; issue: string }>>(`${API_BASE}/issue`);
 
 export const deleteIssue = async (id: string) =>
    fetch(url(`${API_BASE}/issue`, { id }), {
