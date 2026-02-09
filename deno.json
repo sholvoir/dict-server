@@ -1,5 +1,6 @@
 {
    "lock": false,
+   "version": "0.6.9",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -13,6 +14,5 @@
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.0",
       "hono": "jsr:@hono/hono@^4.11.7",
       "mongodb": "npm:mongodb@^7.0.0"
-   },
-   "exclude": ["public/*"]
+   }
 }

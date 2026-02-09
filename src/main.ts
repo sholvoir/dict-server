@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { serveStatic } from "hono/deno";
 import dict from "./api/dict.ts";
 import ecdict from "./api/ecdict.ts";
+import apply from "./api/index.ts";
 import issue from "./api/issue.ts";
 import sound from "./api/sound.ts";
 import spell from "./api/spell.ts";
@@ -13,8 +13,7 @@ const API_BASE = "/api/v2";
 const run = () => {
    const app = new Hono();
    app.use(cors());
-   app.use("/", serveStatic({ path: "./public/index.html" }));
-   app.use("/assets/*", serveStatic({ root: "./public" }));
+   apply(app);
    app.route(`${API_BASE}/dict`, dict);
    app.route(`${API_BASE}/ecdict`, ecdict);
    app.route(`${API_BASE}/issue`, issue);
