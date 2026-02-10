@@ -5,6 +5,6 @@ export interface IEntry {
 }
 export interface IDict {
    word: string;
-   version?: string;
+   version?: number;
    entries?: Array<IEntry>;
 }

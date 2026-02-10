@@ -103,7 +103,7 @@ const fill = (dict: IDictionary) => {
    const entry: IEntry = { phonetic: "", meanings: {} };
    const mic: IDict = {
       word,
-      version: `${Date.now()}`,
+      version: Date.now(),
       entries: [entry],
    };
    // Webster Web

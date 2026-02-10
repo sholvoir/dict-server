@@ -18,6 +18,6 @@ export const fill = async (dict: IDictionary) => {
    // oxford
    await oxfordWeb(dict);
    // mic
-   await mic(dict);
+   mic(dict);
    return dict;
 };

@@ -4,7 +4,7 @@ import type * as Mic from "./imic.ts";
 
 export interface IDictionary {
    input: string;
-   version?: string;
+   version?: number;
    modified?: boolean;
    mic?: Mic.IDict;
    free_dictionary_api?: Array<any>;

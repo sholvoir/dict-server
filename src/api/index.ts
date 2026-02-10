@@ -6,7 +6,7 @@ import auth from "../mid/auth.ts";
 const url = "https://www.micinfotech.com/dict/";
 
 const apply = (app: Hono) => {
-   app.use("/", auth, admin, async (c) => {
+   app.get("/", auth, admin, async (c) => {
       const res = await fetch(`${url}index.html`);
       if (!res.ok) return res;
       const text = await res.text();

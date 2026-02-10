@@ -42,7 +42,7 @@ const fill = async (dict: IDictionary) => {
          delete wordVideo.ad;
       }
    for (const [key, value] of Object.entries(root)) dict[key] = value;
-   dict.version = `${Date.now()}`;
+   dict.version = Date.now();
    dict.modified = true;
    return dict;
 };
