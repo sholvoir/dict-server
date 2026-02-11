@@ -40,7 +40,6 @@ app.get(async (c) => {
    .put(auth, admin, async (c) => {
       const cDict = (await c.req.json()) as IDict;
       if (!cDict) return emptyResponse(STATUS_CODE.BadRequest);
-      cDict.version = Date.now();
       const result = await collectionDict.updateOne(
          { input: cDict.word },
          { $set: { mic: cDict } },
