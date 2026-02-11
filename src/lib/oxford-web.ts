@@ -16,7 +16,7 @@ import type {
 } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
 
-const version = 1;
+const version = 2;
 const userAgent =
    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36";
 const baseUrl = "https://www.oxfordlearnersdictionaries.com/us/search/english";
@@ -176,13 +176,15 @@ const extractSenseTop = (span: Element) => {
 };
 
 const extractSense = (li: Element, shcut?: string) => {
-   const sense: ISense = { shcut };
+   const sense: ISense = {};
+   if (shcut) sense.shcut = shcut;
    for (const child of li.children)
       switch (child.tagName) {
          case "SPAN":
-            if (child.classList.contains("sensetop"))
-               sense.senseTop = extractSenseTop(child);
-            else if (child.classList.contains("dis-g"))
+            if (child.classList.contains("sensetop")) {
+               const senseTop = extractSenseTop(child);
+               if (Object.keys(senseTop).length) sense.senseTop = senseTop;
+            } else if (child.classList.contains("dis-g"))
                sense.disg = child.textContent;
             else if (child.classList.contains("grammar"))
                sense.grammar = child.textContent;
