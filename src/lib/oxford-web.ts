@@ -274,7 +274,7 @@ const fill = async (dict: IDictionary) => {
       }
       const nearbyUl = doc.querySelector(".nearby>.list-col");
       if (!nearbyUl) return;
-      const changedWord = word.replace("%20", "-").toLocaleLowerCase();
+      const changedWord = word.replaceAll("%20", "-").toLocaleLowerCase();
       for (const li of nearbyUl.children)
          if (li.tagName === "LI")
             for (const a of li.querySelectorAll("a")) {
