@@ -46,12 +46,12 @@ const webTopToString = (webtop: IWebTop): string | undefined => {
    const webtopArray = [];
    if (webtop.inflections)
       webtopArray.push(`(${inflectionsToString(webtop.inflections)})`);
-   if (webtop.grammar) webtopArray.push(webtop.grammar);
    if (webtop.labels) webtopArray.push(`<i>(${webtop.labels.join(", ")})</i>`);
    if (webtop.variants)
       for (const variant of webtop.variants) {
          webtopArray.push(variantToString(variant));
       }
+   if (webtop.grammar) webtopArray.push(webtop.grammar);
    if (webtop.use) webtopArray.push(webtop.use);
    if (webtop.def) webtopArray.push(webtop.def);
    if (webtopArray.length) return webtopArray.join(" ");
