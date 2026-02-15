@@ -15,6 +15,8 @@ const replace: Record<string, string> = {
    "；": ";",
    "（": "(",
    "）": ")",
+   "<": "(",
+   ">": ")",
    " ": "",
 };
 const refine = (o?: string) =>
@@ -86,12 +88,12 @@ const senseToString = (sense: ISense): string | undefined => {
       for (const variant of sense.variants)
          meanArray.push(variantToString(variant));
    if (sense.grammar) meanArray.push(sense.grammar);
-   if (sense.cf)
-      meanArray.push(sense.cf.map((c: string) => `<b>${c}</b>`).join(" | "));
    if (sense.inflections)
       meanArray.push(`(${inflectionsToString(sense.inflections)})`);
    if (sense.disg) meanArray.push(sense.disg);
    if (sense.use) meanArray.push(sense.use);
+   if (sense.cf)
+      meanArray.push(sense.cf.map((c: string) => `<b>${c}</b>`).join(" | "));
    if (sense.def) meanArray.push(sense.def);
    if (meanArray.length) return meanArray.join(" ");
 };
