@@ -16,7 +16,7 @@ import type {
 } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
 
-const version = 2;
+const version = 3;
 const userAgent =
    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36";
 const baseUrl = "https://www.oxfordlearnersdictionaries.com/us/search/english";
@@ -162,6 +162,8 @@ const extractSenseTop = (span: Element) => {
                senseTop.grammar = child.textContent;
             else if (child.classList.contains("labels"))
                senseTop.labels = extractLabels(child);
+            else if (child.classList.contains("use"))
+               senseTop.use = child.textContent;
             else if (child.classList.contains("def"))
                senseTop.def = child.textContent;
             break;

@@ -81,6 +81,7 @@ const senseToString = (sense: ISense): string | undefined => {
    const meanArray = [];
    if (sense.shcut) meanArray.push(`(${sense.shcut})`);
    if (sense.senseTop) meanArray.push(senseTopToString(sense.senseTop));
+   if (sense.labels) meanArray.push(`<i>(${sense.labels.join(", ")})</i>`);
    if (sense.variants)
       for (const variant of sense.variants)
          meanArray.push(variantToString(variant));
@@ -89,7 +90,6 @@ const senseToString = (sense: ISense): string | undefined => {
       meanArray.push(sense.cf.map((c: string) => `<b>${c}</b>`).join(" | "));
    if (sense.inflections)
       meanArray.push(`(${inflectionsToString(sense.inflections)})`);
-   if (sense.labels) meanArray.push(`<i>(${sense.labels.join(", ")})</i>`);
    if (sense.disg) meanArray.push(sense.disg);
    if (sense.use) meanArray.push(sense.use);
    if (sense.def) meanArray.push(sense.def);
