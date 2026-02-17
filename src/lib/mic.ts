@@ -1,10 +1,4 @@
-import type {
-   IInflection,
-   ISense,
-   ISenseTop,
-   IVariant,
-   IWebTop,
-} from "./i-oxford-web.ts";
+import type { IInflections, ISense, IVariant } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
 import type { IDict, IEntry } from "./imic.ts";
 
@@ -20,22 +14,33 @@ const replace: Record<string, string> = {
    " ": "",
 };
 const refine = (o?: string) =>
-   o?.replaceAll(/([，、；（）]|(?<!\w) (?!\w))/g, (m) => replace[m]);
+   o?.replaceAll(/([，、；（）<>]|(?<!\w) (?!\w))/g, (m) => replace[m]);
 
 const variantToString = (variant: IVariant) => {
-   if (variant.length === 1 && variant[0].v) return `<b>${variant[0].v}</b>`;
+   if (variant.value.length === 1 && variant.value[0].type === "v")
+      return `<b>${variant.value[0].value}</b>`;
    const variantStr = [];
-   for (const item of variant) {
-      if (item.spec) variantStr.push(item.spec);
-      if (item.labels) variantStr.push(item.labels.join(", "));
-      if (item.v) variantStr.push(`<b>${item.v}</b>`);
-      if (item.grammar) variantStr.push(item.grammar);
+   for (const item of variant.value) {
+      switch (item.type) {
+         case "spec":
+            variantStr.push(item.value);
+            break;
+         case "labels":
+            variantStr.push(item.value.join(", "));
+            break;
+         case "v":
+            variantStr.push(`<b>${item.value}</b>`);
+            break;
+         case "grammar":
+            variantStr.push(item.value);
+            break;
+      }
    }
    return `<i>(${variantStr.join(" ")})</i>`;
 };
 
-const inflectionsToString = (inflections: Array<IInflection>) =>
-   inflections
+const inflectionsToString = (inflections: IInflections) =>
+   inflections.value
       .map(
          (inflection) =>
             `${inflection.label} ${inflection.inflected
@@ -44,58 +49,46 @@ const inflectionsToString = (inflections: Array<IInflection>) =>
       )
       .join(", ");
 
-const webTopToString = (webtop: IWebTop): string | undefined => {
-   const webtopArray = [];
-   if (webtop.inflections)
-      webtopArray.push(`(${inflectionsToString(webtop.inflections)})`);
-   if (webtop.labels) webtopArray.push(`<i>(${webtop.labels.join(", ")})</i>`);
-   if (webtop.variants)
-      for (const variant of webtop.variants) {
-         webtopArray.push(variantToString(variant));
-      }
-   if (webtop.grammar) webtopArray.push(webtop.grammar);
-   if (webtop.use) webtopArray.push(webtop.use);
-   if (webtop.def) webtopArray.push(webtop.def);
-   if (webtopArray.length) return webtopArray.join(" ");
-};
-
-const senseTopToString = (senseTop: ISenseTop): string => {
-   const senseTopArray = [];
-   if (senseTop.variants)
-      for (const variant of senseTop.variants)
-         senseTopArray.push(variantToString(variant));
-   if (senseTop.grammar) senseTopArray.push(senseTop.grammar);
-   if (senseTop.cf)
-      senseTopArray.push(
-         senseTop.cf.map((c: string) => `<b>${c}</b>`).join(" | "),
-      );
-   if (senseTop.inflections)
-      senseTopArray.push(`(${inflectionsToString(senseTop.inflections)})`);
-   if (senseTop.labels)
-      senseTopArray.push(`<i>(${senseTop.labels.join(", ")})</i>`);
-   if (senseTop.disg) senseTopArray.push(senseTop.disg);
-   if (senseTop.use) senseTopArray.push(senseTop.use);
-   if (senseTop.def) senseTopArray.push(senseTop.def);
-   return senseTopArray.join(" ");
-};
-
 const senseToString = (sense: ISense): string | undefined => {
-   const meanArray = [];
-   if (sense.shcut) meanArray.push(`(${sense.shcut})`);
-   if (sense.senseTop) meanArray.push(senseTopToString(sense.senseTop));
-   if (sense.labels) meanArray.push(`<i>(${sense.labels.join(", ")})</i>`);
-   if (sense.variants)
-      for (const variant of sense.variants)
-         meanArray.push(variantToString(variant));
-   if (sense.grammar) meanArray.push(sense.grammar);
-   if (sense.inflections)
-      meanArray.push(`(${inflectionsToString(sense.inflections)})`);
-   if (sense.disg) meanArray.push(sense.disg);
-   if (sense.use) meanArray.push(sense.use);
-   if (sense.cf)
-      meanArray.push(sense.cf.map((c: string) => `<b>${c}</b>`).join(" | "));
-   if (sense.def) meanArray.push(sense.def);
-   if (meanArray.length) return meanArray.join(" ");
+   const mean = [];
+   for (const item of sense) {
+      switch (item.type) {
+         case "shcut":
+            mean.push(`(${item.value})`);
+            break;
+         case "pos":
+            mean.push(`<i>${item.value}</i>`);
+            break;
+         case "labels":
+            mean.push(`<i>(${item.value.join(", ")})</i>`);
+            break;
+         case "variants":
+            mean.push(variantToString(item));
+            break;
+         case "grammar":
+            mean.push(item.value);
+            break;
+         case "inflections":
+            mean.push(`(${inflectionsToString(item)})`);
+            break;
+         case "disg":
+            mean.push(item.value);
+            break;
+         case "sep":
+            mean.push(item.value);
+            break;
+         case "cf":
+            mean.push(`<b>${item.value}</b>`);
+            break;
+         case "use":
+            mean.push(item.value);
+            break;
+         case "def":
+            mean.push(item.value);
+            break;
+      }
+   }
+   if (mean.length) return mean.join(" ");
 };
 
 const fill = (dict: IDictionary) => {
@@ -135,7 +128,7 @@ const fill = (dict: IDictionary) => {
             const pos = element.pos ?? "unkown";
             const means: Array<string> = [];
             if (element.webTop) {
-               const mean = webTopToString(element.webTop)?.replace("’", "'");
+               const mean = senseToString(element.webTop)?.replace("’", "'");
                if (mean) means.push(mean);
             }
             for (const sense of element.senses) {

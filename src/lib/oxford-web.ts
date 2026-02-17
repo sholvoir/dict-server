@@ -5,36 +5,40 @@ import {
    NodeType,
 } from "@b-fuze/deno-dom";
 import type {
+   IGrammar,
    IInflection,
+   IInflections,
+   ILabels,
    IOxfordWebEntry,
    IPhonetic,
    IPronounce,
    ISense,
-   ISenseTop,
+   ISpec,
+   IV,
    IVariant,
-   IWebTop,
 } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
 
-const version = 3;
+const version = 4;
 const userAgent =
    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36";
 const baseUrl = "https://www.oxfordlearnersdictionaries.com/us/search/english";
 const regId = /\/([\w_+-]+)$/;
 const regId2Word = /[\d_]/g;
 
-const labelsRegex = /[()]/g;
-const extractLabels = (span: Element) =>
-   span.textContent.replaceAll(labelsRegex, "").split(", ");
+const extractLabels = (span: Element): ILabels => ({
+   type: "labels",
+   value: span.textContent!.replaceAll(/[()]/g, "").split(", "),
+});
 
-const extractVariant = (div: Element) => {
-   const variant: IVariant = [];
+const extractVariant = (div: Element): IVariant | undefined => {
+   const variant: Array<ISpec | ILabels | IGrammar | IV> = [];
    for (const variantsChildNode of div.childNodes) {
       if (variantsChildNode.nodeType === NodeType.TEXT_NODE) {
          const spec = variantsChildNode.nodeValue
-            ?.replaceAll(labelsRegex, "")
+            ?.replaceAll(/[()]/g, "")
             .trim();
-         if (spec) variant.push({ spec });
+         if (spec) variant.push({ type: "spec", value: spec });
       } else if (variantsChildNode.nodeType === NodeType.ELEMENT_NODE) {
          const variantsChild = variantsChildNode as Element;
          if (
@@ -44,17 +48,20 @@ const extractVariant = (div: Element) => {
             for (const child of variantsChild.children) {
                if (child.tagName === "SPAN") {
                   if (child.classList.contains("labels"))
-                     variant.push({ labels: child.textContent!.split(", ") });
+                     variant.push(extractLabels(child));
                   if (child.classList.contains("v"))
-                     variant.push({ v: child.textContent });
+                     variant.push({ type: "v", value: child.textContent });
                   if (child.classList.contains("grammar"))
-                     variant.push({ grammar: child.textContent });
+                     variant.push({
+                        type: "grammar",
+                        value: child.textContent,
+                     });
                }
             }
          }
       }
    }
-   return variant;
+   if (variant.length) return { type: "variants", value: variant };
 };
 
 const extractPhonetics = (span: Element) => {
@@ -79,8 +86,8 @@ const extractPhonetics = (span: Element) => {
 };
 
 const labelRegex = /(?:\(|,\s)(\w+)\s/;
-const extractInflections = (div: Element) => {
-   const inflections = [];
+const extractInflections = (div: Element): IInflections | undefined => {
+   const inflections: Array<IInflection> = [];
    let inflection: IInflection = { label: "", inflected: [] as Array<string> };
    for (const childNode of div.childNodes) {
       if (childNode.nodeType === NodeType.TEXT_NODE) {
@@ -88,7 +95,7 @@ const extractInflections = (div: Element) => {
          if (!text) continue;
          if (text === ")") {
             inflections.push(inflection);
-            return inflections;
+            break;
          } else {
             const match = labelRegex.exec(text);
             if (match) {
@@ -108,106 +115,60 @@ const extractInflections = (div: Element) => {
          }
       }
    }
-   return inflections;
+   if (inflections.length) return { type: "inflections", value: inflections };
 };
 
 const extractWebTop = (div: Element, entry: IOxfordWebEntry) => {
-   // headword, pos, phonetics, variants, inflections, labels
-   const webTop: IWebTop = {};
-   for (const webTopChild of div.children) {
-      switch (webTopChild.tagName) {
+   for (const child of div.children) {
+      switch (child.tagName) {
          case "H1":
-            if (webTopChild.classList.contains("headword"))
-               entry.headWord = webTopChild.textContent;
+            if (child.classList.contains("headword"))
+               entry.headWord = child.textContent;
             break;
          case "SPAN":
-            if (webTopChild.classList.contains("pos")) {
-               entry.pos = webTopChild.textContent;
-            } else if (webTopChild.classList.contains("phonetics")) {
-               entry.phonetics = extractPhonetics(webTopChild);
-            } else if (webTopChild.classList.contains("labels")) {
-               webTop.labels = extractLabels(webTopChild);
-            } else if (webTopChild.classList.contains("use")) {
-               webTop.use = webTopChild.textContent;
-            } else if (webTopChild.classList.contains("grammar")) {
-               webTop.grammar = webTopChild.textContent;
-            } else if (webTopChild.classList.contains("def")) {
-               webTop.def = webTopChild.textContent;
-            }
-            break;
-         case "DIV":
-            if (webTopChild.classList.contains("variants")) {
-               if (!webTop.variants) webTop.variants = [];
-               webTop.variants.push(extractVariant(webTopChild));
-            } else if (webTopChild.classList.contains("inflections")) {
-               webTop.inflections = extractInflections(webTopChild);
+            if (child.classList.contains("pos")) {
+               entry.pos = child.textContent;
+               child.classList.remove("pos");
+            } else if (child.classList.contains("phonetics")) {
+               entry.phonetics = extractPhonetics(child);
             }
       }
    }
-   if (Object.keys(webTop).length) entry.webTop = webTop;
 };
 
-const extractSenseTop = (span: Element) => {
-   // variants, grammar, def
-   const senseTop: ISenseTop = {};
-   for (const child of span.children)
+const extractSense = (ele: Element, sense: ISense, shcut?: string) => {
+   if (shcut) sense.push({ type: "shcut", value: shcut });
+   for (const child of ele.children)
       switch (child.tagName) {
          case "SPAN":
-            if (child.classList.contains("dis-g"))
-               senseTop.disg = child.textContent;
-            else if (child.classList.contains("cf")) {
-               if (!senseTop.cf) senseTop.cf = [];
-               senseTop.cf.push(child.textContent);
-            } else if (child.classList.contains("grammar"))
-               senseTop.grammar = child.textContent;
-            else if (child.classList.contains("labels"))
-               senseTop.labels = extractLabels(child);
-            else if (child.classList.contains("use"))
-               senseTop.use = child.textContent;
-            else if (child.classList.contains("def"))
-               senseTop.def = child.textContent;
-            break;
-         case "DIV":
-            if (child.classList.contains("variants")) {
-               if (!senseTop.variants) senseTop.variants = [];
-               senseTop.variants.push(extractVariant(child));
-            } else if (child.classList.contains("inflections"))
-               senseTop.inflections = extractInflections(child);
-      }
-   return senseTop;
-};
-
-const extractSense = (li: Element, shcut?: string) => {
-   const sense: ISense = {};
-   if (shcut) sense.shcut = shcut;
-   for (const child of li.children)
-      switch (child.tagName) {
-         case "SPAN":
-            if (child.classList.contains("sensetop")) {
-               const senseTop = extractSenseTop(child);
-               if (Object.keys(senseTop).length) sense.senseTop = senseTop;
-            } else if (child.classList.contains("dis-g"))
-               sense.disg = child.textContent;
+            if (child.classList.contains("sensetop"))
+               extractSense(child, sense);
+            else if (child.classList.contains("pos"))
+               sense.push({ type: "pos", value: child.textContent });
+            else if (child.classList.contains("dis-g"))
+               sense.push({ type: "disg", value: child.textContent });
             else if (child.classList.contains("grammar"))
-               sense.grammar = child.textContent;
+               sense.push({ type: "grammar", value: child.textContent });
             else if (child.classList.contains("use"))
-               sense.use = child.textContent;
+               sense.push({ type: "use", value: child.textContent });
             else if (child.classList.contains("labels"))
-               sense.labels = extractLabels(child);
-            else if (child.classList.contains("cf")) {
-               if (!sense.cf) sense.cf = [];
-               sense.cf.push(child.textContent);
-            } else if (child.classList.contains("def"))
-               sense.def = child.textContent;
+               sense.push(extractLabels(child));
+            else if (child.classList.contains("sep"))
+               sense.push({ type: "sep", value: child.textContent });
+            else if (child.classList.contains("cf"))
+               sense.push({ type: "cf", value: child.textContent });
+            else if (child.classList.contains("def"))
+               sense.push({ type: "def", value: child.textContent });
             break;
          case "DIV":
             if (child.classList.contains("variants")) {
-               if (!sense.variants) sense.variants = [];
-               sense.variants.push(extractVariant(child));
-            } else if (child.classList.contains("inflections"))
-               sense.inflections = extractInflections(child);
+               const variant = extractVariant(child);
+               if (variant) sense.push(variant);
+            } else if (child.classList.contains("inflections")) {
+               const inflections = extractInflections(child);
+               if (inflections) sense.push(inflections);
+            }
       }
-   return sense;
 };
 
 const extract = (doc: HTMLDocument): IOxfordWebEntry | undefined => {
@@ -215,7 +176,12 @@ const extract = (doc: HTMLDocument): IOxfordWebEntry | undefined => {
    const entryDiv = doc.querySelector("#entryContent>.entry");
    if (!entryDiv) return;
    const webTopDiv = entryDiv.querySelector(".top-container>.top-g>.webtop");
-   if (webTopDiv) extractWebTop(webTopDiv, entry);
+   if (webTopDiv) {
+      extractWebTop(webTopDiv, entry);
+      const webTop: ISense = [];
+      extractSense(webTopDiv, webTop);
+      if (webTop.length) entry.webTop = webTop;
+   }
    const sensesOl = entryDiv.querySelector(
       "ol.sense_single, ol.senses_multiple",
    );
@@ -228,15 +194,17 @@ const extract = (doc: HTMLDocument): IOxfordWebEntry | undefined => {
          ) {
             const shcutH2 = olChild.querySelector("h2.shcut");
             for (const senseLi of olChild.querySelectorAll("li.sense")) {
-               const sense = extractSense(senseLi, shcutH2?.textContent);
-               if (Object.keys(sense).length) entry.senses.push(sense);
+               const sense: ISense = [];
+               extractSense(senseLi, sense, shcutH2?.textContent);
+               if (sense.length) entry.senses.push(sense);
             }
          } else if (
             olChild.tagName === "LI" &&
             olChild.classList.contains("sense")
          ) {
-            const sense = extractSense(olChild);
-            if (Object.keys(sense).length) entry.senses.push(sense);
+            const sense: ISense = [];
+            extractSense(olChild, sense);
+            if (sense.length) entry.senses.push(sense);
          }
       }
    }
