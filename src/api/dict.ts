@@ -2,6 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { fill } from "../lib/dict.ts";
 import type { jwtEnv } from "../lib/env.ts";
+import type { IDictionary } from "../lib/idict.ts";
 import type { IDict } from "../lib/imic.ts";
 import micFill from "../lib/mic.ts";
 import { collectionDict } from "../lib/mongo.ts";
@@ -10,6 +11,14 @@ import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
+
+const fillAndReplaceDict = async (dict: IDictionary) => {
+   await fill(dict);
+   if (dict.modified) {
+      delete dict.modified;
+      await collectionDict.replaceOne({ input: dict.word }, dict);
+   }
+};
 
 app.get(async (c) => {
    const word = c.req.query("q");
@@ -23,17 +32,19 @@ app.get(async (c) => {
       if (vocab.has(word)) await collectionDict.insertOne(ndict);
       console.log(`API 'dict' GET word: ${word}`);
       return c.json(mic ? ndict.mic : ndict);
-   } else {
-      await fill(dict);
-      if (dict.modified) {
-         delete dict.modified;
-         await collectionDict.replaceOne({ input: word }, dict);
-      }
-      if (re) {
-         delete dict.mic;
-         micFill(dict);
-      }
+   } else if (!dict.mic) {
+      await fillAndReplaceDict(dict);
+      console.log(`API 'dict' GET word: ${word}`);
+      return c.json(mic ? dict.mic : dict);
+   } else if (!re) {
+      fillAndReplaceDict(dict);
       console.log(`API 'dict' GET word: ${word} (cached)`);
+      return c.json(mic ? dict.mic : dict);
+   } else {
+      await fillAndReplaceDict(dict);
+      delete dict.mic;
+      micFill(dict);
+      console.log(`API 'dict' GET word: ${word} (refilled)`);
       return c.json(mic ? dict.mic : dict);
    }
 })
