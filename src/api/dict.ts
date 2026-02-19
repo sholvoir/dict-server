@@ -49,17 +49,17 @@ app.get(async (c) => {
    }
 })
    .put(auth, admin, async (c) => {
-      const cDict = (await c.req.json()) as IDict;
-      if (!cDict) return emptyResponse(STATUS_CODE.BadRequest);
-      cDict.version = Date.now();
+      const mic = (await c.req.json()) as IDict;
+      if (!mic) return emptyResponse(STATUS_CODE.BadRequest);
+      mic.version = Date.now();
       const result = await collectionDict.updateOne(
-         { input: cDict.word },
-         { $set: { mic: cDict } },
+         { input: mic.word },
+         { $set: { mic } },
          { upsert: true },
       );
       if (!result.acknowledged)
          return emptyResponse(STATUS_CODE.InternalServerError);
-      console.log(`API dict PUT ${cDict.word}`);
+      console.log(`API dict PUT ${mic.word}`);
       return emptyResponse();
    })
    .delete(auth, admin, async (c) => {

@@ -12,13 +12,13 @@ app.get(auth, admin, async (c) => {
       if (dict.mic?.entries)
          for (const entry of dict.mic.entries) {
             if (entry.phonetic?.includes("/,/")) {
-               issues.push({ issue: dict.word });
+               issues.push({ issue: dict.mic.word });
                continue u;
             }
             if (entry.meanings) {
                if (issues.length > 9) break u;
                if (entry.meanings.ecdict) {
-                  issues.push({ issue: dict.word });
+                  issues.push({ issue: dict.mic.word });
                   continue u;
                }
             }
