@@ -2,7 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { getCookie } from "hono/cookie";
 import type { MiddlewareHandler } from "hono/types";
 import type { jwtEnv } from "../lib/env.ts";
-import jwt from "../lib/jwt.js";
+import jwt from "../lib/jwt.ts";
 
 const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
    if (Deno.env.get("DEBUG")) {
