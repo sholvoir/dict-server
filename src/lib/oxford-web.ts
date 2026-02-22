@@ -20,11 +20,7 @@ import type {
 import type { IDictionary } from "./idict.ts";
 
 const version = 4;
-const userAgent =
-   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36";
 const baseUrl = "https://www.oxfordlearnersdictionaries.com/us/search/english";
-const regId = /\/([\w_+-]+)$/;
-const regId2Word = /[\d_]/g;
 
 const extractLabels = (span: Element): ILabels => ({
    type: "labels",
@@ -211,7 +207,7 @@ const extract = (doc: HTMLDocument): IOxfordWebEntry | undefined => {
    return entry;
 };
 
-const fill = async (dict: IDictionary) => {
+const fill = async (dict: IDictionary, userAgent: string) => {
    if (!dict.input) return dict;
    if (dict.oxford_web && dict.oxford_web.version >= version) return dict;
    const word = encodeURIComponent(dict.input);
@@ -250,10 +246,10 @@ const fill = async (dict: IDictionary) => {
             for (const a of li.querySelectorAll("a")) {
                const href = a.getAttribute("href");
                if (!href) continue;
-               const m = regId.exec(href);
+               const m = /\/([\w_+-]+)$/.exec(href);
                if (!m) continue;
                const id = m[1];
-               const w = id.replaceAll(regId2Word, "").toLocaleLowerCase();
+               const w = id.replaceAll(/[\d_]/g, "").toLocaleLowerCase();
                if (w !== changedWord) continue;
                if (ids.has(id)) continue;
                ids.add(id);
@@ -270,10 +266,13 @@ const fill = async (dict: IDictionary) => {
 
 export default fill;
 
-if (import.meta.main)
+if (import.meta.main) {
+   const userAgent =
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36";
    for (const word of Deno.args) {
       await Deno.writeTextFile(
          `z.json`,
-         JSON.stringify(await fill({ input: word }), null, 2),
+         JSON.stringify(await fill({ input: word }, userAgent), null, 2),
       );
    }
+}
