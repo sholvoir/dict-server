@@ -1,5 +1,6 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
+import type { WithId } from "mongodb";
 import { fill } from "../lib/dict.ts";
 import type { jwtEnv } from "../lib/env.ts";
 import type { IDictionary } from "../lib/idict.ts";
@@ -12,11 +13,14 @@ import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
 
-const fillAndReplaceDict = async (dict: IDictionary, userAgent: string) => {
+const fillAndReplaceDict = async (
+   dict: WithId<IDictionary>,
+   userAgent: string,
+) => {
    await fill(dict, userAgent);
    if (dict.modified) {
       delete dict.modified;
-      await collectionDict.replaceOne({ input: dict.word }, dict);
+      console.log(await collectionDict.replaceOne({ _id: dict._id }, dict));
    }
 };
 
