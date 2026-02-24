@@ -128,11 +128,11 @@ const fill = (dict: IDictionary) => {
             const pos = element.pos ?? "unkown";
             const means: Array<string> = [];
             if (element.webTop) {
-               const mean = senseToString(element.webTop)?.replace("’", "'");
+               const mean = senseToString(element.webTop)?.replaceAll(/[‘’]/g, "'");
                if (mean) means.push(mean);
             }
             for (const sense of element.senses) {
-               const mean = senseToString(sense)?.replace("’", "'");
+               const mean = senseToString(sense)?.replace(/[‘’]/g, "'");
                if (mean) means.push(mean);
             }
             entry.meanings![pos] = means;
