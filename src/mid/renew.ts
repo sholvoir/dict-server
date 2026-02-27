@@ -5,7 +5,7 @@ import type { jwtEnv } from "../lib/env.ts";
 
 const m: MiddlewareHandler<jwtEnv> = async (ctx, next) => {
    await next();
-   if (ctx.get("exp") - Date.now() / 1000 < maxAge / 3) {
+   if ((ctx.get("exp") - Date.now() / 1000 < maxAge / 3) || ctx.req.query("auth")) {
       setAuthCookie(ctx, ctx.get("username"));
    }
 };
