@@ -20,7 +20,7 @@ const fillAndReplaceDict = async (
    await fill(dict, userAgent);
    if (dict.modified) {
       delete dict.modified;
-      console.log(await collectionDict.replaceOne({ _id: dict._id }, dict));
+      await collectionDict.replaceOne({ _id: dict._id }, dict);
    }
 };
 
