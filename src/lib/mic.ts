@@ -135,7 +135,12 @@ const fill = (dict: IDictionary) => {
                const mean = senseToString(sense)?.replace(/[‘’]/g, "'");
                if (mean) means.push(mean);
             }
-            entry.meanings![pos] = means;
+            for (let i = 0; i < dict.oxford_web.entries.length; i++) {
+               const p = i ? pos + i: pos;
+               if (entry.meanings![p]) continue;
+               entry.meanings![p] = means;
+               break;
+            }
          }
       }
    }
