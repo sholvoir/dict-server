@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import pkg from "../deno.json" with { type: "json" };
 import dict from "./api/dict.ts";
 import ecdict from "./api/ecdict.ts";
 import apply from "./api/index.ts";
@@ -14,6 +15,7 @@ const run = () => {
    const app = new Hono();
    app.use(cors());
    apply(app);
+   app.get(`${API_BASE}/version`, (c) => c.text(pkg.version));
    app.route(`${API_BASE}/dict`, dict);
    app.route(`${API_BASE}/ecdict`, ecdict);
    app.route(`${API_BASE}/issue`, issue);
