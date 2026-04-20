@@ -6,10 +6,21 @@ import type { jwtEnv } from "../lib/env.ts";
 import type { IDictionary } from "../lib/idict.ts";
 import type { IDict } from "../lib/imic.ts";
 import micFill from "../lib/mic.ts";
-import { collectionDict } from "../lib/mongo.ts";
+import { collectionDict, collectionIssue } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";
 import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
+
+const ecdictIssue = (dict: IDict) => {
+   if (dict.entries)
+      for (const entry of dict.entries)
+         if (entry.meanings)
+            for (const pos of Object.keys(entry.meanings))
+               if (pos === "ecdict") {
+                  collectionIssue.insertOne({ issue: dict.word });
+                  return;
+               }
+};
 
 const fillAndReplaceDict = async (
    dict: WithId<IDictionary>,
@@ -25,24 +36,27 @@ const fillAndReplaceDict = async (
 export default new Hono<jwtEnv>()
    .get(async (c) => {
       const word = c.req.query("q");
+      if (!word) return emptyResponse(STATUS_CODE.BadRequest);
       const re = c.req.query("re");
       const mic = c.req.query("mic");
       const userAgent = c.req.header("User-Agent") || "";
-      if (!word) return emptyResponse(STATUS_CODE.BadRequest);
       const dict = await collectionDict.findOne({ input: word });
       if (!dict) {
          const ndict = await fill({ input: word }, userAgent);
          const { vocab } = await getVocabulary();
          if (vocab.has(word)) await collectionDict.insertOne(ndict);
+         ecdictIssue(ndict.mic!);
          console.log(`API 'dict' GET word: ${word}`);
          return c.json(mic ? ndict.mic : ndict);
       } else if (!dict.mic) {
          await fillAndReplaceDict(dict, userAgent);
          console.log(`API 'dict' GET word: ${word}`);
+         ecdictIssue(dict.mic!);
          return c.json(mic ? dict.mic : dict);
       } else if (!re) {
          fillAndReplaceDict(dict, userAgent);
          console.log(`API 'dict' GET word: ${word} (cached)`);
+         ecdictIssue(dict.mic!);
          return c.json(mic ? dict.mic : dict);
       } else {
          await fillAndReplaceDict(dict, userAgent);
