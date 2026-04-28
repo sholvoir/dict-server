@@ -9,12 +9,11 @@ import {
 import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
 
-const app = new Hono<jwtEnv>();
-
-app.get(async (c) => {
-   const { vocab, checksum } = await getVocabulary();
-   return c.json({ words: Array.from(vocab).sort(), checksum });
-})
+export default new Hono<jwtEnv>()
+   .get(async (c) => {
+      const { vocab, checksum } = await getVocabulary();
+      return c.json({ words: Array.from(vocab).sort(), checksum });
+   })
    .post(auth, admin, async (c) => {
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
@@ -33,5 +32,3 @@ app.get(async (c) => {
       const { checksum } = await getVocabulary();
       return c.json({ checksum });
    });
-
-export default app;
