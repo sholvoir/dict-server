@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.7.26",
+   "version": "0.7.27",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -13,7 +13,7 @@
       "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.5",
       "@std/crypto": "jsr:@std/crypto@^1.1.0",
-      "hono": "jsr:@hono/hono@^4.12.15",
+      "hono": "jsr:@hono/hono@^4.12.16",
       "mongodb": "npm:mongodb@7.1.1"
    }
 }

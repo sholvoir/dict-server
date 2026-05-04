@@ -6,14 +6,21 @@ const app = new Hono();
 
 app.get(async (c) => {
    const soundUrl = c.req.query("q");
-   if (!soundUrl) return emptyResponse(STATUS_CODE.BadRequest);
+   if (!soundUrl) {
+      console.log("Sound API get error: no soundUrl.");
+      return emptyResponse(STATUS_CODE.BadRequest);
+   }
    const resp = await fetch(soundUrl, {
       headers: { "User-Agent": c.req.header("User-Agent") ?? defaultAgent },
    });
-   if (!resp.ok) return emptyResponse(STATUS_CODE.NotFound);
+   if (!resp.ok) {
+      console.log(`Sound API get error: origin server issue, ${soundUrl}`);
+      return emptyResponse(STATUS_CODE.NotFound);
+   }
    const headers = new Headers();
    resp.headers.forEach((value, key) => headers.set(key, value));
    headers.set("Cache-Control", "public, max-age=31536000");
+   console.log(`Sound API get: ${soundUrl}`);
    return new Response(resp.body, { headers });
 });
 

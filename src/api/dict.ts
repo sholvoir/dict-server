@@ -17,8 +17,13 @@ const ecdictIssue = (dict: IDict) => {
          if (entry.meanings)
             for (const pos of Object.keys(entry.meanings))
                if (pos === "ecdict") {
-                  collectionIssue.insertOne({ issue: dict.word });
-                  return;
+                  const issue = { issue: dict.word };
+                  return collectionIssue.findOne(issue).then((i) => {
+                     if (!i) {
+                        console.log(`API 'dict' insert issue: ${dict.word}`);
+                        collectionIssue.insertOne(issue);
+                     }
+                  });
                }
 };
 
