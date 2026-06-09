@@ -49,19 +49,21 @@ export default new Hono<jwtEnv>()
       if (!dict) {
          const ndict = await fill({ input: word }, userAgent);
          const { vocab } = await getVocabulary();
-         if (vocab.has(word)) await collectionDict.insertOne(ndict);
-         ecdictIssue(ndict.mic!);
+         if (vocab.has(word)) {
+            await collectionDict.insertOne(ndict);
+            ecdictIssue(ndict.mic!);
+         }
          console.log(`API 'dict' GET word: ${word}`);
          return c.json(mic ? ndict.mic : ndict);
       } else if (!dict.mic) {
          await fillAndReplaceDict(dict, userAgent);
-         console.log(`API 'dict' GET word: ${word}`);
          ecdictIssue(dict.mic!);
+         console.log(`API 'dict' GET word: ${word}`);
          return c.json(mic ? dict.mic : dict);
       } else if (!re) {
          fillAndReplaceDict(dict, userAgent);
-         console.log(`API 'dict' GET word: ${word} (cached)`);
          ecdictIssue(dict.mic!);
+         console.log(`API 'dict' GET word: ${word} (cached)`);
          return c.json(mic ? dict.mic : dict);
       } else {
          await fillAndReplaceDict(dict, userAgent);
