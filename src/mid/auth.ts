@@ -31,9 +31,13 @@ const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
          }
       } catch {}
    if (exp !== undefined) c.set("exp", exp);
-   if (username) c.set("username", username);
-   else return emptyResponse(STATUS_CODE.Unauthorized);
-   await next();
+   if (username) {
+      c.set("username", username);
+      await next();
+   } else {
+      console.log("Auth Middleware - Unauthorized");
+      return emptyResponse(STATUS_CODE.Unauthorized);
+   }
 };
 
 export default auth;
