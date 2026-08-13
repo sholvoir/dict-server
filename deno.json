@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.7.35-1",
+   "version": "0.7.36",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -11,9 +11,10 @@
    },
    "imports": {
       "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
-      "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.5",
+      "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.8",
       "@std/crypto": "jsr:@std/crypto@^1.1.0",
-      "hono": "jsr:@hono/hono@^4.13.1",
+      "hono": "jsr:@hono/hono@^4.13.2",
       "mongodb": "npm:mongodb@^7.5.0"
-   }
+   },
+   "minimumDependencyAge": "0"
 }
