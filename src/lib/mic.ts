@@ -128,7 +128,10 @@ const fill = (dict: IDictionary) => {
             const pos = element.pos ?? "unkown";
             const means: Array<string> = [];
             if (element.webTop) {
-               const mean = senseToString(element.webTop)?.replaceAll(/[‘’]/g, "'");
+               const mean = senseToString(element.webTop)?.replaceAll(
+                  /[‘’]/g,
+                  "'",
+               );
                if (mean) means.push(mean);
             }
             for (const sense of element.senses) {
@@ -136,7 +139,7 @@ const fill = (dict: IDictionary) => {
                if (mean) means.push(mean);
             }
             for (let i = 0; i < dict.oxford_web.entries.length; i++) {
-               const p = i ? pos + i: pos;
+               const p = i ? pos + i : pos;
                if (entry.meanings![p]) continue;
                entry.meanings![p] = means;
                break;
