@@ -1,20 +1,9 @@
 import type { IInflections, ISense, IVariant } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
 import type { IDict, IEntry } from "./imic.ts";
+import refine from "./refine.ts";
 
 const collinsTail = /(?<=[.?] )([\W; ]+?)$/;
-const replace: Record<string, string> = {
-   "，": ",",
-   "、": ",",
-   "；": ";",
-   "（": "(",
-   "）": ")",
-   "<": "(",
-   ">": ")",
-   " ": "",
-};
-const refine = (o?: string) =>
-   o?.replaceAll(/([，、；（）<>]|(?<!\w) (?!\w))/g, (m) => replace[m]);
 
 const variantToString = (variant: IVariant) => {
    if (variant.value.length === 1 && variant.value[0].type === "v")
