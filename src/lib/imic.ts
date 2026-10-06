@@ -1,7 +1,8 @@
 export interface IEntry {
+   pos?: string;
    sound?: string;
    phonetic?: string;
-   meanings?: Record<string, Array<string>>;
+   meanings?: Array<string>;
 }
 export interface IDict {
    word: string;

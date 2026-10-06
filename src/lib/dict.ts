@@ -7,41 +7,17 @@ import youdaoApi from "../lib/youdao-api.ts";
 import type { IDictionary } from "./idict.ts";
 
 export const fill = async (dict: IDictionary, userAgent: string) => {
+   await Promise.allSettled([
+      youdaoApi(dict),
+      freeDictionaryApi(dict),
+      websterApi(dict),
+      websterWeb(dict, userAgent),
+      oxfordWeb(dict, userAgent),
+   ]);
    try {
-      // Youdao
-      await youdaoApi(dict);
-   } catch (e) {
-      console.error(e);
-   }
-   try {
-      // freeDictionaryApi
-      await freeDictionaryApi(dict);
-   } catch (e) {
-      console.error(e);
-   }
-   try {
-      // websterApi
-      await websterApi(dict);
-   } catch (e) {
-      console.error(e);
-   }
-   try {
-      // websterWeb
-      await websterWeb(dict, userAgent);
-   } catch (e) {
-      console.error(e);
-   }
-   try {
-      // oxford
-      await oxfordWeb(dict, userAgent);
-   } catch (e) {
-      console.error(e);
-   }
-   try {
-      // mic
       mic(dict);
    } catch (e) {
-      console.error(e);
+      console.error("mic parse error:", e);
    }
    return dict;
 };

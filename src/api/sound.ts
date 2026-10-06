@@ -19,7 +19,7 @@ app.get(async (c) => {
    }
    const headers = new Headers();
    resp.headers.forEach((value, key) => headers.set(key, value));
-   headers.set("Cache-Control", "public, max-age=31536000");
+   headers.set("Cache-Control", "public, max-age=315360000, immutable");
    console.log(`Sound API get: ${soundUrl}`);
    return new Response(resp.body, { headers });
 });

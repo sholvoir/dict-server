@@ -3,8 +3,6 @@ import type { IDictionary } from "./idict.ts";
 import type { IDict, IEntry } from "./imic.ts";
 import refine from "./refine.ts";
 
-const collinsTail = /(?<=[.?] )([\W; ]+?)$/;
-
 const variantToString = (variant: IVariant) => {
    if (variant.value.length === 1 && variant.value[0].type === "v")
       return `<b>${variant.value[0].value}</b>`;
@@ -84,26 +82,55 @@ const fill = (dict: IDictionary) => {
    if (!dict.input) return dict;
    if (dict.mic) return dict;
    const word = dict.input;
-   const entry: IEntry = { phonetic: "", meanings: {} };
    const mic: IDict = {
       word,
       version: Date.now(),
-      entries: [entry],
+      entries: [],
    };
-   // Webster Web
-   if (dict.webster_web?.sound) entry.sound = dict.webster_web.sound;
-   // Webster API
-   if (!entry.sound && dict.webster_api) {
-      const element = dict.webster_api[0];
-      if (typeof element !== "string") {
-         const audio = element.hwi?.prs?.[0]?.sound?.audio;
-         if (audio) entry.sound = audio;
+   // English-Chinese Dict
+   const nameRegex = new RegExp(`【名】|（人名）|（${word}）人名`, "i");
+   if (dict.ec?.word?.length) {
+      let i = 0;
+      for (const x of dict.ec.word) {
+         const entry: IEntry = { pos: `ecdict${i++}`, meanings: [] };
+         if (x.usphone) entry.phonetic = `/${x.usphone}/`;
+         if (x.usspeech) entry.sound = x.usspeech;
+         if (x.trs?.length)
+            for (const y of x.trs) {
+               if (y.tr?.length)
+                  for (const z of y.tr) {
+                     if (z.l?.i?.length)
+                        for (const w of z.l.i) {
+                           if (w.match(nameRegex)) continue;
+                           entry.meanings?.push(refine(w)!);
+                        }
+                  }
+            }
+         mic.entries?.push(entry);
       }
    }
    // Oxford Web
    if (dict.oxford_web) {
-      const phonetics = new Set<string>();
-      for (const element of dict.oxford_web.entries)
+      for (const element of dict.oxford_web.entries) {
+         const entry: IEntry = {
+            pos: element.pos ?? "unkown",
+            phonetic: "",
+            meanings: [],
+         };
+         if (element.senses) {
+            if (element.webTop) {
+               const meaning = senseToString(element.webTop)?.replaceAll(
+                  /[‘’]/g,
+                  "'",
+               );
+               if (meaning) entry.meanings?.push(meaning);
+            }
+            for (const sense of element.senses) {
+               const meaning = senseToString(sense)?.replace(/[‘’]/g, "'");
+               if (meaning) entry.meanings?.push(meaning);
+            }
+         }
+         const phonetics = new Set<string>();
          if (element.phonetics)
             for (const phonet of element.phonetics)
                if (phonet.geo === "n_am")
@@ -111,54 +138,15 @@ const fill = (dict: IDictionary) => {
                      if (pr.phon) phonetics.add(pr.phon);
                      if (!entry.sound && pr.sound) entry.sound = pr.sound;
                   }
-      if (phonetics.size) entry.phonetic = Array.from(phonetics).join(",");
-      for (const element of dict.oxford_web.entries) {
-         if (element.senses) {
-            const pos = element.pos ?? "unkown";
-            const means: Array<string> = [];
-            if (element.webTop) {
-               const mean = senseToString(element.webTop)?.replaceAll(
-                  /[‘’]/g,
-                  "'",
-               );
-               if (mean) means.push(mean);
-            }
-            for (const sense of element.senses) {
-               const mean = senseToString(sense)?.replace(/[‘’]/g, "'");
-               if (mean) means.push(mean);
-            }
-            for (let i = 0; i < dict.oxford_web.entries.length; i++) {
-               const p = i ? pos + i : pos;
-               if (entry.meanings![p]) continue;
-               entry.meanings![p] = means;
-               break;
-            }
-         }
+         if (phonetics.size) entry.phonetic = Array.from(phonetics).join(",");
+         mic.entries?.push(entry);
       }
    }
-   // Collins Primary Dict
-   if ((!entry.phonetic || !entry.sound) && dict.collins_primary) {
-      const cp = dict.collins_primary;
-      if (cp.words?.word === word && cp.gramcat?.length) {
-         for (const gram of dict.collins_primary.gramcat) {
-            if (!entry.phonetic && gram.pronunciation)
-               entry.phonetic = `/${gram.pronunciation}/`;
-            if (!entry.sound && gram.audiourl) entry.sound = gram.audiourl;
-         }
-      }
-   }
-   // Simple Dict
-   if ((!entry.phonetic || !entry.sound) && dict.simple?.word?.length)
-      for (const x of dict.simple.word) {
-         if (x["return-phrase"] !== word) continue;
-         if (!entry.phonetic && x.usphone) entry.phonetic = `/${x.usphone}/`;
-         if (!entry.sound && x.usspeech) entry.sound = x.usspeech;
-      }
    // Collins Dict
-   if (!entry.meanings && dict.collins?.collins_entries?.length) {
+   if (!mic.entries?.length && dict.collins?.collins_entries?.length) {
       const collinsTran = new RegExp(`<b>${word}`, "i");
-      const meanings: Record<string, Array<string>> = {};
       for (const x of dict.collins.collins_entries) {
+         const meaningMap = new Map<string, string[]>();
          if (x.entries?.entry?.length)
             for (const y of x.entries.entry) {
                if (y.tran_entry?.length)
@@ -169,51 +157,47 @@ const fill = (dict: IDictionary) => {
                         pos?.toLowerCase().includes("phrase")
                      )
                         continue;
-                     if (z.tran?.match(collinsTran)) {
-                        const m = z.tran.match(collinsTail);
-                        if (m) {
-                           const item = refine(m[1])!;
-                           if (meanings[pos]) meanings[pos].push(item);
-                           else meanings[pos] = [item];
-                           1;
-                        }
-                     }
+                     if (!z.tran) continue;
+                     if (!z.tran?.match(collinsTran)) continue;
+                     const meanings = meaningMap.get(pos);
+                     const item = refine(z.tran)!;
+                     if (meanings) meanings.push(item);
+                     else meaningMap.set(pos, [item]);
                   }
             }
+         if (meaningMap.size) {
+            for (const [pos, meanings] of meaningMap.entries()) {
+               const entry: IEntry = { pos, phonetic: x.phonetic, meanings };
+               mic.entries?.push(entry);
+            }
+         }
       }
-      if (Object.keys(meanings).length) entry.meanings = meanings;
    }
    // Individual Dict
-   if (!entry.meanings && dict.individual?.trs?.length) {
-      const meanings: Record<string, Array<string>> = {};
+   if (!mic.entries?.length && dict.individual?.trs?.length) {
       for (const x of dict.individual.trs) {
-         const item = refine(x.tran)!;
-         if (meanings[x.pos]) meanings[x.pos].push(item);
-         else meanings[x.pos] = [item];
+         if (x.tran && x.pos)
+            mic.entries?.push({ pos: x.pos, meanings: [refine(x.tran)!] });
       }
-      if (Object.keys(meanings).length) entry.meanings = meanings;
    }
-   // English-Chinese Dict
-   const nameRegex = new RegExp(`【名】|（人名）|（${word}）人名`, "i");
-   if (dict.ec?.word?.length) {
-      const means: Array<string> = [];
-      for (const x of dict.ec.word) {
-         if (!entry.phonetic && x.usphone) entry.phonetic = `/${x.usphone}/`;
-         if (!entry.sound && x.usspeech) entry.sound = x.usspeech;
-         if (x.trs?.length)
-            for (const y of x.trs) {
-               if (y.tr?.length)
-                  for (const z of y.tr) {
-                     if (z.l?.i?.length)
-                        for (const w of z.l.i) {
-                           if (w.match(nameRegex)) continue;
-                           means.push(refine(w)!);
-                        }
-                  }
-            }
+   // Collins Primary Dict
+   if (!mic.entries?.length && dict.collins_primary) {
+      const cp = dict.collins_primary;
+      if (cp.words?.word === word && cp.gramcat?.length) {
+         for (const gram of dict.collins_primary.gramcat) {
+            const entry: IEntry = {
+               pos: gram.partofspeech,
+               sound: gram.audiourl,
+               phonetic: gram.pronunciation,
+               meanings: [],
+            };
+            for (const sense of gram.senses)
+               entry.meanings?.push(
+                  `${sense.definition} <strong>${sense.word}</strong>`,
+               );
+            mic.entries?.push(entry);
+         }
       }
-      if (!entry.meanings) entry.meanings = { ecdict: means };
-      else entry.meanings = { ecdict: means, ...entry.meanings };
    }
    dict.mic = mic;
    return dict;

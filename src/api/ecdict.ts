@@ -7,20 +7,18 @@ import auth from "../mid/auth.ts";
 const app = new Hono();
 app.get(auth, admin, async (c) => {
    const issues: Array<{ issue: string }> = [];
-   const cursor = collectionDict.find();
+   const cursor = collectionDict.find({ mic: { $exists: true } });
    u: for await (const dict of cursor) {
-      if (dict.mic?.entries)
+      if (dict.mic?.entries?.length)
          for (const entry of dict.mic.entries) {
+            if (issues.length > 9) break u;
             if (entry.phonetic?.includes("/,/")) {
                issues.push({ issue: dict.mic.word });
                continue u;
             }
-            if (entry.meanings) {
-               if (issues.length > 9) break u;
-               if (entry.meanings.ecdict) {
-                  issues.push({ issue: dict.mic.word });
-                  continue u;
-               }
+            if (entry.pos === "ecdict") {
+               issues.push({ issue: dict.mic.word });
+               continue u;
             }
          }
    }

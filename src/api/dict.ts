@@ -12,19 +12,17 @@ import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
 
 const ecdictIssue = (dict: IDict) => {
-   if (dict.entries)
+   if (dict.entries?.length)
       for (const entry of dict.entries)
-         if (entry.meanings)
-            for (const pos of Object.keys(entry.meanings))
-               if (pos === "ecdict") {
-                  const issue = { issue: dict.word };
-                  return collectionIssue.findOne(issue).then((i) => {
-                     if (!i) {
-                        console.log(`API 'dict' insert issue: ${dict.word}`);
-                        collectionIssue.insertOne(issue);
-                     }
-                  });
+         if (entry.pos === "ecdict") {
+            const issue = { issue: dict.word };
+            return collectionIssue.findOne(issue).then((i) => {
+               if (!i) {
+                  console.log(`API 'dict' insert issue: ${dict.word}`);
+                  collectionIssue.insertOne(issue);
                }
+            });
+         }
 };
 
 const fillAndReplaceDict = async (
