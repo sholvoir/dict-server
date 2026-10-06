@@ -1,7 +1,22 @@
 import type { IInflections, ISense, IVariant } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idict.ts";
-import type { IDict, IEntry } from "./imic.ts";
+import type { IDict, IEntry, TPos } from "./imic.ts";
 import refine from "./refine.ts";
+
+const OxfordPos: Record<string, TPos> = {
+   "indefinite article": "deter",
+   "definite article": "deter",
+   noun: "noun",
+   pronoun: "pron",
+   verb: "verb",
+   adjective: "adj",
+   adverb: "adv",
+   preposition: "prep",
+   conjunction: "conj",
+   exclamation: "inter",
+};
+
+const CollinsPos: Record<string, TPos> = {};
 
 const variantToString = (variant: IVariant) => {
    if (variant.value.length === 1 && variant.value[0].type === "v")
@@ -90,9 +105,8 @@ const fill = (dict: IDictionary) => {
    // English-Chinese Dict
    const nameRegex = new RegExp(`【名】|（人名）|（${word}）人名`, "i");
    if (dict.ec?.word?.length) {
-      let i = 0;
       for (const x of dict.ec.word) {
-         const entry: IEntry = { pos: `ecdict${i++}`, meanings: [] };
+         const entry: IEntry = { pos: "ecdict", meanings: [] };
          if (x.usphone) entry.phonetic = `/${x.usphone}/`;
          if (x.usspeech) entry.sound = x.usspeech;
          if (x.trs?.length)
@@ -113,7 +127,7 @@ const fill = (dict: IDictionary) => {
    if (dict.oxford_web) {
       for (const element of dict.oxford_web.entries) {
          const entry: IEntry = {
-            pos: element.pos ?? "unkown",
+            pos: OxfordPos[element.pos!],
             phonetic: "",
             meanings: [],
          };
@@ -145,29 +159,29 @@ const fill = (dict: IDictionary) => {
    // Collins Dict
    if (!mic.entries?.length && dict.collins?.collins_entries?.length) {
       const collinsTran = new RegExp(`<b>${word}`, "i");
-      for (const x of dict.collins.collins_entries) {
+      for (const collinsEntry of dict.collins.collins_entries) {
          const meaningMap = new Map<string, string[]>();
-         if (x.entries?.entry?.length)
-            for (const y of x.entries.entry) {
-               if (y.tran_entry?.length)
-                  for (const z of y.tran_entry) {
-                     const pos = z.pos_entry?.pos;
-                     if (
-                        (z.headword && z.headword !== word) ||
-                        pos?.toLowerCase().includes("phrase")
-                     )
-                        continue;
-                     if (!z.tran) continue;
-                     if (!z.tran?.match(collinsTran)) continue;
+         if (collinsEntry.entries?.entry?.length)
+            for (const entry of collinsEntry.entries.entry) {
+               if (entry.tran_entry?.length)
+                  for (const tranEntry of entry.tran_entry) {
+                     const pos = tranEntry.pos_entry?.pos;
+                     if (pos?.toLowerCase().includes("phrase")) continue;
+                     if (!tranEntry.tran) continue;
+                     if (!tranEntry.tran?.match(collinsTran)) continue;
                      const meanings = meaningMap.get(pos);
-                     const item = refine(z.tran)!;
+                     const item = refine(tranEntry.tran)!;
                      if (meanings) meanings.push(item);
                      else meaningMap.set(pos, [item]);
                   }
             }
          if (meaningMap.size) {
             for (const [pos, meanings] of meaningMap.entries()) {
-               const entry: IEntry = { pos, phonetic: x.phonetic, meanings };
+               const entry: IEntry = {
+                  pos,
+                  phonetic: collinsEntry.phonetic,
+                  meanings,
+               };
                mic.entries?.push(entry);
             }
          }
