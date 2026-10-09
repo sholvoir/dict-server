@@ -15,7 +15,7 @@ export interface IEntry {
    pos?: string;
    sound?: string;
    phonetic?: string;
-   meanings?: Array<string>;
+   meanings?: string;
 }
 export interface IDict {
    word: string;
