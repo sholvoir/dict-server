@@ -16,7 +16,7 @@ const OxfordPos: Record<string, TPos> = {
    exclamation: "inter",
 };
 
-const CollinsPos: Record<string, TPos> = {};
+// const CollinsPos: Record<string, TPos> = {};
 
 const variantToString = (variant: IVariant) => {
    if (variant.value.length === 1 && variant.value[0].type === "v")
@@ -106,7 +106,8 @@ const fill = (dict: IDictionary) => {
    const nameRegex = new RegExp(`【名】|（人名）|（${word}）人名`, "i");
    if (dict.ec?.word?.length) {
       for (const x of dict.ec.word) {
-         const entry: IEntry = { pos: "ecdict", meanings: [] };
+         const entry: IEntry = { pos: "ecdict" };
+         const meanings: Array<string> = [];
          if (x.usphone) entry.phonetic = `/${x.usphone}/`;
          if (x.usspeech) entry.sound = x.usspeech;
          if (x.trs?.length)
@@ -116,10 +117,11 @@ const fill = (dict: IDictionary) => {
                      if (z.l?.i?.length)
                         for (const w of z.l.i) {
                            if (w.match(nameRegex)) continue;
-                           entry.meanings?.push(refine(w)!);
+                           meanings.push(refine(w)!);
                         }
                   }
             }
+         entry.meanings = meanings.join("\n");
          mic.entries?.push(entry);
       }
    }
@@ -129,19 +131,19 @@ const fill = (dict: IDictionary) => {
          const entry: IEntry = {
             pos: OxfordPos[element.pos!],
             phonetic: "",
-            meanings: [],
          };
+         const meanings: Array<string> = [];
          if (element.senses) {
             if (element.webTop) {
                const meaning = senseToString(element.webTop)?.replaceAll(
                   /[‘’]/g,
                   "'",
                );
-               if (meaning) entry.meanings?.push(meaning);
+               if (meaning) meanings.push(meaning);
             }
             for (const sense of element.senses) {
                const meaning = senseToString(sense)?.replace(/[‘’]/g, "'");
-               if (meaning) entry.meanings?.push(meaning);
+               if (meaning) meanings.push(meaning);
             }
          }
          const phonetics = new Set<string>();
@@ -153,6 +155,7 @@ const fill = (dict: IDictionary) => {
                      if (!entry.sound && pr.sound) entry.sound = pr.sound;
                   }
          if (phonetics.size) entry.phonetic = Array.from(phonetics).join(",");
+         entry.meanings = meanings.join("\n");
          mic.entries?.push(entry);
       }
    }
@@ -180,7 +183,7 @@ const fill = (dict: IDictionary) => {
                const entry: IEntry = {
                   pos,
                   phonetic: collinsEntry.phonetic,
-                  meanings,
+                  meanings: meanings.join("\n"),
                };
                mic.entries?.push(entry);
             }
@@ -191,7 +194,7 @@ const fill = (dict: IDictionary) => {
    if (!mic.entries?.length && dict.individual?.trs?.length) {
       for (const x of dict.individual.trs) {
          if (x.tran && x.pos)
-            mic.entries?.push({ pos: x.pos, meanings: [refine(x.tran)!] });
+            mic.entries?.push({ pos: x.pos, meanings: refine(x.tran)! });
       }
    }
    // Collins Primary Dict
@@ -203,12 +206,14 @@ const fill = (dict: IDictionary) => {
                pos: gram.partofspeech,
                sound: gram.audiourl,
                phonetic: gram.pronunciation,
-               meanings: [],
+               meanings: "",
             };
+            const meanings: Array<string> = [];
             for (const sense of gram.senses)
-               entry.meanings?.push(
+               meanings.push(
                   `${sense.definition} <strong>${sense.word}</strong>`,
                );
+            entry.meanings = meanings.join("\n");
             mic.entries?.push(entry);
          }
       }
