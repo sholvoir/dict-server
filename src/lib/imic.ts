@@ -8,6 +8,7 @@ export const Poses = [
    "conj",
    "inter",
    "deter",
+   "affix",
    "ecdict",
 ] as const;
 export type TPos = (typeof Poses)[number];

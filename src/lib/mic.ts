@@ -14,6 +14,8 @@ const OxfordPos: Record<string, TPos> = {
    preposition: "prep",
    conjunction: "conj",
    exclamation: "inter",
+   prefix: "affix",
+   suffix: "affix",
 };
 
 // const CollinsPos: Record<string, TPos> = {};
