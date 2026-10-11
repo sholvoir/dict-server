@@ -122,7 +122,7 @@ const fill = (dict: IDictionary) => {
                   }
             }
          entry.meanings = meanings.join("\n");
-         mic.entries?.push(entry);
+         mic.entries.push(entry);
       }
    }
    // Oxford Web
@@ -156,11 +156,11 @@ const fill = (dict: IDictionary) => {
                   }
          if (phonetics.size) entry.phonetic = Array.from(phonetics).join(",");
          entry.meanings = meanings.join("\n");
-         mic.entries?.push(entry);
+         mic.entries.push(entry);
       }
    }
    // Collins Dict
-   if (!mic.entries?.length && dict.collins?.collins_entries?.length) {
+   if (!mic.entries.length && dict.collins?.collins_entries?.length) {
       const collinsTran = new RegExp(`<b>${word}`, "i");
       for (const collinsEntry of dict.collins.collins_entries) {
          const meaningMap = new Map<string, string[]>();
@@ -185,20 +185,20 @@ const fill = (dict: IDictionary) => {
                   phonetic: collinsEntry.phonetic,
                   meanings: meanings.join("\n"),
                };
-               mic.entries?.push(entry);
+               mic.entries.push(entry);
             }
          }
       }
    }
    // Individual Dict
-   if (!mic.entries?.length && dict.individual?.trs?.length) {
+   if (!mic.entries.length && dict.individual?.trs?.length) {
       for (const x of dict.individual.trs) {
          if (x.tran && x.pos)
-            mic.entries?.push({ pos: x.pos, meanings: refine(x.tran)! });
+            mic.entries.push({ pos: x.pos, meanings: refine(x.tran)! });
       }
    }
    // Collins Primary Dict
-   if (!mic.entries?.length && dict.collins_primary) {
+   if (!mic.entries.length && dict.collins_primary) {
       const cp = dict.collins_primary;
       if (cp.words?.word === word && cp.gramcat?.length) {
          for (const gram of dict.collins_primary.gramcat) {
@@ -214,7 +214,7 @@ const fill = (dict: IDictionary) => {
                   `${sense.definition} <strong>${sense.word}</strong>`,
                );
             entry.meanings = meanings.join("\n");
-            mic.entries?.push(entry);
+            mic.entries.push(entry);
          }
       }
    }

@@ -9,7 +9,7 @@ app.get(auth, admin, async (c) => {
    const issues: Array<{ issue: string }> = [];
    const cursor = collectionDict.find({ mic: { $exists: true } });
    u: for await (const dict of cursor) {
-      if (dict.mic?.entries?.length)
+      if (dict.mic?.entries.length)
          for (const entry of dict.mic.entries) {
             if (issues.length > 9) break u;
             if (entry.phonetic?.includes("/,/")) {
