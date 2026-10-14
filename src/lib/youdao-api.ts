@@ -8,7 +8,6 @@ const audioBase = "https://dict.youdao.com/dictvoice?audio="; //complete&type=2
 
 const fill = async (dict: IDictionary) => {
    if (!dict.input) return dict;
-   if (dict.version) return dict;
    const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(dict.input)}`);
    if (!resp.ok) return;
    const root = await resp.json();

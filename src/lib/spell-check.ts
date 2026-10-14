@@ -93,6 +93,7 @@ export const addToVocabulary = async (words: Iterable<string>) => {
    const oldSize = vocab.size;
    for (const word of words) vocab.add(word);
    if (vocab.size > oldSize) update();
+   return vocab.size - oldSize;
 };
 
 export const deleteFromVocabulary = async (words: Iterable<string>) => {
@@ -100,6 +101,7 @@ export const deleteFromVocabulary = async (words: Iterable<string>) => {
    const oldSize = vocab.size;
    for (const word of words) if (vocab.has(word)) vocab.delete(word);
    if (vocab.size < oldSize) update();
+   return oldSize - vocab.size;
 };
 
 export const check = async (

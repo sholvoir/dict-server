@@ -1,5 +1,6 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import type { IDictionary } from "./idict.ts";
+import type { IIssue } from "./iissue.ts";
 
 export const client = new MongoClient(Deno.env.get("MONGO_URI")!, {
    serverApi: {
@@ -15,4 +16,4 @@ export const close = () => client.close();
 const dictDB = client.db("dict");
 
 export const collectionDict = dictDB.collection<IDictionary>("dict");
-export const collectionIssue = dictDB.collection<{ issue: string }>("issue");
+export const collectionIssue = dictDB.collection<IIssue>("issue");

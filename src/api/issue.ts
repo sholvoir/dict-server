@@ -15,13 +15,13 @@ export default new Hono<jwtEnv>()
    })
    .post(auth, async (c) => {
       const reporter = c.get("username");
-      const issue = (await c.req.json()).issue;
+      const issue = (await c.req.json())?.issue;
       if (!issue) return emptyResponse(STATUS_CODE.BadRequest);
       const { vocab } = await getVocabulary();
       if (!vocab.has(issue)) return emptyResponse(STATUS_CODE.NotAcceptable);
       const sissue = await collectionIssue.findOne({ issue });
       if (sissue) return emptyResponse(STATUS_CODE.Conflict);
-      const result = await collectionIssue.insertOne({ issue });
+      const result = await collectionIssue.insertOne({ issue, reporter });
       if (!result.acknowledged) {
          console.log(`API issue POST ${reporter} ${issue} write error`);
          return emptyResponse(STATUS_CODE.InternalServerError);

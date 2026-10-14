@@ -17,15 +17,15 @@ export default new Hono<jwtEnv>()
    .post(auth, admin, async (c) => {
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-      await addToVocabulary(text.split("/n"));
-      console.log(`API vocabulary POST successed`);
+      const n = await addToVocabulary(text.split("\n"));
+      console.log(`API vocabulary POST successed ${n}.`);
       return emptyResponse();
    })
    .delete(auth, admin, async (c) => {
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-      await deleteFromVocabulary(text.split("/n"));
-      console.log(`API vocabulary DELETE successed`);
+      const n = await deleteFromVocabulary(text.split("\n"));
+      console.log(`API vocabulary DELETE successed ${n}`);
       return emptyResponse();
    })
    .get("/checksum", async (c) => {
