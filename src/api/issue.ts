@@ -1,5 +1,6 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
+import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
 import { collectionIssue } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";
@@ -9,13 +10,14 @@ import auth from "../mid/auth.ts";
 export default new Hono<jwtEnv>()
    .get(auth, admin, async (c) => {
       const issues = [];
-      for await (const issue of collectionIssue.find()) issues.push(issue);
-      console.log(`API issue GET successed`);
+      for await (const { _id, ...rest } of collectionIssue.find())
+         issues.push({ id: _id.toString(), ...rest });
+      console.log(`API issue GET successed ${issues.length}`);
       return c.json(issues);
    })
    .post(auth, async (c) => {
       const reporter = c.get("username");
-      const issue = (await c.req.json())?.issue;
+      const issue = await c.req.text();
       if (!issue) return emptyResponse(STATUS_CODE.BadRequest);
       const { vocab } = await getVocabulary();
       if (!vocab.has(issue)) return emptyResponse(STATUS_CODE.NotAcceptable);
@@ -42,6 +44,21 @@ export default new Hono<jwtEnv>()
          return emptyResponse(STATUS_CODE.NotFound);
       } else {
          console.log(`API issue DELETE ${issue}`);
+         return emptyResponse();
+      }
+   })
+   .delete(":id", auth, admin, async (c) => {
+      const id = c.req.param("id");
+      if (!id) return emptyResponse(STATUS_CODE.BadRequest);
+      const result = await collectionIssue.deleteOne({ _id: new ObjectId(id) });
+      if (!result.acknowledged) {
+         console.log(`API issue DELETE ${id} write error`);
+         return emptyResponse(STATUS_CODE.InternalServerError);
+      } else if (!result.deletedCount) {
+         console.log(`API issue DELETE ${id} not found`);
+         return emptyResponse(STATUS_CODE.NotFound);
+      } else {
+         console.log(`API issue DELETE ${id}`);
          return emptyResponse();
       }
    });
