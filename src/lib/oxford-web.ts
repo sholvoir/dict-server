@@ -17,7 +17,7 @@ import type {
    IV,
    IVariant,
 } from "./i-oxford-web.ts";
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 
 const version = 4;
 const baseUrl = "https://www.oxfordlearnersdictionaries.com/us/search/english";

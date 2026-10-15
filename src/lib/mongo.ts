@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 import type { IIssue } from "./iissue.ts";
 
 export const client = new MongoClient(Deno.env.get("MONGO_URI")!, {

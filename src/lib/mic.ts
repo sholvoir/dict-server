@@ -1,5 +1,5 @@
 import type { IInflections, ISense, IVariant } from "./i-oxford-web.ts";
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 import type { IDict, IEntry, TPos } from "./imic.ts";
 import refine from "./refine.ts";
 

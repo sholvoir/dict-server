@@ -1,4 +1,4 @@
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 
 const baseUrl = "https://www.merriam-webster.com/dictionary";
 const version = 1;

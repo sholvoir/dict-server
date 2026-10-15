@@ -2,7 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { fill } from "../lib/dict.ts";
 import type { jwtEnv } from "../lib/env.ts";
-import type { IDictionary } from "../lib/idict.ts";
+import type { IDictionary } from "../lib/idictionary.ts";
 import type { IDict } from "../lib/imic.ts";
 import { collectionDict, collectionIssue } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";

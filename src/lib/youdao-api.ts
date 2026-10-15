@@ -1,4 +1,4 @@
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 
 // export const googleTtsBaseUrl =
 //    "https://translate.google.com.vn/translate_tts?ie=UTF-8&tl=en&client=tw-ob"; //&q=ir

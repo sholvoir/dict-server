@@ -4,7 +4,7 @@ import oxfordWeb from "../lib/oxford-web.ts";
 import websterApi from "../lib/webster-api.ts";
 import websterWeb from "../lib/webster-web.ts";
 import youdaoApi from "../lib/youdao-api.ts";
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 
 export const fill = async (dict: IDictionary, userAgent: string) => {
    await Promise.allSettled([

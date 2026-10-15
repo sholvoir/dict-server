@@ -1,4 +1,4 @@
-import type { IDictionary } from "./idict.ts";
+import type { IDictionary } from "./idictionary.ts";
 
 const baseUrl =
    "https://www.dictionaryapi.com/api/v3/references/collegiate/json";
