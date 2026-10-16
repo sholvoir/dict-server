@@ -34,36 +34,42 @@ const pdict = (dict: IDictionary, keys?: Array<keyof IDictionary>) => {
 };
 
 export default new Hono<jwtEnv>()
-   .get(async (c) => {
-      const word = c.req.query("q");
-      if (!word) return emptyResponse(STATUS_CODE.BadRequest);
+   .get(":word", async (c) => {
+      const word = c.req.param("word");
       const ds = c.req.query("d")?.split(",") as (keyof IDictionary)[];
       const userAgent = c.req.header("User-Agent") || "";
-      const dict = await collectionDict.findOne({ input: word });
-      if (!dict) {
-         const ndict = await fill({ input: word }, userAgent);
-         const { vocab } = await getVocabulary();
-         if (vocab.has(word)) {
-            await collectionDict.insertOne(ndict);
-            if (ndict.mic) ecdictIssue(ndict.mic);
+      const dictionary = await collectionDict.findOne({ input: word });
+      if (!dictionary) {
+         const dict = await fill({ input: word }, userAgent);
+         if (dict.modified) {
+            delete dict.modified;
+            const { vocab } = await getVocabulary();
+            if (vocab.has(word)) {
+               collectionDict.insertOne(dict);
+               if (dict.mic) ecdictIssue(dict.mic);
+            }
          }
          console.log(`API 'dict' GET word: ${word}`);
-         return c.json(pdict(ndict, ds));
+         return c.json(pdict(dict, ds));
       } else {
+         const { _id, ...dict } = dictionary;
          if (Object.keys(dict).length < 6) await fill(dict, userAgent);
          if (dict.modified) {
             delete dict.modified;
-            await collectionDict.replaceOne({ _id: dict._id }, dict);
+            collectionDict.replaceOne({ _id }, dict);
          }
          console.log(`API 'dict' GET word: ${word} (refilled)`);
          return c.json(pdict(dict, ds));
       }
    })
-   .patch(auth, admin, async (c) => {
+   .patch(":word", auth, admin, async (c) => {
       const dict = (await c.req.json()) as IDictionary;
       if (!dict) return emptyResponse(STATUS_CODE.BadRequest);
-      const input = dict.input ?? dict.mic?.word;
-      if (!input) return emptyResponse(STATUS_CODE.BadRequest);
+      const input = c.req.param("word");
+      if (dict.input && dict.input !== input)
+         return emptyResponse(STATUS_CODE.BadRequest);
+      if (dict.mic?.word && dict.mic.word !== input)
+         return emptyResponse(STATUS_CODE.BadRequest);
       dict.version = Date.now();
       const result = await collectionDict.updateOne(
          { input },
@@ -75,9 +81,8 @@ export default new Hono<jwtEnv>()
       console.log(`API dict PATCH ${input}`);
       return emptyResponse();
    })
-   .delete(auth, admin, async (c) => {
-      const input = c.req.query("q");
-      if (!input) return emptyResponse(STATUS_CODE.BadRequest);
+   .delete(":word", auth, admin, async (c) => {
+      const input = c.req.param("word");
       const result = await collectionDict.deleteOne({ input });
       if (!result.deletedCount) return emptyResponse(STATUS_CODE.NotFound);
       console.log(`API dict DELETE ${input}`);

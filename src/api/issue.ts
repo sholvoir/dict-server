@@ -32,21 +32,6 @@ export default new Hono<jwtEnv>()
          return c.text(result.insertedId.toString(), STATUS_CODE.Created);
       }
    })
-   .delete(auth, admin, async (c) => {
-      const issue = c.req.query("issue");
-      if (!issue) return emptyResponse(STATUS_CODE.BadRequest);
-      const result = await collectionIssue.deleteOne({ issue });
-      if (!result.acknowledged) {
-         console.log(`API issue DELETE ${issue} write error`);
-         return emptyResponse(STATUS_CODE.InternalServerError);
-      } else if (!result.deletedCount) {
-         console.log(`API issue DELETE ${issue} not found`);
-         return emptyResponse(STATUS_CODE.NotFound);
-      } else {
-         console.log(`API issue DELETE ${issue}`);
-         return emptyResponse();
-      }
-   })
    .delete(":id", auth, admin, async (c) => {
       const id = c.req.param("id");
       if (!id) return emptyResponse(STATUS_CODE.BadRequest);
