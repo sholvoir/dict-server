@@ -2,6 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
+import type { IIDIssue } from "../lib/iissue.ts";
 import { collectionIssue } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";
 import admin from "../mid/admin.ts";
@@ -9,7 +10,7 @@ import auth from "../mid/auth.ts";
 
 export default new Hono<jwtEnv>()
    .get(auth, admin, async (c) => {
-      const issues = [];
+      const issues: Array<IIDIssue> = [];
       for await (const { _id, ...rest } of collectionIssue.find())
          issues.push({ id: _id.toString(), ...rest });
       console.log(`API issue GET successed ${issues.length}`);
