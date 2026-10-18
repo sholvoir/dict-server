@@ -1,22 +1,22 @@
 import type { IInflections, ISense, IVariant } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idictionary.ts";
-import type { IDict, IEntry, TPos } from "./imic.ts";
+import type { IDict, IEntry } from "./imic.ts";
 import refine from "./refine.ts";
 
-const OxfordPos: Record<string, TPos> = {
-   "indefinite article": "deter",
-   "definite article": "deter",
-   noun: "noun",
-   pronoun: "pron",
-   verb: "verb",
-   adjective: "adj",
-   adverb: "adv",
-   preposition: "prep",
-   conjunction: "conj",
-   exclamation: "inter",
-   prefix: "affix",
-   suffix: "affix",
-};
+// const OxfordPos: Record<string, TPos> = {
+//    "indefinite article": "deter",
+//    "definite article": "deter",
+//    noun: "noun",
+//    pronoun: "pron",
+//    verb: "verb",
+//    adjective: "adj",
+//    adverb: "adv",
+//    preposition: "prep",
+//    conjunction: "conj",
+//    exclamation: "inter",
+//    prefix: "affix",
+//    suffix: "affix",
+// };
 
 // const CollinsPos: Record<string, TPos> = {};
 
@@ -131,7 +131,7 @@ const fill = (dict: IDictionary) => {
    if (dict.oxford_web) {
       for (const element of dict.oxford_web.entries) {
          const entry: IEntry = {
-            pos: OxfordPos[element.pos!],
+            pos: element.pos,
             phonetic: "",
          };
          const meanings: Array<string> = [];

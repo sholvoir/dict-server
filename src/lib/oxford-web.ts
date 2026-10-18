@@ -214,13 +214,15 @@ const fill = async (dict: IDictionary, userAgent: string) => {
    const ids = new Set<string>();
    const entries: Array<IOxfordWebEntry> = [];
    let ref = `${baseUrl}/?q=${word}`;
-   const cookies: Record<string, string> = {};
+   const cookies = new Map<string, string>();
    const readUrl = async (url: string, e: boolean) => {
       const res = await fetch(url, {
          headers: {
             "User-Agent": userAgent,
             Referer: ref,
-            Cookie: Object.entries(cookies)
+            Cookie: cookies
+               .entries()
+               .toArray()
                .map(([k, v]) => `${k}=${v}`)
                .join("; "),
          },
@@ -228,7 +230,7 @@ const fill = async (dict: IDictionary, userAgent: string) => {
       if (!res.ok) return;
       for (const cookie of res.headers.getSetCookie()) {
          const [k, v] = cookie.split("; ")[0].split("=");
-         cookies[k] = v;
+         cookies.set(k, v);
       }
       const doc = new DOMParser().parseFromString(
          await res.text(),
@@ -240,7 +242,10 @@ const fill = async (dict: IDictionary, userAgent: string) => {
       }
       const nearbyUl = doc.querySelector(".nearby>.list-col");
       if (!nearbyUl) return;
-      const changedWord = word.replaceAll("%20", "-").toLocaleLowerCase();
+      const changedWord = word
+         .replaceAll("-", "")
+         .replaceAll("%20", "-")
+         .toLocaleLowerCase();
       for (const li of nearbyUl.children)
          if (li.tagName === "LI")
             for (const a of li.querySelectorAll("a")) {

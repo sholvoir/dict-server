@@ -57,8 +57,8 @@ export default new Hono<jwtEnv>()
          if (dict.modified) {
             delete dict.modified;
             collectionDict.replaceOne({ _id }, dict);
-         }
-         console.log(`API 'dict' GET word: ${word} (refilled)`);
+            console.log(`API 'dict' GET word: ${word} (refilled)`);
+         } else console.log(`API 'dict' GET word: ${word} (cached)`);
          return c.json(pdict(dict, ds));
       }
    })
@@ -71,13 +71,12 @@ export default new Hono<jwtEnv>()
       if (dict.mic?.word && dict.mic.word !== input)
          return emptyResponse(STATUS_CODE.BadRequest);
       dict.version = Date.now();
-      const result = await collectionDict.updateOne(
-         { input },
-         { $set: dict },
-         { upsert: true },
-      );
+      const result = await collectionDict.updateOne({ input }, { $set: dict });
       if (!result.acknowledged)
          return emptyResponse(STATUS_CODE.InternalServerError);
+      if (!result.matchedCount) return emptyResponse(STATUS_CODE.NotFound);
+      if (!result.modifiedCount)
+         return emptyResponse(STATUS_CODE.NotAcceptable);
       console.log(`API dict PATCH ${input}`);
       return emptyResponse();
    })
