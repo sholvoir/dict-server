@@ -10,7 +10,7 @@ import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
 
 const ecdictIssue = (dict: IDict) => {
-   if (dict.entries.length)
+   if (dict.entries?.length)
       for (const entry of dict.entries)
          if (entry.pos === "ecdict") {
             collectionIssue.findOne({ issue: dict.word }).then((i) => {

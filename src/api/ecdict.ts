@@ -11,13 +11,16 @@ app.get(auth, admin, async (c) => {
    const issues: Array<IIssue> = [];
    const cursor = collectionDict.find({ mic: { $exists: true } });
    u: for await (const dict of cursor) {
-      if (dict.mic?.entries.length)
+      if (dict.mic?.entries?.length)
          for (const entry of dict.mic.entries) {
             if (issues.length > 9) break u;
-            if (entry.phonetic?.includes("/,/")) {
-               issues.push({ issue: dict.mic.word, reporter });
-               continue u;
-            }
+            if (entry.pronounces?.length)
+               for (const pronounce of entry.pronounces) {
+                  if (pronounce.phonetic?.includes("/,/")) {
+                     issues.push({ issue: dict.mic.word, reporter });
+                     continue u;
+                  }
+               }
             if (entry.pos === "ecdict") {
                issues.push({ issue: dict.mic.word, reporter });
                continue u;

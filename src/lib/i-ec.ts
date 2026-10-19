@@ -25,5 +25,5 @@ export interface IEC {
       name: string;
       url: string;
    };
-   word: Array<any>;
+   word: Array<IWord>;
 }
