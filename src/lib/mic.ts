@@ -134,20 +134,14 @@ const fill = (dict: IDictionary) => {
             }
             if (pronounces.length) entry.pronounces = pronounces;
          }
-         if (element.webTop || element.senses) {
+         if (element.webTop) {
+            entry.top = senseToString(element.webTop)?.replaceAll(/[‘’]/g, "'");
+         }
+         if (element.senses) {
             const meanings: Array<string> = [];
-            if (element.webTop) {
-               const meaning = senseToString(element.webTop)?.replaceAll(
-                  /[‘’]/g,
-                  "'",
-               );
+            for (const sense of element.senses) {
+               const meaning = senseToString(sense)?.replace(/[‘’]/g, "'");
                if (meaning) meanings.push(meaning);
-            }
-            if (element.senses) {
-               for (const sense of element.senses) {
-                  const meaning = senseToString(sense)?.replace(/[‘’]/g, "'");
-                  if (meaning) meanings.push(meaning);
-               }
             }
             if (meanings.length) entry.meanings = meanings;
          }

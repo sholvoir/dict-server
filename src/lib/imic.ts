@@ -5,6 +5,7 @@ export interface IPronounce {
 export interface IEntry {
    pos?: string;
    pronounces?: Array<IPronounce>;
+   top?: string;
    meanings?: Array<string>;
 }
 export interface IDict {
