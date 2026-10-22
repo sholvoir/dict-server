@@ -1,7 +1,6 @@
 import type { IInflections, ISense, IVariant } from "./i-oxford-web.ts";
 import type { IDictionary } from "./idictionary.ts";
 import type { IDict, IEntry, IPronounce } from "./imic.ts";
-import refine from "./refine.ts";
 
 const variantToString = (variant: IVariant) => {
    if (variant.value.length === 1 && variant.value[0].type === "v")
@@ -106,7 +105,7 @@ const fill = (dict: IDictionary) => {
                      if (z.l?.i?.length)
                         for (const w of z.l.i) {
                            if (w.match(nameRegex)) continue;
-                           meanings.push(refine(w)!);
+                           meanings.push(w);
                         }
                   }
             }
@@ -162,7 +161,7 @@ const fill = (dict: IDictionary) => {
                      if (!tranEntry.tran) continue;
                      if (!tranEntry.tran?.match(collinsTran)) continue;
                      const meanings = meaningMap.get(pos);
-                     const item = refine(tranEntry.tran)!;
+                     const item = tranEntry.tran;
                      if (meanings) meanings.push(item);
                      else meaningMap.set(pos, [item]);
                   }
@@ -181,7 +180,7 @@ const fill = (dict: IDictionary) => {
    if (!mic.entries?.length && dict.individual?.trs?.length) {
       for (const x of dict.individual.trs) {
          if (x.tran && x.pos)
-            mic.entries?.push({ pos: x.pos, meanings: [refine(x.tran)!] });
+            mic.entries?.push({ pos: x.pos, meanings: [x.tran] });
       }
    }
    // Collins Primary Dict
