@@ -6,11 +6,12 @@ const soundBase = "https://media.merriam-webster.com/audio/prons/en/us/mp3";
 const apiKey = Deno.env.get("DICTIONARY_API_COM_DICTIONARY");
 const websterRegex = /^[A-Za-z]/;
 
-const getSubdirectory = (word: string) => {
-   if (word.startsWith("bix")) return "bix";
-   if (word.startsWith("gg")) return "gg";
-   if (websterRegex.test(word)) return word.at(0);
-   return "number";
+export const getWebsterSound = (word: string) => {
+   let subdirectory = "number";
+   if (word.startsWith("bix")) subdirectory = "bix";
+   if (word.startsWith("gg")) subdirectory = "gg";
+   if (websterRegex.test(word)) subdirectory = word.at(0)!;
+   return `${soundBase}/${subdirectory}/${word}.mp3`;
 };
 
 const fill = async (dict: IDictionary) => {
@@ -26,13 +27,13 @@ const fill = async (dict: IDictionary) => {
       if (entry.hwi?.prs)
          for (const pr of entry.hwi.prs)
             if (pr.sound?.audio)
-               pr.sound.audio = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
+               pr.sound.audio = getWebsterSound(pr.sound.audio);
       if (entry.uros)
          for (const uro of entry.uros)
             if (uro.prs)
                for (const pr of uro.prs)
                   if (pr.sound?.audio)
-                     pr.sound.audio = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
+                     pr.sound.audio = getWebsterSound(pr.sound.audio);
    }
    dict.webster_api = entries;
    dict.modified = true;
