@@ -109,7 +109,7 @@ const fill = (dict: IDictionary) => {
                         }
                   }
             }
-            if (meanings.length) entry.meanings = meanings;
+            if (meanings.length) entry.meanings = meanings.join("\n");
          }
          mic.entries?.push(entry);
       }
@@ -142,7 +142,7 @@ const fill = (dict: IDictionary) => {
                const meaning = senseToString(sense)?.replace(/[‘’]/g, "'");
                if (meaning) meanings.push(meaning);
             }
-            if (meanings.length) entry.meanings = meanings;
+            if (meanings.length) entry.meanings = meanings.join("\n");
          }
          mic.entries?.push(entry);
       }
@@ -168,7 +168,7 @@ const fill = (dict: IDictionary) => {
             }
          if (meaningMap.size) {
             for (const [pos, meanings] of meaningMap.entries()) {
-               const entry: IEntry = { pos, meanings };
+               const entry: IEntry = { pos, meanings: meanings.join("\n") };
                if (collinsEntry.phonetic)
                   entry.pronounces = [{ phonetic: collinsEntry.phonetic }];
                mic.entries?.push(entry);
@@ -180,7 +180,7 @@ const fill = (dict: IDictionary) => {
    if (!mic.entries?.length && dict.individual?.trs?.length) {
       for (const x of dict.individual.trs) {
          if (x.tran && x.pos)
-            mic.entries?.push({ pos: x.pos, meanings: [x.tran] });
+            mic.entries?.push({ pos: x.pos, meanings: x.tran });
       }
    }
    // Collins Primary Dict
@@ -199,7 +199,7 @@ const fill = (dict: IDictionary) => {
                meanings.push(
                   `${sense.definition} <strong>${sense.word}</strong>`,
                );
-            if (meanings.length) entry.meanings = meanings;
+            if (meanings.length) entry.meanings = meanings.join("\n");
             mic.entries?.push(entry);
          }
       }

@@ -6,7 +6,7 @@ export interface IEntry {
    pos?: string;
    pronounces?: Array<IPronounce>;
    top?: string;
-   meanings?: Array<string>;
+   meanings?: string;
 }
 export interface IDict {
    word: string;

@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.9.4",
+   "version": "0.9.5",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
