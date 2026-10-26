@@ -28,7 +28,10 @@ const ecdictIssue = (dict: IDict) => {
 
 const pdict = (dict: IDictionary, keys?: Array<keyof IDictionary>) => {
    if (!keys) return dict;
-   const di: Partial<IDictionary> = {};
+   const di: Partial<IDictionary> = {
+      input: dict.input,
+      version: dict.version,
+   };
    for (const d of keys) di[d] = dict[d];
    return di;
 };
@@ -56,7 +59,7 @@ export default new Hono<jwtEnv>()
          if (Object.keys(dict).length < 6) await fill(dict, userAgent);
          if (dict.modified) {
             delete dict.modified;
-            collectionDict.replaceOne({ _id }, dict);
+            collectionDict.updateOne({ _id }, { $set: dict });
             console.log(`API 'dict' GET word: ${word} (refilled)`);
          } else console.log(`API 'dict' GET word: ${word} (cached)`);
          return c.json(pdict(dict, ds));
