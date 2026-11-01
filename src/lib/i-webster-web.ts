@@ -1,4 +1,14 @@
+export interface IPronounce {
+   phonetic?: string;
+   sound?: string;
+}
+export interface IEntry {
+   hword?: string;
+   partsOfSpeech?: string;
+   prons?: Array<IPronounce>;
+}
 export interface IWebsterWeb {
-   version: number;
-   sound: string;
+   word: string;
+   version?: number;
+   entries?: Array<IEntry>;
 }

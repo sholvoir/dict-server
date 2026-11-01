@@ -204,6 +204,14 @@ const fill = (dict: IDictionary) => {
          }
       }
    }
+   // webster-web
+   if (!mic.entries?.length && dict.webster_web) {
+      const ww = dict.webster_web;
+      if (ww.word === word && ww.entries?.length)
+         for (const { partsOfSpeech, prons } of ww.entries)
+            mic.entries?.push({ pos: partsOfSpeech, pronounces: prons });
+   }
+   //
    dict.mic = mic;
    dict.modified = true;
    return dict;
