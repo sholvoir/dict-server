@@ -84,5 +84,5 @@ export interface IOxfordWebEntry {
 }
 export interface IOxfordWeb {
    version: number;
-   entries: Array<IOxfordWebEntry>;
+   entries?: Array<IOxfordWebEntry>;
 }

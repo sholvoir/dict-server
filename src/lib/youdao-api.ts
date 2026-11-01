@@ -5,44 +5,48 @@ import type { IDictionary } from "./idictionary.ts";
 
 const baseUrl = "https://dict.youdao.com/jsonapi";
 const audioBase = "https://dict.youdao.com/dictvoice?audio="; //complete&type=2
+const version = 1;
 
 const fill = async (dict: IDictionary) => {
    if (!dict.input) return dict;
-   const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(dict.input)}`);
-   if (!resp.ok) return;
-   const root = await resp.json();
-   const needDelete = [
-      "web_trans",
-      "oxfordAdvanceHtml",
-      "oxfordAdvanceTen",
-      "oxfordAdvance",
-      "oxford",
-      "webster",
-      "senior",
-      "lang",
-      "le",
-      "meta",
-      "typos",
-      "input",
-   ];
-   for (const dictName of needDelete) if (root[dictName]) delete root[dictName];
-   if (root.simple?.word?.length)
-      for (const word of root.simple.word) {
-         if (word.ukspeech) word.ukspeech = `${audioBase}${word.ukspeech}`;
-         if (word.usspeech) word.usspeech = `${audioBase}${word.usspeech}`;
-      }
-   if (root.ec?.word?.length)
-      for (const word of root.ec.word) {
-         if (word.ukspeech) word.ukspeech = `${audioBase}${word.ukspeech}`;
-         if (word.usspeech) word.usspeech = `${audioBase}${word.usspeech}`;
-      }
-   if (root.word_video?.word_videos?.length)
-      for (const wordVideo of root.word_video.word_videos) {
-         delete wordVideo.ad;
-      }
-   for (const [key, value] of Object.entries(root)) dict[key] = value;
-   dict.version = Date.now();
+   if ((dict.version ?? 0) >= version) return dict;
+   dict.version = version;
    dict.modified = true;
+   const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(dict.input)}`);
+   if (resp.ok) {
+      const root = await resp.json();
+      const needDelete = [
+         "web_trans",
+         "oxfordAdvanceHtml",
+         "oxfordAdvanceTen",
+         "oxfordAdvance",
+         "oxford",
+         "webster",
+         "senior",
+         "lang",
+         "le",
+         "meta",
+         "typos",
+         "input",
+      ];
+      for (const dictName of needDelete)
+         if (root[dictName]) delete root[dictName];
+      if (root.simple?.word?.length)
+         for (const word of root.simple.word) {
+            if (word.ukspeech) word.ukspeech = `${audioBase}${word.ukspeech}`;
+            if (word.usspeech) word.usspeech = `${audioBase}${word.usspeech}`;
+         }
+      if (root.ec?.word?.length)
+         for (const word of root.ec.word) {
+            if (word.ukspeech) word.ukspeech = `${audioBase}${word.ukspeech}`;
+            if (word.usspeech) word.usspeech = `${audioBase}${word.usspeech}`;
+         }
+      if (root.word_video?.word_videos?.length)
+         for (const wordVideo of root.word_video.word_videos) {
+            delete wordVideo.ad;
+         }
+      for (const [key, value] of Object.entries(root)) dict[key] = value;
+   }
    return dict;
 };
 

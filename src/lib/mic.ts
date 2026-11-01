@@ -81,11 +81,12 @@ const fill = (dict: IDictionary) => {
    if (!dict.input) return dict;
    if (dict.mic) return dict;
    const word = dict.input;
-   const mic: IDict = {
+   const mic: IDict = (dict.mic = {
       word,
       version: Date.now(),
       entries: [],
-   };
+   });
+   dict.modified = true;
    // English-Chinese Dict
    const nameRegex = new RegExp(`【名】|（人名）|（${word}）人名`, "i");
    if (dict.ec?.word?.length) {
@@ -115,7 +116,7 @@ const fill = (dict: IDictionary) => {
       }
    }
    // Oxford Web
-   if (dict.oxford_web) {
+   if (dict.oxford_web?.entries?.length) {
       for (const element of dict.oxford_web.entries) {
          const entry: IEntry = { pos: element.pos };
          if (element.phonetics?.length) {
@@ -211,9 +212,6 @@ const fill = (dict: IDictionary) => {
          for (const { partsOfSpeech, prons } of ww.entries)
             mic.entries?.push({ pos: partsOfSpeech, pronounces: prons });
    }
-   //
-   dict.mic = mic;
-   dict.modified = true;
    return dict;
 };
 

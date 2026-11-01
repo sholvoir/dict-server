@@ -6,8 +6,11 @@ const fill = async (dict: IDictionary) => {
    if (!dict.input) return dict;
    if (dict.free_dictionary_api) return dict;
    const res = await fetch(`${baseUrl}/${encodeURIComponent(dict.input)}`);
-   if (!res.ok) return dict;
-   dict.free_dictionary_api = await res.json();
+   if (!res.ok) {
+      dict.free_dictionary_api = [];
+   } else {
+      dict.free_dictionary_api = await res.json();
+   }
    dict.modified = true;
    return dict;
 };

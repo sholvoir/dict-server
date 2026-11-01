@@ -209,7 +209,8 @@ const extract = (doc: HTMLDocument): IOxfordWebEntry | undefined => {
 
 const fill = async (dict: IDictionary, userAgent: string) => {
    if (!dict.input) return dict;
-   if (dict.oxford_web && dict.oxford_web.version >= version) return dict;
+   if ((dict.oxford_web?.version ?? 0) >= version) return dict;
+   dict.oxford_web = { version };
    const word = encodeURIComponent(dict.input);
    const ids = new Set<string>();
    const entries: Array<IOxfordWebEntry> = [];
@@ -263,8 +264,7 @@ const fill = async (dict: IDictionary, userAgent: string) => {
             }
    };
    await readUrl(ref, false);
-   if (!entries.length) return dict;
-   dict.oxford_web = { version, entries };
+   if (!entries.length) dict.oxford_web.entries = entries;
    dict.modified = true;
    return dict;
 };

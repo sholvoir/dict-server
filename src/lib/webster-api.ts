@@ -11,22 +11,25 @@ const fill = async (dict: IDictionary) => {
    const res = await fetch(
       `${baseUrl}/${encodeURIComponent(dict.input)}?key=${apiKey}`,
    );
-   if (!res.ok) return dict;
-   const entries = (await res.json()) as Array<any>;
-   if (typeof entries[0] === "string") return dict;
-   for (const entry of entries) {
-      if (entry.hwi?.prs)
-         for (const pr of entry.hwi.prs)
-            if (pr.sound?.audio)
-               pr.sound.audio = getWebsterSound(pr.sound.audio);
-      if (entry.uros)
-         for (const uro of entry.uros)
-            if (uro.prs)
-               for (const pr of uro.prs)
-                  if (pr.sound?.audio)
-                     pr.sound.audio = getWebsterSound(pr.sound.audio);
+   if (!res.ok) {
+      dict.webster_api = [];
+   } else {
+      const entries = (await res.json()) as Array<any>;
+      if (typeof entries[0] === "string") return dict;
+      for (const entry of entries) {
+         if (entry.hwi?.prs)
+            for (const pr of entry.hwi.prs)
+               if (pr.sound?.audio)
+                  pr.sound.audio = getWebsterSound(pr.sound.audio);
+         if (entry.uros)
+            for (const uro of entry.uros)
+               if (uro.prs)
+                  for (const pr of uro.prs)
+                     if (pr.sound?.audio)
+                        pr.sound.audio = getWebsterSound(pr.sound.audio);
+      }
+      dict.webster_api = entries;
    }
-   dict.webster_api = entries;
    dict.modified = true;
    return dict;
 };
