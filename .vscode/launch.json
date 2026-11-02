@@ -43,7 +43,7 @@
          "type": "node",
          "program": "${workspaceFolder}/src/lib/webster-web.ts",
          "args": [
-            "transport"
+            "mesothelioma"
          ],
          "cwd": "${workspaceFolder}",
          "runtimeExecutable": "/home/shaw/.deno/bin/deno",

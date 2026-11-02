@@ -211,6 +211,7 @@ const fill = async (dict: IDictionary, userAgent: string) => {
    if (!dict.input) return dict;
    if ((dict.oxford_web?.version ?? 0) >= version) return dict;
    dict.oxford_web = { version };
+   dict.modified = true;
    const word = encodeURIComponent(dict.input);
    const ids = new Set<string>();
    const entries: Array<IOxfordWebEntry> = [];
@@ -264,8 +265,7 @@ const fill = async (dict: IDictionary, userAgent: string) => {
             }
    };
    await readUrl(ref, false);
-   if (!entries.length) dict.oxford_web.entries = entries;
-   dict.modified = true;
+   if (entries.length) dict.oxford_web.entries = entries;
    return dict;
 };
 

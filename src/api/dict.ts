@@ -56,7 +56,7 @@ export default new Hono<jwtEnv>()
          return c.json(pdict(dict, ds));
       } else {
          const { _id, ...dict } = dictionary;
-         if (Object.keys(dict).length < 6) await fill(dict, userAgent);
+         await fill(dict, userAgent);
          if (dict.modified) {
             delete dict.modified;
             collectionDict.updateOne({ _id }, { $set: dict });
