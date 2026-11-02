@@ -147,70 +147,71 @@ const fill = (dict: IDictionary) => {
          }
          mic.entries?.push(entry);
       }
-   }
-   // Collins Dict
-   if (!mic.entries?.length && dict.collins?.collins_entries?.length) {
-      const collinsTran = new RegExp(`<b>${word}`, "i");
-      for (const collinsEntry of dict.collins.collins_entries) {
-         const meaningMap = new Map<string, string[]>();
-         if (collinsEntry.entries?.entry?.length)
-            for (const entry of collinsEntry.entries.entry) {
-               if (entry.tran_entry?.length)
-                  for (const tranEntry of entry.tran_entry) {
-                     const pos = tranEntry.pos_entry?.pos;
-                     if (pos?.toLowerCase().includes("phrase")) continue;
-                     if (!tranEntry.tran) continue;
-                     if (!tranEntry.tran?.match(collinsTran)) continue;
-                     const meanings = meaningMap.get(pos);
-                     const item = tranEntry.tran;
-                     if (meanings) meanings.push(item);
-                     else meaningMap.set(pos, [item]);
-                  }
+   } else {
+      // Collins Dict
+      if (dict.collins?.collins_entries?.length) {
+         const collinsTran = new RegExp(`<b>${word}`, "i");
+         for (const collinsEntry of dict.collins.collins_entries) {
+            const meaningMap = new Map<string, string[]>();
+            if (collinsEntry.entries?.entry?.length)
+               for (const entry of collinsEntry.entries.entry) {
+                  if (entry.tran_entry?.length)
+                     for (const tranEntry of entry.tran_entry) {
+                        const pos = tranEntry.pos_entry?.pos;
+                        if (pos?.toLowerCase().includes("phrase")) continue;
+                        if (!tranEntry.tran) continue;
+                        if (!tranEntry.tran?.match(collinsTran)) continue;
+                        const meanings = meaningMap.get(pos);
+                        const item = tranEntry.tran;
+                        if (meanings) meanings.push(item);
+                        else meaningMap.set(pos, [item]);
+                     }
+               }
+            if (meaningMap.size) {
+               for (const [pos, meanings] of meaningMap.entries()) {
+                  const entry: IEntry = { pos, meanings: meanings.join("\n") };
+                  if (collinsEntry.phonetic)
+                     entry.pronounces = [{ phonetic: collinsEntry.phonetic }];
+                  mic.entries?.push(entry);
+               }
             }
-         if (meaningMap.size) {
-            for (const [pos, meanings] of meaningMap.entries()) {
-               const entry: IEntry = { pos, meanings: meanings.join("\n") };
-               if (collinsEntry.phonetic)
-                  entry.pronounces = [{ phonetic: collinsEntry.phonetic }];
+         }
+      }
+      // Individual Dict
+      if (dict.individual?.trs?.length) {
+         for (const x of dict.individual.trs) {
+            if (x.tran && x.pos)
+               mic.entries?.push({ pos: x.pos, meanings: x.tran });
+         }
+      }
+      // Collins Primary Dict
+      if (dict.collins_primary) {
+         const cp = dict.collins_primary;
+         if (cp.words?.word === word && cp.gramcat?.length) {
+            for (const gram of dict.collins_primary.gramcat) {
+               const entry: IEntry = {
+                  pos: gram.partofspeech,
+                  pronounces: [
+                     { sound: gram.audiourl, phonetic: gram.pronunciation },
+                  ],
+               };
+               const meanings: Array<string> = [];
+               for (const sense of gram.senses)
+                  meanings.push(
+                     `${sense.definition} <strong>${sense.word}</strong>`,
+                  );
+               if (meanings.length) entry.meanings = meanings.join("\n");
                mic.entries?.push(entry);
             }
          }
       }
-   }
-   // Individual Dict
-   if (!mic.entries?.length && dict.individual?.trs?.length) {
-      for (const x of dict.individual.trs) {
-         if (x.tran && x.pos)
-            mic.entries?.push({ pos: x.pos, meanings: x.tran });
+      // webster-web
+      if (dict.webster_web) {
+         const ww = dict.webster_web;
+         if (ww.word === word && ww.entries?.length)
+            for (const { partsOfSpeech, prons } of ww.entries)
+               mic.entries?.push({ pos: partsOfSpeech, pronounces: prons });
       }
-   }
-   // Collins Primary Dict
-   if (!mic.entries?.length && dict.collins_primary) {
-      const cp = dict.collins_primary;
-      if (cp.words?.word === word && cp.gramcat?.length) {
-         for (const gram of dict.collins_primary.gramcat) {
-            const entry: IEntry = {
-               pos: gram.partofspeech,
-               pronounces: [
-                  { sound: gram.audiourl, phonetic: gram.pronunciation },
-               ],
-            };
-            const meanings: Array<string> = [];
-            for (const sense of gram.senses)
-               meanings.push(
-                  `${sense.definition} <strong>${sense.word}</strong>`,
-               );
-            if (meanings.length) entry.meanings = meanings.join("\n");
-            mic.entries?.push(entry);
-         }
-      }
-   }
-   // webster-web
-   if (!mic.entries?.length && dict.webster_web) {
-      const ww = dict.webster_web;
-      if (ww.word === word && ww.entries?.length)
-         for (const { partsOfSpeech, prons } of ww.entries)
-            mic.entries?.push({ pos: partsOfSpeech, pronounces: prons });
    }
    return dict;
 };
